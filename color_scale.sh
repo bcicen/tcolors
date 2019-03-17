@@ -6,11 +6,14 @@ STEPS=25
 function _round() { printf "%.0f " $@; }
 
 function _usage() {
-  echo "usage: $0 [OPTION]... [INPUT]..."
-  echo "generate a color scale from a given base color"
-  echo -e "\n  -n disable colorized output"
-  echo -e "  -s<n> set number of steps in scale to <n> (default $STEPS) "
-  echo
+  echo "usage: $0 [OPTION]... [COLOR1] [COLOR2]"
+  echo "generate a color gradient scale from given base color(s)"
+  echo -e "\noptions:"
+  echo "  -n    disable colorized output"
+  echo "  -s<n> set number of steps in scale to <n> (default $STEPS) "
+  echo -e "\nexamples:"
+  echo -e "  $0 4be397         generate gradient scale of darkest to lightest of 4be397"
+  echo -e "  $0 4be397 00add8  generate gradient scale from 4be397 to 00add8"
 }
 
 function _rgb2hex() { printf '%02x' $1 $2 $3; }
@@ -91,7 +94,7 @@ if [[ ${#args[@]} -eq 2 ]]; then
 fi
   
 RGB=($(_hex2rgb ${args[@]}))
-
+STEPS=$((STEPS/2))
 _scale ${RGB[@]} 0 0 0 | tac
 _output ${RGB[@]}
 _scale ${RGB[@]} 255 255 255
