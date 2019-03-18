@@ -3,9 +3,7 @@
 COLOR_OUTPUT=1
 STEPS=25
 
-function _round() { printf "%.0f " $@; }
-
-function _usage() {
+__cscale_usage() {
   echo "usage: $0 [OPTION]... [COLOR1] [COLOR2]"
   echo "generate a color gradient scale from given base color(s)"
   echo -e "\noptions:"
@@ -16,18 +14,17 @@ function _usage() {
   echo -e "  $0 4be397 00add8  generate gradient scale from 4be397 to 00add8"
 }
 
-function _rgb2hex() { printf '%02x' $1 $2 $3; }
-
-function _hex2rgb() {
+__cscale_hex2rgb() {
   in=${1#\#} # strip leading #, if any
   r=${in:0:2} g=${in:2:2} b=${in:4:2}
   echo "$((16#$r)) $((16#$g)) $((16#$b))"
 }
 
 # output an RGB color code
-function _output() {
+__cscale_output() {
   r=$1 g=$2 b=$3
-  txt="$(printf '%03d ' $r $g $b)\t$(_rgb2hex $1 $2 $3)"
+  txt="$(printf '%03d ' $r $g $b)\t$(printf '%02x' $1 $2 $3)"
+
   if (($COLOR_OUTPUT)); then
     echo -e "\033[38;2;${r};${g};${b}m${txt}\033[0m";
   else
@@ -35,7 +32,7 @@ function _output() {
   fi
 }
 
-function _scale() {
+__cscale_scale() {
   rgb=($1 $2 $3)
   to_rgb=($4 $5 $6)
 
@@ -49,14 +46,14 @@ function _scale() {
     fi
     rates+=($r)
   done
-  #echo "rates: ${rates[@]}"
 
   i=0
   while [[ $i -lt $STEPS ]]; do
     for idx in 0 1 2; do
       rgb[$idx]=$(echo "${rgb[$idx]} + ${rates[$idx]}" | bc)
     done
-    _output $(_round ${rgb[@]})
+    __cscale_output $(printf "%.0f " ${rgb[@]})
+
     let i++
   done
 }
@@ -74,7 +71,7 @@ for opt in ${opts[@]}; do
   case $opt in
     "-n") COLOR_OUTPUT=0 ;;
     -s*) STEPS=${opt#-s};;
-    "-h") _usage; exit 0 ;;
+    "-h") __cscale_usage; exit 0 ;;
     *) echo "unknown option \"$opt\""; exit 1 ;;
   esac
 done
@@ -85,16 +82,16 @@ done
 }
 
 if [[ ${#args[@]} -eq 2 ]]; then
-  RGB=($(_hex2rgb ${args[0]}))
-  TO_RGB=($(_hex2rgb ${args[1]}))
-  _output ${RGB[@]}
-  _scale ${RGB[@]} ${TO_RGB[@]}
-  _output ${TO_RGB[@]}
+  RGB=($(__cscale_hex2rgb ${args[0]}))
+  TO_RGB=($(__cscale_hex2rgb ${args[1]}))
+  __cscale_output ${RGB[@]}
+  __cscale_scale ${RGB[@]} ${TO_RGB[@]}
+  __cscale_output ${TO_RGB[@]}
   exit 0
 fi
   
-RGB=($(_hex2rgb ${args[@]}))
+RGB=($(__cscale_hex2rgb ${args[@]}))
 STEPS=$((STEPS/2))
-_scale ${RGB[@]} 0 0 0 | tac
-_output ${RGB[@]}
-_scale ${RGB[@]} 255 255 255
+__cscale_scale ${RGB[@]} 0 0 0 | tac
+__cscale_output ${RGB[@]}
+__cscale_scale ${RGB[@]} 255 255 255
