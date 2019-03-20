@@ -58,6 +58,9 @@ __cscale_scale() {
   done
 }
 
+# skip action if script is sourced
+(return 0 2>/dev/null) && return
+
 opts=() args=()
 
 for x in $@; do
