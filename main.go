@@ -56,8 +56,8 @@ func draw(s tcell.Screen) {
 		}
 	}
 
-	for col := range disp.mHues {
-		st = st.Background(disp.mHues[col])
+	for col, color := range disp.MiniHues() {
+		st = st.Background(color)
 		s.SetCell(col+padding, ly+lh+4, st, gl)
 	}
 
@@ -102,14 +102,6 @@ func main() {
 						if ok := disp.SaturationDown(); ok {
 							draw(s)
 						}
-					}
-				case tcell.KeyCtrlRightSq:
-					if ok := disp.HueUp(10); ok {
-						draw(s)
-					}
-				case tcell.KeyCtrlLeftSq:
-					if ok := disp.HueDown(10); ok {
-						draw(s)
 					}
 				case tcell.KeyRight:
 					if ok := disp.HueUp(10); ok {

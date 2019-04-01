@@ -18,7 +18,7 @@ const (
 type Display struct {
 	rgb        []int32
 	hues       []tcell.Color  // hue nav
-	mHues      []tcell.Color  // minimap hues
+	mHues      []int          // minimap hue indices
 	xHues      []*noire.Color // base hues
 	saturation uint8          // 0 to 200
 	brightness uint8          // 0 to 200
@@ -49,9 +49,40 @@ func (d *Display) Saturation() float64   { return (float64(d.saturation) / 100) 
 func (d *Display) Brightness() float64   { return (float64(d.brightness) / 100) - 1 }
 func (d *Display) Selected() tcell.Color { return d.hues[d.pos] }
 
+func (d *Display) MHues() []tcell.Color {
+	var n int
+	for n < len(d.mHues)-1 {
+		if d.mHues[n+1] >= d.pos {
+			break
+		}
+		n++
+	}
+
+	l := n - (d.center + 1)
+	r := n + (d.center + 1)
+	hlen := len(d.mHues)
+
+	var a []int
+	switch {
+	case l < 0:
+		a = append(d.mHues[hlen+l:], d.mHues[0:hlen+l]...)
+	case r > hlen:
+		a = append(d.mHues[l:], d.mHues[0:r-hlen]...)
+	default:
+		a = d.mHues[:]
+	}
+
+	var colors []tcell.Color
+	for _, idx := range a {
+		colors = append(colors, d.hues[idx])
+	}
+
+	return colors
+}
+
 func (d *Display) Hues() []tcell.Color {
-	l := d.pos - d.center
-	r := d.pos + d.center
+	l := d.pos - (d.center + 1)
+	r := d.pos + (d.center + 1)
 	hlen := len(d.hues)
 	if l < 0 {
 		return append(d.hues[hlen+l:], d.hues[0:r]...)
@@ -131,7 +162,7 @@ func (d *Display) build() {
 		tc = tcell.NewRGBColor(int32(r), int32(g), int32(b))
 		d.hues = append(d.hues, tc)
 		if idx == 0 || idx%miniStep == 0 {
-			d.mHues = append(d.mHues, tc)
+			d.mHues = append(d.mHues, idx)
 		}
 	}
 }
