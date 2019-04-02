@@ -78,7 +78,7 @@ func main() {
 
 	s.SetStyle(tcell.StyleDefault.
 		Foreground(tcell.ColorWhite).
-		Background(tcell.ColorDefault))
+		Background(tcell.ColorBlack))
 	s.Clear()
 	disp = NewDisplay(s)
 

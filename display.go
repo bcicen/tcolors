@@ -49,7 +49,7 @@ func (d *Display) Saturation() float64   { return (float64(d.saturation) / 100) 
 func (d *Display) Brightness() float64   { return (float64(d.brightness) / 100) - 1 }
 func (d *Display) Selected() tcell.Color { return d.hues[d.pos] }
 
-func (d *Display) MHues() []tcell.Color {
+func (d *Display) MiniHues() []tcell.Color {
 	var n int
 	for n < len(d.mHues)-1 {
 		if d.mHues[n+1] >= d.pos {
