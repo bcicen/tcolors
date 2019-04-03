@@ -15,51 +15,75 @@ var (
 )
 
 func draw(s tcell.Screen) {
+	navHeight := 1
 	w, h := s.Size()
 
 	if w == 0 || h == 0 {
 		return
 	}
 
-	lh := h / 2
+	if h > 50 {
+		navHeight = 2
+	}
+
+	lh := h / 4
 	lw := w / 2
 	lx := w / 4
-	ly := h / 4
+	ly := 1
 	st := tcell.StyleDefault
 	gl := ' '
+	indicatorSt := tcell.StyleDefault.
+		Foreground(tcell.NewRGBColor(120, 120, 120)).
+		Background(tcell.ColorBlack)
 
 	st = st.Background(disp.Selected())
 
 	for row := 0; row < lh; row++ {
 		for col := 0; col < lw; col++ {
-			s.SetCell(lx+col, ly+row, st, gl)
+			s.SetCell(lx+col, ly, st, gl)
 		}
+		ly++
 	}
 
-	s.SetCell(1, 1, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
-	s.SetCell(1, 2, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
 	r, g, b := disp.Selected().RGB()
-	s.SetCell(1, 3, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
-	s.SetCell(1, 4, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.pos))...)
-	s.SetCell(1, 5, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.center))...)
+	s.SetCell((w-11)/2, ly, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
+	ly += 2
+
+	s.SetCell(disp.center+padding, ly, indicatorSt, '﹀')
 
 	for col, color := range disp.Hues() {
 		st = st.Background(color)
-		s.SetCell(col+padding, ly+lh+1, st, gl)
-		s.SetCell(col+padding, ly+lh+2, st, gl)
-		if col == disp.center {
-			s.SetCell(col+padding, ly+lh, tcell.StyleDefault, '↓')
-			s.SetCell(col+padding, ly+lh+3, tcell.StyleDefault, '↑')
-		} else {
-			s.SetCell(col+padding, ly+lh, tcell.StyleDefault, ' ')
-			s.SetCell(col+padding, ly+lh+3, tcell.StyleDefault, ' ')
+		s.SetCell(col+padding, ly+1, st, gl)
+		if navHeight == 2 {
+			s.SetCell(col+padding, ly+2, st, gl)
 		}
 	}
 
+	ly += navHeight
+	//s.SetCell(disp.center+padding, ly, indicatorSt, '︿')
+
+	ly++
+
+	s.SetCell(disp.center+padding-3, ly, indicatorSt, '┌')
+	s.SetCell(disp.center+padding+4, ly, indicatorSt, '┐')
+
 	for col, color := range disp.MiniHues() {
 		st = st.Background(color)
-		s.SetCell(col+padding, ly+lh+4, st, gl)
+		s.SetCell(col+padding, ly+1, st, gl)
+		//if navHeight
+		//s.SetCell(col+padding, ly+2, st, gl)
+		//}
 	}
+	ly += 2
+	//ly += navHeight + 1
+
+	s.SetCell(disp.center+padding-3, ly, indicatorSt, '└')
+	s.SetCell(disp.center+padding+4, ly, indicatorSt, '┘')
+
+	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
+	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
+	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.pos))...)
+	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.center))...)
 
 	s.Show()
 }
