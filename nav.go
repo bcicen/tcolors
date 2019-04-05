@@ -38,8 +38,6 @@ func (nb *HueNavBar) Update(a []tcell.Color) {
 	}
 }
 
-func (nb *HueNavBar) Append(c tcell.Color) { nb.items = append(nb.items, c) }
-
 func (nb *HueNavBar) Items() []tcell.Color {
 	l := nb.pos - nb.center()
 	r := nb.pos + nb.center()
@@ -54,7 +52,13 @@ func (nb *HueNavBar) Items() []tcell.Color {
 }
 
 func (nb *HueNavBar) MiniMap() []tcell.Color {
-	mpos := nb.pos / nb.miniStep()
+	var mpos int
+	for mpos < len(nb.items)-1 {
+		if nb.mItems[mpos+1] >= nb.pos {
+			break
+		}
+		mpos++
+	}
 
 	l := mpos - nb.center()
 	r := mpos + nb.center()
@@ -63,17 +67,38 @@ func (nb *HueNavBar) MiniMap() []tcell.Color {
 	var a []int
 	switch {
 	case l < 0:
-		a = append(nb.mItems[ilen+l:], nb.mItems[0:ilen+l]...)
+		a = append(nb.mItems[ilen+l:], nb.mItems[0:r]...)
 	case r > ilen:
 		a = append(nb.mItems[l:], nb.mItems[0:r-ilen]...)
 	default:
-		a = nb.mItems[:]
+		a = nb.mItems[l:r]
 	}
 
 	var colors []tcell.Color
 	for _, idx := range a {
+		//if n > nb.width {
+		//break
+		//}
 		colors = append(colors, nb.items[idx])
 	}
 
 	return colors
+}
+
+func (nb *HueNavBar) Up(step int) {
+	nb.lock.Lock()
+	defer nb.lock.Unlock()
+	nb.pos += step
+	if nb.pos >= len(nb.items)-1 {
+		nb.pos -= len(nb.items) - 1
+	}
+}
+
+func (nb *HueNavBar) Down(step int) {
+	nb.lock.Lock()
+	defer nb.lock.Unlock()
+	nb.pos -= step
+	if nb.pos < 0 {
+		nb.pos += len(nb.items) - 1
+	}
 }

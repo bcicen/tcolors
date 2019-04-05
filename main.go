@@ -67,7 +67,8 @@ func draw(s tcell.Screen) {
 	s.SetCell(disp.center+padding-3, ly, indicatorSt, '┌')
 	s.SetCell(disp.center+padding+4, ly, indicatorSt, '┐')
 
-	for col, color := range disp.HueNav.MiniMap() {
+	mmap := disp.HueNav.MiniMap()
+	for col, color := range mmap {
 		st = st.Background(color)
 		s.SetCell(col+padding, ly+1, st, gl)
 		//if navHeight
@@ -82,8 +83,8 @@ func draw(s tcell.Screen) {
 
 	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
 	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
-	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.HueNav.pos))...)
-	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", disp.center))...)
+	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.pos, disp.HueNav.width))...)
+	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", len(mmap)))...)
 
 	s.Show()
 }

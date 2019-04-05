@@ -46,7 +46,7 @@ func (d *Display) Reset() {
 
 func (d *Display) Resize() {
 	w, _ := d.screen.Size()
-	w = w - (padding * 3)
+	w = w - ((padding * 2) + 1)
 	d.HueNav.SetWidth(w)
 	d.center = w / 2
 }
@@ -140,22 +140,12 @@ func (d *Display) SaturationDown() (ok bool) {
 }
 
 func (d *Display) HueUp(step int) (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	d.HueNav.pos += step
-	if d.HueNav.pos >= len(d.HueNav.items)-1 {
-		d.HueNav.pos -= len(d.HueNav.items) - 1
-	}
+	d.HueNav.Up(step)
 	return true
 }
 
 func (d *Display) HueDown(step int) (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	d.HueNav.pos -= step
-	if d.HueNav.pos < 0 {
-		d.HueNav.pos += len(d.HueNav.items) - 1
-	}
+	d.HueNav.Down(step)
 	return true
 }
 
