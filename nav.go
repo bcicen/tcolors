@@ -7,11 +7,12 @@ import (
 )
 
 type HueNavBar struct {
-	items []tcell.Color // navigation colors
-	pos   int
-	width int
-	loop  bool
-	lock  sync.RWMutex
+	items  []tcell.Color // navigation colors
+	mItems []int         // minimap sample indices
+	pos    int
+	width  int
+	loop   bool
+	lock   sync.RWMutex
 }
 
 func NewHueNavBar() *HueNavBar {
@@ -20,11 +21,24 @@ func NewHueNavBar() *HueNavBar {
 
 func (nb *HueNavBar) SetPos(n int)          { nb.pos = n }
 func (nb *HueNavBar) SetWidth(w int)        { nb.width = w }
-func (nb *HueNavBar) Clear()                { nb.items = nb.items[:0] }
-func (nb *HueNavBar) Append(c tcell.Color)  { nb.items = append(nb.items, c) }
 func (nb *HueNavBar) Selected() tcell.Color { return nb.items[nb.pos] }
 
-func (nb *HueNavBar) center() int { return (nb.width / 2) + 1 }
+func (nb *HueNavBar) miniStep() int { return len(nb.items) / nb.width }
+func (nb *HueNavBar) center() int   { return (nb.width / 2) + 1 }
+
+func (nb *HueNavBar) Update(a []tcell.Color) {
+	nb.lock.Lock()
+	defer nb.lock.Unlock()
+	nb.items = a
+
+	// build minimap indices
+	nb.mItems = nb.mItems[0:]
+	for n := 0; n < len(nb.items); n += nb.miniStep() {
+		nb.mItems = append(nb.mItems, n)
+	}
+}
+
+func (nb *HueNavBar) Append(c tcell.Color) { nb.items = append(nb.items, c) }
 
 func (nb *HueNavBar) Items() []tcell.Color {
 	l := nb.pos - nb.center()
@@ -39,38 +53,21 @@ func (nb *HueNavBar) Items() []tcell.Color {
 	return nb.items[l:r]
 }
 
-// return minimap sample indices
-func (nb *HueNavBar) mItems() (a []int, mpos int) {
-	mpos = -1
-	step := len(nb.items) / nb.width
-
-	for n := 0; n < len(nb.items); n += step {
-		a = append(a, n)
-		if mpos == -1 && n >= nb.pos {
-			mpos = n
-		}
-	}
-	if mpos == -1 {
-		mpos = len(a) - 1
-	}
-	return
-}
-
 func (nb *HueNavBar) MiniMap() []tcell.Color {
-	items, pos := nb.mItems()
+	mpos := nb.pos / nb.miniStep()
 
-	l := pos - nb.center()
-	r := pos + nb.center()
-	ilen := len(items)
+	l := mpos - nb.center()
+	r := mpos + nb.center()
+	ilen := len(nb.mItems)
 
 	var a []int
 	switch {
 	case l < 0:
-		a = append(items[ilen+l:], items[0:ilen+l]...)
+		a = append(nb.mItems[ilen+l:], nb.mItems[0:ilen+l]...)
 	case r > ilen:
-		a = append(items[l:], items[0:r-ilen]...)
+		a = append(nb.mItems[l:], nb.mItems[0:r-ilen]...)
 	default:
-		a = items[:]
+		a = nb.mItems[:]
 	}
 
 	var colors []tcell.Color

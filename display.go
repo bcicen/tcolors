@@ -105,16 +105,16 @@ func applyBrightness(level float64, c *noire.Color) *noire.Color {
 }
 
 func (d *Display) build() {
-	var tc tcell.Color
-	d.HueNav.Clear()
+	hues := make([]tcell.Color, 0, len(d.xHues))
 
 	for _, c := range d.xHues {
 		c = applySaturation(d.Saturation(), c)
 		c = applyBrightness(d.Brightness(), c)
 		r, g, b := c.RGB()
-		tc = tcell.NewRGBColor(int32(r), int32(g), int32(b))
-		d.HueNav.Append(tc)
+		hues = append(hues, tcell.NewRGBColor(int32(r), int32(g), int32(b)))
 	}
+
+	d.HueNav.Update(hues)
 }
 
 func (d *Display) SaturationUp() (ok bool) {
