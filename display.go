@@ -64,7 +64,7 @@ func (d *Display) mkhues() {
 	)
 	d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 
-	for b < 255 {
+	for b < 256 {
 		b += incr
 		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 	}
@@ -72,7 +72,7 @@ func (d *Display) mkhues() {
 		r -= incr
 		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 	}
-	for g < 255 {
+	for g < 256 {
 		g += incr
 		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 	}
@@ -80,7 +80,7 @@ func (d *Display) mkhues() {
 		b -= incr
 		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 	}
-	for r < 255 {
+	for r < 256 {
 		r += incr
 		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
 	}
