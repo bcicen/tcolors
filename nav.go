@@ -11,20 +11,66 @@ type HueNavBar struct {
 	mItems []int         // minimap sample indices
 	pos    int
 	width  int
-	loop   bool
 	lock   sync.RWMutex
 }
 
-func NewHueNavBar() *HueNavBar {
-	return &HueNavBar{}
+func NewHueNavBar(width int) *HueNavBar {
+	return &HueNavBar{width: width}
+}
+
+// Draw redraws bar at given coordinates and screen, returning the number
+// of rows occupied
+func (nb *HueNavBar) Draw(x, y int, s tcell.Screen) int {
+	var st tcell.Style
+	center := nb.width / 2
+
+	//s.SetCell(center+x, y, indicatorSt, '⬇')
+	s.SetCell(center+x-1, y, indicatorSt, '↿')
+	s.SetCell(center+x+1, y, indicatorSt, '↾')
+	//s.SetCell(center+x, y, indicatorSt, '﹀')
+
+	for col, color := range nb.Items() {
+		st = st.Background(color)
+		s.SetCell(col+x, y+1, st, ' ')
+		s.SetCell(col+x, y+2, st, ' ')
+	}
+
+	boxPad := nb.width / 30
+	if boxPad < 2 {
+		boxPad = 2
+	}
+
+	s.SetCell(center+x-boxPad, y+3, indicatorSt, '┌')
+	s.SetCell(center+x+boxPad, y+3, indicatorSt, '┐')
+
+	for col, color := range nb.MiniMap() {
+		st = st.Background(color)
+		s.SetCell(col+x, y+4, st, ' ')
+	}
+
+	s.SetCell(center+x-boxPad, y+5, indicatorSt, '└')
+	s.SetCell(center+x+boxPad, y+5, indicatorSt, '┘')
+
+	return 6
 }
 
 func (nb *HueNavBar) SetPos(n int)          { nb.pos = n }
-func (nb *HueNavBar) SetWidth(w int)        { nb.width = w }
 func (nb *HueNavBar) Selected() tcell.Color { return nb.items[nb.pos] }
 
-func (nb *HueNavBar) miniStep() int { return len(nb.items) / nb.width }
-func (nb *HueNavBar) center() int   { return (nb.width / 2) + 1 }
+func (nb *HueNavBar) center() int { return (nb.width / 2) + 1 }
+
+func (nb *HueNavBar) miniStep() int {
+	n := len(nb.items) / nb.width
+	if n > 13 {
+		n = 13
+	}
+	return n
+}
+
+func (nb *HueNavBar) Resize(w int) {
+	nb.width = w
+	nb.Update(nb.items)
+}
 
 func (nb *HueNavBar) Update(a []tcell.Color) {
 	nb.lock.Lock()
@@ -33,7 +79,8 @@ func (nb *HueNavBar) Update(a []tcell.Color) {
 
 	// build minimap indices
 	nb.mItems = nb.mItems[0:]
-	for n := 0; n < len(nb.items); n += nb.miniStep() {
+	miniStep := nb.miniStep()
+	for n := 0; n < len(nb.items); n += miniStep {
 		nb.mItems = append(nb.mItems, n)
 	}
 }
@@ -53,7 +100,7 @@ func (nb *HueNavBar) Items() []tcell.Color {
 
 func (nb *HueNavBar) MiniMap() []tcell.Color {
 	var mpos int
-	for mpos < len(nb.items)-1 {
+	for mpos < len(nb.mItems)-1 {
 		if nb.mItems[mpos+1] >= nb.pos {
 			break
 		}
@@ -76,9 +123,6 @@ func (nb *HueNavBar) MiniMap() []tcell.Color {
 
 	var colors []tcell.Color
 	for _, idx := range a {
-		//if n > nb.width {
-		//break
-		//}
 		colors = append(colors, nb.items[idx])
 	}
 

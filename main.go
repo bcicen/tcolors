@@ -9,21 +9,19 @@ import (
 )
 
 var (
-	boxW = 120
-	boxH = 80
-	disp *Display
+	boxW        = 120
+	boxH        = 80
+	disp        *Display
+	indicatorSt = tcell.StyleDefault.
+			Foreground(tcell.NewRGBColor(120, 120, 120)).
+			Background(tcell.ColorBlack)
 )
 
 func draw(s tcell.Screen) {
-	navHeight := 1
 	w, h := s.Size()
 
 	if w == 0 || h == 0 {
 		return
-	}
-
-	if h > 50 {
-		navHeight = 2
 	}
 
 	lh := h / 4
@@ -32,9 +30,6 @@ func draw(s tcell.Screen) {
 	ly := 1
 	st := tcell.StyleDefault
 	gl := ' '
-	indicatorSt := tcell.StyleDefault.
-		Foreground(tcell.NewRGBColor(120, 120, 120)).
-		Background(tcell.ColorBlack)
 
 	st = st.Background(disp.Selected())
 
@@ -49,42 +44,13 @@ func draw(s tcell.Screen) {
 	s.SetCell((w-11)/2, ly, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
 	ly += 2
 
-	s.SetCell(disp.center+padding, ly, indicatorSt, '﹀')
-
-	for col, color := range disp.HueNav.Items() {
-		st = st.Background(color)
-		s.SetCell(col+padding, ly+1, st, gl)
-		if navHeight == 2 {
-			s.SetCell(col+padding, ly+2, st, gl)
-		}
-	}
-
-	ly += navHeight
+	ly += disp.HueNav.Draw(padding, ly, s)
 	//s.SetCell(disp.center+padding, ly, indicatorSt, '︿')
-
-	ly++
-
-	s.SetCell(disp.center+padding-3, ly, indicatorSt, '┌')
-	s.SetCell(disp.center+padding+4, ly, indicatorSt, '┐')
-
-	mmap := disp.HueNav.MiniMap()
-	for col, color := range mmap {
-		st = st.Background(color)
-		s.SetCell(col+padding, ly+1, st, gl)
-		//if navHeight
-		//s.SetCell(col+padding, ly+2, st, gl)
-		//}
-	}
-	ly += 2
-	//ly += navHeight + 1
-
-	s.SetCell(disp.center+padding-3, ly, indicatorSt, '└')
-	s.SetCell(disp.center+padding+4, ly, indicatorSt, '┘')
 
 	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
 	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.pos, disp.HueNav.width))...)
-	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d", len(mmap)))...)
+	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.miniStep(), disp.HueNav.width/30))...)
 
 	s.Show()
 }

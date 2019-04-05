@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	padding        = 2
-	navIncr  uint8 = 5
-	navMax   uint8 = 200
-	navMin   uint8 = 0
-	maxWidth       = 1200
+	padding            = 2
+	navIncr      uint8 = 5
+	navMax       uint8 = 200
+	navMin       uint8 = 0
+	maxWidth           = 1200
+	defaultGlyph       = ' '
 )
 
 type Display struct {
@@ -29,7 +30,7 @@ type Display struct {
 func NewDisplay(s tcell.Screen) *Display {
 	d := &Display{
 		screen: s,
-		HueNav: NewHueNavBar(),
+		HueNav: NewHueNavBar(0),
 	}
 	d.mkhues()
 	d.Reset()
@@ -47,7 +48,7 @@ func (d *Display) Reset() {
 func (d *Display) Resize() {
 	w, _ := d.screen.Size()
 	w = w - ((padding * 2) + 1)
-	d.HueNav.SetWidth(w)
+	d.HueNav.Resize(w)
 	d.center = w / 2
 }
 
