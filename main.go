@@ -45,7 +45,6 @@ func draw(s tcell.Screen) {
 	ly += 2
 
 	ly += disp.HueNav.Draw(padding, ly, s)
-	//s.SetCell(disp.center+padding, ly, indicatorSt, '︿')
 
 	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
 	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
@@ -117,6 +116,9 @@ func main() {
 					s.Sync()
 				}
 			case *tcell.EventResize:
+				disp.Resize()
+				s.Clear()
+				draw(s)
 				s.Sync()
 			}
 		}

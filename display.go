@@ -46,10 +46,11 @@ func (d *Display) Reset() {
 }
 
 func (d *Display) Resize() {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	w, _ := d.screen.Size()
 	w = w - ((padding * 2) + 1)
 	d.HueNav.Resize(w)
-	d.center = w / 2
 }
 
 func (d *Display) Saturation() float64   { return (float64(d.saturation) / 100) - 1 }
