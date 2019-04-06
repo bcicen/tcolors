@@ -50,9 +50,7 @@ func draw(s tcell.Screen) {
 	s.SetCell((w-11)/2, ly, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
 	ly += 2
 
-	ly += disp.HueNav.Draw(padding, ly, s)
-	ly += disp.BrightNav.Draw(padding, ly, s)
-	ly += disp.SatNav.Draw(padding, ly, s)
+	ly += disp.Draw(padding, ly, s)
 
 	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Brightness()))...)
 	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Saturation()))...)
@@ -78,7 +76,8 @@ func main() {
 		Foreground(tcell.ColorWhite).
 		Background(tcell.ColorBlack))
 	s.Clear()
-	disp = NewDisplay(s)
+	w, _ := s.Size()
+	disp = NewDisplay(w)
 
 	quit := make(chan struct{})
 	go func() {
@@ -127,7 +126,8 @@ func main() {
 					s.Sync()
 				}
 			case *tcell.EventResize:
-				disp.Resize()
+				w, _ := s.Size()
+				disp.Resize(w)
 				s.Clear()
 				draw(s)
 				s.Sync()

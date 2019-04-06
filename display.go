@@ -16,6 +16,11 @@ const (
 	defaultGlyph       = ' '
 )
 
+type NavBar interface {
+	Up(int)
+	Down(int)
+}
+
 type Display struct {
 	rgb       []int32
 	HueNav    *HueBar
@@ -23,38 +28,46 @@ type Display struct {
 	BrightNav *BrightnessBar
 	xHues     []*noire.Color // base hues
 	bigStep   bool           // navigation step basis
-	screen    tcell.Screen
+	width     int
 	lock      sync.RWMutex
 }
 
-func NewDisplay(s tcell.Screen) *Display {
+func NewDisplay(width int) *Display {
 	d := &Display{
-		screen:    s,
 		HueNav:    NewHueBar(0),
 		SatNav:    NewSaturationBar(0),
 		BrightNav: NewBrightnessBar(0),
 	}
 	d.mkhues()
+	d.Resize(width)
 	d.Reset()
 	return d
 }
 
+// Draw redraws display at given coordinates, returning the number
+// of rows occupied
+func (d *Display) Draw(x, y int, s tcell.Screen) int {
+	y += disp.HueNav.Draw(padding, y, s)
+	y += disp.BrightNav.Draw(padding, y, s)
+	y += disp.SatNav.Draw(padding, y, s)
+	return y
+}
+
 func (d *Display) Reset() {
-	d.Resize()
 	d.HueNav.SetPos(0)
 	d.SatNav.SetPos(120)
 	d.BrightNav.SetPos(100)
 	d.build()
 }
 
-func (d *Display) Resize() {
+func (d *Display) Resize(w int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
-	w, _ := d.screen.Size()
-	w = w - ((padding * 2) + 1)
-	d.HueNav.Resize(w)
-	d.SatNav.Resize(w)
-	d.BrightNav.Resize(w)
+	d.width = w
+	barW := w - ((padding * 2) + 1)
+	d.HueNav.Resize(barW)
+	d.SatNav.Resize(barW)
+	d.BrightNav.Resize(barW)
 }
 
 func (d *Display) Saturation() float64   { return d.SatNav.Value() }
