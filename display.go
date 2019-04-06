@@ -16,9 +16,11 @@ const (
 	defaultGlyph       = ' '
 )
 
-type NavBar interface {
+type Section interface {
 	Up(int)
 	Down(int)
+	Draw(int, int, tcell.Screen) int
+	SetPointerStyle(tcell.Style)
 }
 
 type Display struct {
@@ -26,6 +28,8 @@ type Display struct {
 	HueNav    *HueBar
 	SatNav    *SaturationBar
 	BrightNav *BrightnessBar
+	sections  []Section
+	sectionN  int
 	xHues     []*noire.Color // base hues
 	bigStep   bool           // navigation step basis
 	width     int
@@ -38,6 +42,11 @@ func NewDisplay(width int) *Display {
 		SatNav:    NewSaturationBar(0),
 		BrightNav: NewBrightnessBar(0),
 	}
+	d.sections = []Section{
+		d.HueNav,
+		d.SatNav,
+		d.BrightNav,
+	}
 	d.mkhues()
 	d.Resize(width)
 	d.Reset()
@@ -47,9 +56,14 @@ func NewDisplay(width int) *Display {
 // Draw redraws display at given coordinates, returning the number
 // of rows occupied
 func (d *Display) Draw(x, y int, s tcell.Screen) int {
-	y += disp.HueNav.Draw(padding, y, s)
-	y += disp.BrightNav.Draw(padding, y, s)
-	y += disp.SatNav.Draw(padding, y, s)
+	for n, sec := range d.sections {
+		if n == d.sectionN {
+			sec.SetPointerStyle(hiIndicatorSt)
+		} else {
+			sec.SetPointerStyle(indicatorSt)
+		}
+		y += sec.Draw(padding, y, s)
+	}
 	return y
 }
 
@@ -142,6 +156,22 @@ func (d *Display) build() {
 
 	d.SatNav.Update(d.xHues[d.HueNav.pos])
 	d.BrightNav.Update(d.xHues[d.HueNav.pos])
+}
+
+func (d *Display) SectionUp() (ok bool) {
+	if d.sectionN == 0 {
+		return false
+	}
+	d.sectionN -= 1
+	return true
+}
+
+func (d *Display) SectionDown() (ok bool) {
+	if d.sectionN == len(d.sections)-1 {
+		return false
+	}
+	d.sectionN += 1
+	return true
 }
 
 func (d *Display) SaturationUp() (ok bool) {

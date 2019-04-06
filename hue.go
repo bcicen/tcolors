@@ -11,6 +11,7 @@ type HueBar struct {
 	mItems []int         // minimap sample indices
 	pos    int
 	width  int
+	pst    tcell.Style // pointer style
 	lock   sync.RWMutex
 }
 
@@ -28,7 +29,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	var st tcell.Style
 	center := bar.width / 2
 
-	s.SetCell(center+x, y, indicatorSt, '▼')
+	s.SetCell(center+x, y, bar.pst, '▼')
 
 	for col, color := range bar.Items() {
 		st = st.Background(color)
@@ -142,3 +143,5 @@ func (bar *HueBar) Down(step int) {
 		bar.pos += len(bar.items) - 1
 	}
 }
+
+func (bar *HueBar) SetPointerStyle(st tcell.Style) { bar.pst = st }

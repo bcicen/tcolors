@@ -15,6 +15,9 @@ var (
 	indicatorSt = tcell.StyleDefault.
 			Foreground(tcell.NewRGBColor(120, 120, 120)).
 			Background(tcell.ColorBlack)
+	hiIndicatorSt = tcell.StyleDefault.
+			Foreground(tcell.NewRGBColor(255, 255, 255)).
+			Background(tcell.ColorBlack)
 )
 
 func draw(s tcell.Screen) {
@@ -112,11 +115,11 @@ func main() {
 						draw(s)
 					}
 				case tcell.KeyUp:
-					if ok := disp.BrightnessUp(); ok {
+					if ok := disp.SectionUp(); ok {
 						draw(s)
 					}
 				case tcell.KeyDown:
-					if ok := disp.BrightnessDown(); ok {
+					if ok := disp.SectionDown(); ok {
 						draw(s)
 					}
 				case tcell.KeyEscape, tcell.KeyEnter:

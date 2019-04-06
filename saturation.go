@@ -13,6 +13,7 @@ type SaturationBar struct {
 	pos    int
 	offset int
 	width  int
+	pst    tcell.Style // pointer style
 	lock   sync.RWMutex
 }
 
@@ -38,9 +39,9 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 		s.SetCell(col+x, y+2, st, ' ')
 
 		if n == bar.pos {
-			s.SetCell(col+x, y, indicatorSt, '▼')
+			s.SetCell(col+x, y, bar.pst, '▼')
 		} else {
-			s.SetCell(col+x, y, indicatorSt, ' ')
+			s.SetCell(col+x, y, bar.pst, ' ')
 		}
 		col++
 		n++
@@ -103,3 +104,5 @@ func (bar *SaturationBar) Down(step int) {
 		bar.offset = bar.pos - scrollAhead
 	}
 }
+
+func (bar *SaturationBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
