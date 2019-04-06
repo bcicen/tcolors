@@ -18,7 +18,7 @@ const (
 
 type Display struct {
 	rgb        []int32
-	HueNav     *HueNavBar
+	HueNav     *HueBar
 	xHues      []*noire.Color // base hues
 	saturation uint8          // 0 to 200
 	brightness uint8          // 0 to 200
@@ -30,7 +30,7 @@ type Display struct {
 func NewDisplay(s tcell.Screen) *Display {
 	d := &Display{
 		screen: s,
-		HueNav: NewHueNavBar(0),
+		HueNav: NewHueBar(0),
 	}
 	d.mkhues()
 	d.Reset()
