@@ -26,34 +26,36 @@ func (bar *HueBar) center() int           { return (bar.width / 2) }
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
-	var st tcell.Style
 	center := bar.width / 2
-
-	s.SetCell(center+x, y, bar.pst, '▼')
-
-	for col, color := range bar.Items() {
-		st = st.Background(color)
-		s.SetCell(col+x, y+1, st, ' ')
-		s.SetCell(col+x, y+2, st, ' ')
-	}
-
 	boxPad := bar.width / 30
 	if boxPad < 2 {
 		boxPad = 2
 	}
+	st := tcell.StyleDefault.
+		Foreground(tcell.ColorBlack)
 
-	s.SetCell(center+x-boxPad, y+3, indicatorSt, '┌')
-	s.SetCell(center+x+boxPad, y+3, indicatorSt, '┐')
+	s.SetCell(center+x, y, bar.pst, '▼')
+
+	for col, color := range bar.Items() {
+		s.SetCell(col+x, y+1, st.Background(color), ' ')
+		s.SetCell(col+x, y+2, st.Background(color), '▁')
+		//if col == center-boxPad {
+		//s.SetCell(center+x-boxPad, y+1, bar.pst.Background(color), '┌')
+		//}
+		//if col == center+boxPad {
+		//s.SetCell(center+x+boxPad, y+1, bar.pst.Background(color), '┐')
+		//}
+	}
 
 	for col, color := range bar.MiniMap() {
 		st = st.Background(color)
-		s.SetCell(col+x, y+4, st, ' ')
+		s.SetCell(col+x, y+3, st, ' ')
 	}
 
-	s.SetCell(center+x-boxPad, y+5, indicatorSt, '└')
-	s.SetCell(center+x+boxPad, y+5, indicatorSt, '┘')
+	s.SetCell(center+x-boxPad, y+4, bar.pst, '└')
+	s.SetCell(center+x+boxPad, y+4, bar.pst, '┘')
 
-	return 6
+	return 5
 }
 
 func (bar *HueBar) miniStep() int {

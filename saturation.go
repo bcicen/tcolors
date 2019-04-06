@@ -41,7 +41,7 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 		if n == bar.pos {
 			s.SetCell(col+x, y, bar.pst, '▼')
 		} else {
-			s.SetCell(col+x, y, bar.pst, ' ')
+			s.SetCell(col+x, y, blkSt, '▼')
 		}
 		col++
 		n++

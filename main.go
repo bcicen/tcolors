@@ -9,11 +9,14 @@ import (
 )
 
 var (
-	boxW        = 120
-	boxH        = 80
-	disp        *Display
+	boxW  = 120
+	boxH  = 80
+	disp  *Display
+	blkSt = tcell.StyleDefault.
+		Background(tcell.ColorBlack).
+		Foreground(tcell.ColorBlack)
 	indicatorSt = tcell.StyleDefault.
-			Foreground(tcell.NewRGBColor(120, 120, 120)).
+			Foreground(tcell.NewRGBColor(110, 110, 110)).
 			Background(tcell.ColorBlack)
 	hiIndicatorSt = tcell.StyleDefault.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
@@ -98,20 +101,20 @@ func main() {
 						disp.Reset()
 						draw(s)
 					case 'l':
-						if ok := disp.SaturationUp(); ok {
+						if ok := disp.ValueDown(); ok {
 							draw(s)
 						}
 					case 'h':
-						if ok := disp.SaturationDown(); ok {
+						if ok := disp.ValueUp(); ok {
 							draw(s)
 						}
 					}
 				case tcell.KeyRight:
-					if ok := disp.HueUp(); ok {
+					if ok := disp.ValueUp(); ok {
 						draw(s)
 					}
 				case tcell.KeyLeft:
-					if ok := disp.HueDown(); ok {
+					if ok := disp.ValueDown(); ok {
 						draw(s)
 					}
 				case tcell.KeyUp:

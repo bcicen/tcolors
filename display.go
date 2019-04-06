@@ -174,36 +174,14 @@ func (d *Display) SectionDown() (ok bool) {
 	return true
 }
 
-func (d *Display) SaturationUp() (ok bool) {
-	d.SatNav.Up(d.stepSize())
+func (d *Display) ValueUp() (ok bool) {
+	d.sections[d.sectionN].Up(d.stepSize())
 	d.build()
 	return true
 }
 
-func (d *Display) SaturationDown() (ok bool) {
-	d.SatNav.Down(d.stepSize())
-	d.build()
-	return true
-}
-
-func (d *Display) HueUp() (ok bool) {
-	d.HueNav.Up(d.stepSize())
-	return true
-}
-
-func (d *Display) HueDown() (ok bool) {
-	d.HueNav.Down(d.stepSize())
-	return true
-}
-
-func (d *Display) BrightnessUp() (ok bool) {
-	d.BrightNav.Up(d.stepSize())
-	d.build()
-	return true
-}
-
-func (d *Display) BrightnessDown() (ok bool) {
-	d.BrightNav.Down(d.stepSize())
+func (d *Display) ValueDown() (ok bool) {
+	d.sections[d.sectionN].Down(d.stepSize())
 	d.build()
 	return true
 }
