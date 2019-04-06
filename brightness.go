@@ -48,12 +48,11 @@ func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
 		n++
 	}
 
-	return 3
+	return 4
 }
 
 func (bar *BrightnessBar) Value() float64 { return bar.scale[bar.pos] }
-
-func (bar *BrightnessBar) SetPos(n int) { bar.pos = n }
+func (bar *BrightnessBar) SetPos(n int)   { bar.pos = n }
 
 func (bar *BrightnessBar) Resize(w int) {
 	bar.width = w

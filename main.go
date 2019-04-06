@@ -31,6 +31,12 @@ func draw(s tcell.Screen) {
 	st := tcell.StyleDefault
 	gl := ' '
 
+	if disp.bigStep {
+		s.SetCell(1, 0, st, '⏩')
+	} else {
+		s.SetCell(1, 0, st, ' ')
+	}
+
 	st = st.Background(disp.Selected())
 
 	for row := 0; row < lh; row++ {
@@ -46,9 +52,10 @@ func draw(s tcell.Screen) {
 
 	ly += disp.HueNav.Draw(padding, ly, s)
 	ly += disp.BrightNav.Draw(padding, ly, s)
+	ly += disp.SatNav.Draw(padding, ly, s)
 
 	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Brightness()))...)
-	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
+	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Saturation()))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.pos, disp.HueNav.width))...)
 	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
@@ -82,6 +89,9 @@ func main() {
 				switch ev.Key() {
 				case tcell.KeyRune:
 					switch ev.Rune() {
+					case 's':
+						disp.ToggleStep()
+						draw(s)
 					case 'r':
 						disp.Reset()
 						draw(s)
@@ -95,19 +105,19 @@ func main() {
 						}
 					}
 				case tcell.KeyRight:
-					if ok := disp.HueUp(10); ok {
+					if ok := disp.HueUp(); ok {
 						draw(s)
 					}
 				case tcell.KeyLeft:
-					if ok := disp.HueDown(10); ok {
+					if ok := disp.HueDown(); ok {
 						draw(s)
 					}
 				case tcell.KeyUp:
-					if ok := disp.BrightnessUp(1); ok {
+					if ok := disp.BrightnessUp(); ok {
 						draw(s)
 					}
 				case tcell.KeyDown:
-					if ok := disp.BrightnessDown(1); ok {
+					if ok := disp.BrightnessDown(); ok {
 						draw(s)
 					}
 				case tcell.KeyEscape, tcell.KeyEnter:

@@ -17,20 +17,21 @@ const (
 )
 
 type Display struct {
-	rgb        []int32
-	HueNav     *HueBar
-	BrightNav  *BrightnessBar
-	xHues      []*noire.Color // base hues
-	saturation uint8          // 0 to 200
-	center     int
-	screen     tcell.Screen
-	lock       sync.RWMutex
+	rgb       []int32
+	HueNav    *HueBar
+	SatNav    *SaturationBar
+	BrightNav *BrightnessBar
+	xHues     []*noire.Color // base hues
+	bigStep   bool           // navigation step basis
+	screen    tcell.Screen
+	lock      sync.RWMutex
 }
 
 func NewDisplay(s tcell.Screen) *Display {
 	d := &Display{
 		screen:    s,
 		HueNav:    NewHueBar(0),
+		SatNav:    NewSaturationBar(0),
 		BrightNav: NewBrightnessBar(0),
 	}
 	d.mkhues()
@@ -39,9 +40,9 @@ func NewDisplay(s tcell.Screen) *Display {
 }
 
 func (d *Display) Reset() {
-	d.saturation = 100
 	d.Resize()
 	d.HueNav.SetPos(0)
+	d.SatNav.SetPos(120)
 	d.BrightNav.SetPos(100)
 	d.build()
 }
@@ -52,10 +53,11 @@ func (d *Display) Resize() {
 	w, _ := d.screen.Size()
 	w = w - ((padding * 2) + 1)
 	d.HueNav.Resize(w)
+	d.SatNav.Resize(w)
 	d.BrightNav.Resize(w)
 }
 
-func (d *Display) Saturation() float64   { return (float64(d.saturation) / 100) - 1 }
+func (d *Display) Saturation() float64   { return d.SatNav.Value() }
 func (d *Display) Brightness() float64   { return d.BrightNav.Value() }
 func (d *Display) Selected() tcell.Color { return d.HueNav.Selected() }
 
@@ -125,49 +127,51 @@ func (d *Display) build() {
 	}
 	d.HueNav.Update(buf[0:n])
 
+	d.SatNav.Update(d.xHues[d.HueNav.pos])
 	d.BrightNav.Update(d.xHues[d.HueNav.pos])
 }
 
 func (d *Display) SaturationUp() (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.saturation == navMax {
-		return false
-	}
-	d.saturation += navIncr
+	d.SatNav.Up(d.stepSize())
 	d.build()
 	return true
 }
 
 func (d *Display) SaturationDown() (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.saturation == navMin {
-		return false
+	d.SatNav.Down(d.stepSize())
+	d.build()
+	return true
+}
+
+func (d *Display) HueUp() (ok bool) {
+	d.HueNav.Up(d.stepSize())
+	return true
+}
+
+func (d *Display) HueDown() (ok bool) {
+	d.HueNav.Down(d.stepSize())
+	return true
+}
+
+func (d *Display) BrightnessUp() (ok bool) {
+	d.BrightNav.Up(d.stepSize())
+	d.build()
+	return true
+}
+
+func (d *Display) BrightnessDown() (ok bool) {
+	d.BrightNav.Down(d.stepSize())
+	d.build()
+	return true
+}
+
+func (d *Display) ToggleStep() {
+	d.bigStep = d.bigStep != true
+}
+
+func (d *Display) stepSize() int {
+	if d.bigStep {
+		return 10
 	}
-	d.saturation -= navIncr
-	d.build()
-	return true
-}
-
-func (d *Display) HueUp(step int) (ok bool) {
-	d.HueNav.Up(step)
-	return true
-}
-
-func (d *Display) HueDown(step int) (ok bool) {
-	d.HueNav.Down(step)
-	return true
-}
-
-func (d *Display) BrightnessUp(step int) (ok bool) {
-	d.BrightNav.Up(step)
-	d.build()
-	return true
-}
-
-func (d *Display) BrightnessDown(step int) (ok bool) {
-	d.BrightNav.Down(step)
-	d.build()
-	return true
+	return 2
 }
