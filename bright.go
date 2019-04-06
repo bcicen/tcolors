@@ -20,7 +20,7 @@ type BrightnessBar struct {
 
 func NewBrightnessBar(width int) *BrightnessBar {
 	bar := &BrightnessBar{width: width}
-	for i := -0.49; i < 1.01; i += 0.01 {
+	for i := -0.50; i < 1.01; i += 0.005 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
@@ -53,21 +53,12 @@ func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
 
 func (bar *BrightnessBar) Value() float64 { return bar.scale[bar.pos] }
 
-func (bar *BrightnessBar) SetPos(n int)          { bar.pos = n }
-func (bar *BrightnessBar) Selected() tcell.Color { return bar.items[bar.pos] }
-
-func (bar *BrightnessBar) center() int { return (bar.width / 2) + 1 }
-
-func (bar *BrightnessBar) miniStep() int {
-	n := len(bar.items) / bar.width
-	if n > 13 {
-		n = 13
-	}
-	return n
-}
+func (bar *BrightnessBar) SetPos(n int) { bar.pos = n }
 
 func (bar *BrightnessBar) Resize(w int) {
 	bar.width = w
+	bar.Up(1)
+	bar.Down(1)
 }
 
 func (bar *BrightnessBar) Update(base *noire.Color) {
@@ -93,7 +84,7 @@ func (bar *BrightnessBar) Up(step int) {
 		bar.pos += step
 	}
 
-	if (bar.pos-bar.offset) > bar.width-scrollAhead && bar.pos <= len(bar.items)-scrollAhead {
+	if (bar.pos-bar.offset) > bar.width-scrollAhead && bar.pos < len(bar.items)-scrollAhead {
 		bar.offset = (bar.pos - bar.width) + scrollAhead
 	}
 }
@@ -111,7 +102,7 @@ func (bar *BrightnessBar) Down(step int) {
 		bar.pos -= step
 	}
 
-	if bar.pos-bar.offset < scrollAhead && bar.pos >= scrollAhead {
+	if bar.pos-bar.offset < scrollAhead && bar.pos > scrollAhead {
 		bar.offset = bar.pos - scrollAhead
 	}
 }

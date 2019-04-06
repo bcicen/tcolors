@@ -20,7 +20,7 @@ func NewHueBar(width int) *HueBar {
 
 func (bar *HueBar) SetPos(n int)          { bar.pos = n }
 func (bar *HueBar) Selected() tcell.Color { return bar.items[bar.pos] }
-func (bar *HueBar) center() int           { return (bar.width / 2) + 1 }
+func (bar *HueBar) center() int           { return (bar.width / 2) }
 
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
@@ -28,11 +28,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	var st tcell.Style
 	center := bar.width / 2
 
-	//s.SetCell(center+x, y, indicatorSt, '⬇')
-	s.SetCell(center+x-1, y, indicatorSt, '⇃')
-	s.SetCell(center+x+1, y, indicatorSt, '⇂')
-	//s.SetCell(center+x-1, y, indicatorSt, '⸠')
-	//s.SetCell(center+x+1, y, indicatorSt, '⸡')
+	s.SetCell(center+x, y, indicatorSt, '▼')
 
 	for col, color := range bar.Items() {
 		st = st.Background(color)
@@ -87,7 +83,7 @@ func (bar *HueBar) Update(a []tcell.Color) {
 
 func (bar *HueBar) Items() []tcell.Color {
 	l := bar.pos - bar.center()
-	r := bar.pos + bar.center()
+	r := bar.pos + bar.center() + 1
 	ilen := len(bar.items)
 	if l < 0 {
 		return append(bar.items[ilen+l:], bar.items[0:r]...)
@@ -108,7 +104,7 @@ func (bar *HueBar) MiniMap() []tcell.Color {
 	}
 
 	l := mpos - bar.center()
-	r := mpos + bar.center()
+	r := mpos + bar.center() + 1
 	ilen := len(bar.mItems)
 
 	var a []int

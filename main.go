@@ -139,5 +139,5 @@ loop:
 	w, h := s.Size()
 	s.Fini()
 	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.BrightNav.scale))
-	fmt.Printf("%v\n", disp.BrightNav.scale)
+	//fmt.Printf("%v\n", disp.BrightNav.scale)
 }

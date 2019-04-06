@@ -42,7 +42,7 @@ func (d *Display) Reset() {
 	d.saturation = 100
 	d.Resize()
 	d.HueNav.SetPos(0)
-	d.BrightNav.SetPos(60)
+	d.BrightNav.SetPos(100)
 	d.build()
 }
 
