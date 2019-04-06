@@ -45,11 +45,12 @@ func draw(s tcell.Screen) {
 	ly += 2
 
 	ly += disp.HueNav.Draw(padding, ly, s)
+	ly += disp.BrightNav.Draw(padding, ly, s)
 
-	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.brightness, disp.Brightness()))...)
+	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Brightness()))...)
 	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %3.3f", disp.saturation, disp.Saturation()))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.pos, disp.HueNav.width))...)
-	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.miniStep(), disp.HueNav.width/30))...)
+	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
 	s.Show()
 }
@@ -102,11 +103,11 @@ func main() {
 						draw(s)
 					}
 				case tcell.KeyUp:
-					if ok := disp.BrightnessUp(); ok {
+					if ok := disp.BrightnessUp(1); ok {
 						draw(s)
 					}
 				case tcell.KeyDown:
-					if ok := disp.BrightnessDown(); ok {
+					if ok := disp.BrightnessDown(1); ok {
 						draw(s)
 					}
 				case tcell.KeyEscape, tcell.KeyEnter:
@@ -137,5 +138,6 @@ loop:
 
 	w, h := s.Size()
 	s.Fini()
-	fmt.Printf("w=%d h=%d hues=%d\n", w, h, len(disp.HueNav.items))
+	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.BrightNav.scale))
+	fmt.Printf("%v\n", disp.BrightNav.scale)
 }

@@ -29,9 +29,10 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	center := bar.width / 2
 
 	//s.SetCell(center+x, y, indicatorSt, '⬇')
-	s.SetCell(center+x-1, y, indicatorSt, '↿')
-	s.SetCell(center+x+1, y, indicatorSt, '↾')
-	//s.SetCell(center+x, y, indicatorSt, '﹀')
+	s.SetCell(center+x-1, y, indicatorSt, '⇃')
+	s.SetCell(center+x+1, y, indicatorSt, '⇂')
+	//s.SetCell(center+x-1, y, indicatorSt, '⸠')
+	//s.SetCell(center+x+1, y, indicatorSt, '⸡')
 
 	for col, color := range bar.Items() {
 		st = st.Background(color)
@@ -74,7 +75,7 @@ func (bar *HueBar) Resize(w int) {
 func (bar *HueBar) Update(a []tcell.Color) {
 	bar.lock.Lock()
 	defer bar.lock.Unlock()
-	bar.items = a
+	bar.items = append(bar.items[:0], a...)
 
 	// build minimap indices
 	bar.mItems = bar.mItems[0:]

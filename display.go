@@ -19,9 +19,9 @@ const (
 type Display struct {
 	rgb        []int32
 	HueNav     *HueBar
+	BrightNav  *BrightnessBar
 	xHues      []*noire.Color // base hues
 	saturation uint8          // 0 to 200
-	brightness uint8          // 0 to 200
 	center     int
 	screen     tcell.Screen
 	lock       sync.RWMutex
@@ -29,8 +29,9 @@ type Display struct {
 
 func NewDisplay(s tcell.Screen) *Display {
 	d := &Display{
-		screen: s,
-		HueNav: NewHueBar(0),
+		screen:    s,
+		HueNav:    NewHueBar(0),
+		BrightNav: NewBrightnessBar(0),
 	}
 	d.mkhues()
 	d.Reset()
@@ -39,9 +40,9 @@ func NewDisplay(s tcell.Screen) *Display {
 
 func (d *Display) Reset() {
 	d.saturation = 100
-	d.brightness = 100
 	d.Resize()
 	d.HueNav.SetPos(0)
+	d.BrightNav.SetPos(60)
 	d.build()
 }
 
@@ -51,10 +52,11 @@ func (d *Display) Resize() {
 	w, _ := d.screen.Size()
 	w = w - ((padding * 2) + 1)
 	d.HueNav.Resize(w)
+	d.BrightNav.Resize(w)
 }
 
 func (d *Display) Saturation() float64   { return (float64(d.saturation) / 100) - 1 }
-func (d *Display) Brightness() float64   { return (float64(d.brightness) / 100) - 1 }
+func (d *Display) Brightness() float64   { return d.BrightNav.Value() }
 func (d *Display) Selected() tcell.Color { return d.HueNav.Selected() }
 
 func (d *Display) mkhues() {
@@ -106,17 +108,24 @@ func applyBrightness(level float64, c *noire.Color) *noire.Color {
 	return c.Brighten(level)
 }
 
+func toTColor(c *noire.Color) tcell.Color {
+	r, g, b := c.RGB()
+	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
+}
+
 func (d *Display) build() {
-	hues := make([]tcell.Color, 0, len(d.xHues))
+	var n int
+	var c *noire.Color
+	buf := make([]tcell.Color, len(d.xHues))
 
-	for _, c := range d.xHues {
-		c = applySaturation(d.Saturation(), c)
+	for n = range d.xHues {
+		c = applySaturation(d.Saturation(), d.xHues[n])
 		c = applyBrightness(d.Brightness(), c)
-		r, g, b := c.RGB()
-		hues = append(hues, tcell.NewRGBColor(int32(r), int32(g), int32(b)))
+		buf[n] = toTColor(c)
 	}
+	d.HueNav.Update(buf[0:n])
 
-	d.HueNav.Update(hues)
+	d.BrightNav.Update(d.xHues[d.HueNav.pos])
 }
 
 func (d *Display) SaturationUp() (ok bool) {
@@ -151,24 +160,14 @@ func (d *Display) HueDown(step int) (ok bool) {
 	return true
 }
 
-func (d *Display) BrightnessUp() (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.brightness == navMax {
-		return false
-	}
-	d.brightness += navIncr
+func (d *Display) BrightnessUp(step int) (ok bool) {
+	d.BrightNav.Up(step)
 	d.build()
 	return true
 }
 
-func (d *Display) BrightnessDown() (ok bool) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.brightness == navMin {
-		return false
-	}
-	d.brightness -= navIncr
+func (d *Display) BrightnessDown(step int) (ok bool) {
+	d.BrightNav.Down(step)
 	d.build()
 	return true
 }
