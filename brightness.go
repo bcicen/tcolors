@@ -37,17 +37,16 @@ func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
 	col := 0
 	for col <= bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
+		s.SetCell(col+x, y, blkSt, '█')
 		s.SetCell(col+x, y+1, st, ' ')
 		s.SetCell(col+x, y+2, st, ' ')
 
-		if n == bar.pos {
-			s.SetCell(col+x, y, bar.pst, '▼')
-		} else {
-			s.SetCell(col+x, y, blkSt, '▼')
-		}
 		col++
 		n++
 	}
+
+	ix := (bar.pos - bar.offset) + x
+	s.SetCell(ix, y, bar.pst, '▾')
 
 	return 4
 }

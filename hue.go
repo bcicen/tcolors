@@ -34,7 +34,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	st := tcell.StyleDefault.
 		Foreground(tcell.ColorBlack)
 
-	s.SetCell(center+x, y, bar.pst, '▼')
+	s.SetCell(center+x, y, bar.pst, '▾')
 
 	for col, color := range bar.Items() {
 		s.SetCell(col+x, y+1, st.Background(color), ' ')
