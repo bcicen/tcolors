@@ -74,6 +74,7 @@ func (bar *BrightnessBar) Up(step int) {
 	defer bar.lock.Unlock()
 
 	max := len(bar.items) - 1
+	maxOffset := max - bar.width
 	switch {
 	case bar.pos == max:
 		return
@@ -83,8 +84,11 @@ func (bar *BrightnessBar) Up(step int) {
 		bar.pos += step
 	}
 
-	if (bar.pos-bar.offset) > bar.width-scrollAhead && bar.pos < len(bar.items)-scrollAhead {
+	if (bar.pos - bar.offset) > bar.width-scrollAhead {
 		bar.offset = (bar.pos - bar.width) + scrollAhead
+		if bar.offset >= maxOffset {
+			bar.offset = maxOffset
+		}
 	}
 }
 
@@ -101,8 +105,11 @@ func (bar *BrightnessBar) Down(step int) {
 		bar.pos -= step
 	}
 
-	if bar.pos-bar.offset < scrollAhead && bar.pos > scrollAhead {
+	if bar.pos-bar.offset < scrollAhead {
 		bar.offset = bar.pos - scrollAhead
+		if bar.offset < 0 {
+			bar.offset = 0
+		}
 	}
 }
 

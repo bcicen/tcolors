@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/gdamore/tcell"
@@ -19,7 +20,7 @@ type SaturationBar struct {
 
 func NewSaturationBar(width int) *SaturationBar {
 	bar := &SaturationBar{width: width}
-	for i := -1.0; i < 1.01; i += 0.005 {
+	for i := -1.0; i < 1.005; i += 0.005 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
@@ -45,6 +46,8 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
+
+	s.SetCell(bar.width/2, y+3, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", bar.Value()))...)
 
 	return 4
 }
@@ -72,6 +75,7 @@ func (bar *SaturationBar) Up(step int) {
 	defer bar.lock.Unlock()
 
 	max := len(bar.items) - 1
+	maxOffset := max - bar.width
 	switch {
 	case bar.pos == max:
 		return
@@ -81,8 +85,11 @@ func (bar *SaturationBar) Up(step int) {
 		bar.pos += step
 	}
 
-	if (bar.pos-bar.offset) > bar.width-scrollAhead && bar.pos < len(bar.items)-scrollAhead {
+	if (bar.pos - bar.offset) > bar.width-scrollAhead {
 		bar.offset = (bar.pos - bar.width) + scrollAhead
+		if bar.offset >= maxOffset {
+			bar.offset = maxOffset
+		}
 	}
 }
 
@@ -99,8 +106,11 @@ func (bar *SaturationBar) Down(step int) {
 		bar.pos -= step
 	}
 
-	if bar.pos-bar.offset < scrollAhead && bar.pos > scrollAhead {
+	if bar.pos-bar.offset < scrollAhead {
 		bar.offset = bar.pos - scrollAhead
+		if bar.offset < 0 {
+			bar.offset = 0
+		}
 	}
 }
 

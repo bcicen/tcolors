@@ -58,8 +58,6 @@ func draw(s tcell.Screen) {
 
 	ly += disp.Draw(padding, ly, s)
 
-	s.SetCell(1, h-6, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Brightness()))...)
-	s.SetCell(1, h-5, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", disp.Saturation()))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d]", disp.HueNav.pos, disp.HueNav.width))...)
 	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
