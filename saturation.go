@@ -47,7 +47,7 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
 
-	s.SetCell(bar.width/2, y+3, tcell.StyleDefault, []rune(fmt.Sprintf("%3.3f", bar.Value()))...)
+	s.SetCell(bar.width/2, y+3, bar.pst, []rune(fmt.Sprintf("%+3.2f", bar.Value()))...)
 
 	return 4
 }

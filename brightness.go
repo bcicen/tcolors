@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/gdamore/tcell"
@@ -21,7 +22,7 @@ type BrightnessBar struct {
 
 func NewBrightnessBar(width int) *BrightnessBar {
 	bar := &BrightnessBar{width: width}
-	for i := -0.50; i < 1.01; i += 0.005 {
+	for i := -0.50; i < 1.005; i += 0.005 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
@@ -47,6 +48,8 @@ func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
+
+	s.SetCell(bar.width/2, y+3, bar.pst, []rune(fmt.Sprintf("%+3.2f", bar.Value()))...)
 
 	return 4
 }
