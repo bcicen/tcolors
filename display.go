@@ -8,12 +8,10 @@ import (
 )
 
 const (
-	padding            = 2
-	navIncr      uint8 = 5
-	navMax       uint8 = 200
-	navMin       uint8 = 0
-	maxWidth           = 1200
-	defaultGlyph       = ' '
+	padding      = 2
+	step         = 0.005 // default step for bar scale
+	maxWidth     = 1200
+	defaultGlyph = ' '
 )
 
 type Section interface {
@@ -124,17 +122,23 @@ func (d *Display) mkhues() {
 }
 
 func applySaturation(level float64, c *noire.Color) *noire.Color {
-	if level < 0 {
+	switch {
+	case level > step:
+		return c.Saturate(level)
+	case level < -step:
 		return c.Desaturate(level * -1)
 	}
-	return c.Saturate(level)
+	return c
 }
 
 func applyBrightness(level float64, c *noire.Color) *noire.Color {
-	if level < 0 {
+	switch {
+	case level > step:
+		return c.Brighten(level)
+	case level < -step:
 		return c.Darken(level * -1)
 	}
-	return c.Brighten(level)
+	return c
 }
 
 func toTColor(c *noire.Color) tcell.Color {

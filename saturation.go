@@ -20,7 +20,7 @@ type SaturationBar struct {
 
 func NewSaturationBar(width int) *SaturationBar {
 	bar := &SaturationBar{width: width}
-	for i := -1.0; i < 1.005; i += 0.005 {
+	for i := -1.0; i < 0.005; i += 0.005 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
