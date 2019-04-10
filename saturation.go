@@ -53,7 +53,22 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (bar *SaturationBar) Value() float64 { return bar.scale[bar.pos] }
-func (bar *SaturationBar) SetPos(n int)   { bar.pos = n }
+func (bar *SaturationBar) SetValue(n float64) {
+	var idx int
+	for idx < len(bar.scale)-1 {
+		if bar.scale[idx+1] > n {
+			break
+		}
+		idx++
+	}
+
+	switch {
+	case idx > bar.pos:
+		bar.Up(idx - bar.pos)
+	case idx < bar.pos:
+		bar.Down(bar.pos - idx)
+	}
+}
 
 func (bar *SaturationBar) Resize(w int) {
 	bar.width = w

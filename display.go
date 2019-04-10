@@ -69,8 +69,8 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 
 func (d *Display) Reset() {
 	d.HueNav.SetPos(0)
-	d.SatNav.SetPos(120)
-	d.BrightNav.SetPos(100)
+	d.SatNav.SetValue(1)
+	d.BrightNav.SetValue(0)
 	d.build()
 }
 
