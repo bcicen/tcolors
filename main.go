@@ -106,6 +106,9 @@ func main() {
 						if ok := disp.ValueUp(); ok {
 							draw(s)
 						}
+					case 'q':
+						close(quit)
+						return
 					}
 				case tcell.KeyRight:
 					if ok := disp.ValueUp(); ok {
@@ -123,7 +126,7 @@ func main() {
 					if ok := disp.SectionDown(); ok {
 						draw(s)
 					}
-				case tcell.KeyEscape, tcell.KeyEnter:
+				case tcell.KeyEscape, tcell.KeyCtrlC:
 					close(quit)
 					return
 				case tcell.KeyCtrlL:

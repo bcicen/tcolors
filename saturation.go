@@ -92,6 +92,7 @@ func (bar *SaturationBar) Up(step int) {
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
+	case step < 0:
 	case bar.pos == max:
 		return
 	case bar.pos+step > max:
@@ -113,6 +114,7 @@ func (bar *SaturationBar) Down(step int) {
 	defer bar.lock.Unlock()
 
 	switch {
+	case step < 0:
 	case bar.pos == 0:
 		return
 	case bar.pos-step < 0:
