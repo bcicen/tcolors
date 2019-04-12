@@ -159,5 +159,5 @@ loop:
 	//for n, x := range disp.BrightNav.scale {
 	//fmt.Printf("[%d] %+0.3f\n", n, x)
 	//}
-	//fmt.Printf("%v\n", disp.BrightNav.scale)
+	fmt.Printf("%v\n", len(disp.SatNav.scale))
 }

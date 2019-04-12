@@ -74,8 +74,8 @@ func (bar *BrightnessBar) SetValue(n float64) {
 
 func (bar *BrightnessBar) Resize(w int) {
 	bar.width = w
-	bar.Up(1)
-	bar.Down(1)
+	bar.Up(0)
+	bar.Down(0)
 }
 
 func (bar *BrightnessBar) Update(base *noire.Color) {
@@ -94,6 +94,7 @@ func (bar *BrightnessBar) Up(step int) {
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
+	case step <= 0:
 	case bar.pos == max:
 		return
 	case bar.pos+step > max:
@@ -104,9 +105,9 @@ func (bar *BrightnessBar) Up(step int) {
 
 	if (bar.pos - bar.offset) > bar.width-scrollAhead {
 		bar.offset = (bar.pos - bar.width) + scrollAhead
-		if bar.offset >= maxOffset {
-			bar.offset = maxOffset
-		}
+	}
+	if bar.offset >= maxOffset {
+		bar.offset = maxOffset
 	}
 }
 
@@ -115,6 +116,7 @@ func (bar *BrightnessBar) Down(step int) {
 	defer bar.lock.Unlock()
 
 	switch {
+	case step <= 0:
 	case bar.pos == 0:
 		return
 	case bar.pos-step < 0:
@@ -125,9 +127,9 @@ func (bar *BrightnessBar) Down(step int) {
 
 	if bar.pos-bar.offset < scrollAhead {
 		bar.offset = bar.pos - scrollAhead
-		if bar.offset < 0 {
-			bar.offset = 0
-		}
+	}
+	if bar.offset < 0 {
+		bar.offset = 0
 	}
 }
 
