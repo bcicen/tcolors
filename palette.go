@@ -7,10 +7,11 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+var padPalette = false
 var DefaultPaletteColor = tcell.NewRGBColor(76, 76, 76)
 
 type PaletteBox struct {
-	items    [9]tcell.Color // navigation colors
+	items    [8]tcell.Color // navigation colors
 	pos      int
 	width    int
 	boxWidth int
@@ -61,22 +62,35 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	y++
 
 	lx = x
-	h := pb.boxWidth / 2
+	h := pb.boxWidth / 3
+	cst := tcell.StyleDefault
 	for n, color := range pb.items {
-		if n == pb.pos {
+		cst = cst.Background(tcell.ColorBlack).Foreground(color)
+
+		switch {
+		case padPalette && n == pb.pos:
+			st = hiIndicatorSt
+		case n == pb.pos:
 			st = hiIndicatorSt.Background(color)
-		} else {
+		case padPalette:
+			st = indicatorSt
+		default:
 			st = indicatorSt.Background(color)
 		}
-		for row := 0; row < pb.boxWidth; row++ {
-			for col := 0; col < h; col++ {
+
+		for col := 0; col < pb.boxWidth; col++ {
+			for row := 0; row < h; row++ {
 				switch {
-				case row == 0:
-					s.SetCell(lx, y+col, st, '▎')
-				case row == pb.boxWidth-1:
-					s.SetCell(lx, y+col, st, '▕')
+				case col == 0:
+					s.SetCell(lx, y+row, st, '▎')
+				case col == pb.boxWidth-1:
+					s.SetCell(lx, y+row, st, '▕')
+				case padPalette && row == 0:
+					s.SetCell(lx, y+row, cst, '▄')
+				case padPalette && row == h-1:
+					s.SetCell(lx, y+row, cst, '▀')
 				default:
-					s.SetCell(lx, y+col, st, ' ')
+					s.SetCell(lx, y+row, cst, '█')
 				}
 			}
 			lx++
@@ -102,7 +116,6 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (pb *PaletteBox) Resize(w int) {
-	pb.width = w / 2
 	pb.boxWidth = (w / 2) / len(pb.items)
 	pb.width = pb.boxWidth * len(pb.items)
 }
