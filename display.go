@@ -18,29 +18,33 @@ type Section interface {
 	Up(int)
 	Down(int)
 	Draw(int, int, tcell.Screen) int
+	Resize(int)
 	SetPointerStyle(tcell.Style)
 }
 
 type Display struct {
-	rgb       []int32
-	HueNav    *HueBar
-	SatNav    *SaturationBar
-	BrightNav *BrightnessBar
-	sections  []Section
-	sectionN  int
-	xHues     []*noire.Color // base hues
-	bigStep   bool           // navigation step basis
-	width     int
-	lock      sync.RWMutex
+	rgb        []int32
+	HueNav     *HueBar
+	SatNav     *SaturationBar
+	BrightNav  *BrightnessBar
+	PaletteNav *PaletteBox
+	sections   []Section
+	sectionN   int
+	xHues      []*noire.Color // base hues
+	bigStep    bool           // navigation step basis
+	width      int
+	lock       sync.RWMutex
 }
 
 func NewDisplay(width int) *Display {
 	d := &Display{
-		HueNav:    NewHueBar(0),
-		SatNav:    NewSaturationBar(0),
-		BrightNav: NewBrightnessBar(0),
+		HueNav:     NewHueBar(0),
+		SatNav:     NewSaturationBar(0),
+		BrightNav:  NewBrightnessBar(0),
+		PaletteNav: NewPaletteBox(0),
 	}
 	d.sections = []Section{
+		d.PaletteNav,
 		d.HueNav,
 		d.SatNav,
 		d.BrightNav,
@@ -79,9 +83,9 @@ func (d *Display) Resize(w int) {
 	if d.width > maxWidth {
 		d.width = maxWidth
 	}
-	d.HueNav.Resize(d.width)
-	d.SatNav.Resize(d.width)
-	d.BrightNav.Resize(d.width)
+	for _, sec := range d.sections {
+		sec.Resize(d.width)
+	}
 }
 
 func (d *Display) Saturation() float64   { return d.SatNav.Value() }
@@ -162,6 +166,7 @@ func (d *Display) build() {
 
 	d.SatNav.Update(d.xHues[d.HueNav.pos])
 	d.BrightNav.Update(d.xHues[d.HueNav.pos])
+	d.PaletteNav.Update(d.HueNav.Selected())
 }
 
 func (d *Display) SectionUp() (ok bool) {

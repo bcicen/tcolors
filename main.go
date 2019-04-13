@@ -30,31 +30,14 @@ func draw(s tcell.Screen) {
 		return
 	}
 
-	lh := h / 4
-	lw := w / 2
-	lx := w / 4
 	ly := 1
 	st := tcell.StyleDefault
-	gl := ' '
 
 	if disp.bigStep {
 		s.SetCell(1, 0, st, '⏩')
 	} else {
 		s.SetCell(1, 0, st, ' ')
 	}
-
-	st = st.Background(disp.Selected())
-
-	for row := 0; row < lh; row++ {
-		for col := 0; col < lw; col++ {
-			s.SetCell(lx+col, ly, st, gl)
-		}
-		ly++
-	}
-
-	r, g, b := disp.Selected().RGB()
-	s.SetCell((w-11)/2, ly, tcell.StyleDefault, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
-	ly += 2
 
 	x := padding
 	if disp.width == maxWidth {
