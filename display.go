@@ -10,7 +10,7 @@ import (
 const (
 	padding      = 2
 	step         = 0.005 // default step for bar scale
-	maxWidth     = 1200
+	maxWidth     = 200
 	defaultGlyph = ' '
 )
 
@@ -60,7 +60,7 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 		} else {
 			sec.SetPointerStyle(indicatorSt)
 		}
-		y += sec.Draw(padding, y, s)
+		y += sec.Draw(x, y, s)
 	}
 	return y
 }
@@ -75,11 +75,13 @@ func (d *Display) Reset() {
 func (d *Display) Resize(w int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
-	d.width = w
-	barW := w - ((padding * 2) + 1)
-	d.HueNav.Resize(barW)
-	d.SatNav.Resize(barW)
-	d.BrightNav.Resize(barW)
+	d.width = w - ((padding * 2) + 1)
+	if d.width > maxWidth {
+		d.width = maxWidth
+	}
+	d.HueNav.Resize(d.width)
+	d.SatNav.Resize(d.width)
+	d.BrightNav.Resize(d.width)
 }
 
 func (d *Display) Saturation() float64   { return d.SatNav.Value() }
