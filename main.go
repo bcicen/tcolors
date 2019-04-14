@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell"
+	"github.com/teacat/noire"
 )
 
 var (
@@ -45,6 +46,7 @@ func draw(s tcell.Screen) {
 	}
 	ly += disp.Draw(x, ly, s)
 
+	s.SetCell(1, h-4, tcell.StyleDefault, []rune(fmt.Sprintf("%08b", disp.state.pending))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d] [x=%04d]", disp.HueNav.pos, disp.HueNav.width, x))...)
 	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
@@ -71,6 +73,11 @@ func main() {
 	disp = NewDisplay(w)
 
 	quit := make(chan struct{})
+	//go func() {
+	//time.Sleep(1 * time.Second)
+	//disp.SetColor(tcell.NewRGBColor(207, 064, 138))
+	//draw(s)
+	//}()
 	go func() {
 		for {
 			ev := s.PollEvent()
@@ -141,10 +148,36 @@ loop:
 	}
 
 	w, h := s.Size()
+
+	s.Clear()
+	//lx := 1
+	//ly := 1
+	//for i := 0.0; i < 360.5; i += 0.5 {
+	//c := noire.NewHSL(i, 100, 50)
+	//st := tcell.StyleDefault.Background(toTColor(c))
+	//s.SetCell(lx, ly, st, []rune(fmt.Sprintf("%0.2f ", i))...)
+	//lx += 2
+	//if lx >= w {
+	//ly++
+	//lx = 0
+	//}
+	//}
+	//s.Show()
+	//s.Sync()
+	//time.Sleep(5 * time.Second)
+
 	s.Fini()
 	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.BrightNav.scale))
-	//for n, x := range disp.BrightNav.scale {
-	//fmt.Printf("[%d] %+0.3f\n", n, x)
-	//}
+	for n, x := range disp.xHues {
+		h, s, l := x.HSL()
+		r, g, b := x.RGB()
+		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", n, h, s, l, r, g, b)
+	}
+	for i := 0; i < 1; i++ {
+		x := noire.NewRGB(207, 64, 138)
+		h, s, l := x.HSL()
+		r, g, b := x.RGB()
+		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", 0, h, s, l, r, g, b)
+	}
 	fmt.Printf("%v\n", len(disp.SatNav.scale))
 }

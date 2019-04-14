@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
@@ -17,12 +16,12 @@ type BrightnessBar struct {
 	offset int
 	width  int
 	pst    tcell.Style // pointer style
-	lock   sync.RWMutex
+	state  *State
 }
 
-func NewBrightnessBar(width int) *BrightnessBar {
-	bar := &BrightnessBar{width: width}
-	for i := -0.50; i < 1.005; i += 0.005 {
+func NewBrightnessBar(s *State) *BrightnessBar {
+	bar := &BrightnessBar{state: s}
+	for i := 0.0; i < 100.1; i += 0.5 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
@@ -78,19 +77,26 @@ func (bar *BrightnessBar) Resize(w int) {
 	bar.Down(0)
 }
 
-func (bar *BrightnessBar) Update(base *noire.Color) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
+func (bar *BrightnessBar) Handle(change StateChange) {
 
-	for n, val := range bar.scale {
-		bar.items[n] = toTColor(applyBrightness(val, base))
+	var nc *noire.Color
+
+	if change.Includes(HueChanged, SaturationChanged) {
+		nc = bar.state.BaseColor()
+
+		for n, val := range bar.scale {
+			nc = applySaturation(val, nc)
+			bar.items[n] = toTColor(nc)
+		}
 	}
+
+	if change.Includes(ValueChanged) {
+		bar.SetValue(bar.state.Value())
+	}
+
 }
 
 func (bar *BrightnessBar) Up(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
-
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
@@ -112,9 +118,6 @@ func (bar *BrightnessBar) Up(step int) {
 }
 
 func (bar *BrightnessBar) Down(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
-
 	switch {
 	case step <= 0:
 	case bar.pos == 0:

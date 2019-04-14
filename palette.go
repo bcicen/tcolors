@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/gdamore/tcell"
 )
@@ -11,33 +10,30 @@ var padPalette = false
 var DefaultPaletteColor = tcell.NewRGBColor(76, 76, 76)
 
 type PaletteBox struct {
-	items    [8]tcell.Color // navigation colors
-	pos      int
 	width    int
 	boxWidth int
 	pst      tcell.Style // pointer style
-	lock     sync.RWMutex
+	state    *State
 }
 
-func NewPaletteBox(width int) *PaletteBox {
-	pb := &PaletteBox{width: width}
-	for n := range pb.items {
-		pb.items[n] = DefaultPaletteColor
-	}
+func NewPaletteBox(s *State) *PaletteBox {
+	pb := &PaletteBox{state: s}
 	return pb
 }
-
-func (pb *PaletteBox) SetPos(n int)          { pb.pos = n }
-func (pb *PaletteBox) Selected() tcell.Color { return pb.items[pb.pos] }
 
 // Draw redraws p at given coordinates and screen, returning the number
 // of rows occupied
 func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
-	r, g, b := pb.Selected().RGB()
-	s.SetCell(x+(pb.width-11)/2, y, hiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
+	pos := pb.state.Pos()
+	items := pb.state.SubColors()
+	selected := items[pos]
 
-	hiSt := hiIndicatorSt.Background(pb.Selected())
-	loSt := indicatorSt.Background(pb.Selected())
+	r, g, b := selected.RGB()
+	s.SetCell(x+(pb.width-11)/2, y, hiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
+	y++
+
+	hiSt := hiIndicatorSt.Background(selected)
+	loSt := indicatorSt.Background(selected)
 	st := hiSt
 
 	for row := 0; row < 5; row++ {
@@ -48,8 +44,8 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	}
 
 	lx := x
-	for n := range pb.items {
-		if n == pb.pos {
+	for n := range items {
+		if n == pos {
 			st = hiSt
 		} else {
 			st = loSt
@@ -64,13 +60,13 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	lx = x
 	h := pb.boxWidth / 3
 	cst := tcell.StyleDefault
-	for n, color := range pb.items {
+	for n, color := range items {
 		cst = cst.Background(tcell.ColorBlack).Foreground(color)
 
 		switch {
-		case padPalette && n == pb.pos:
+		case padPalette && n == pos:
 			st = hiIndicatorSt
-		case n == pb.pos:
+		case n == pos:
 			st = hiIndicatorSt.Background(color)
 		case padPalette:
 			st = indicatorSt
@@ -99,8 +95,8 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	y += h
 
 	lx = x
-	for n := range pb.items {
-		if n == pb.pos {
+	for n := range items {
+		if n == pos {
 			st = hiIndicatorSt.Background(tcell.ColorBlack)
 		} else {
 			st = indicatorSt.Background(tcell.ColorBlack)
@@ -112,36 +108,17 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		lx += pb.boxWidth
 	}
 
-	return 9
+	return 10
 }
+
+func (pb *PaletteBox) Handle(change StateChange) {}
 
 func (pb *PaletteBox) Resize(w int) {
-	pb.boxWidth = (w / 2) / len(pb.items)
-	pb.width = pb.boxWidth * len(pb.items)
+	pb.boxWidth = (w / 2) / pb.state.Len()
+	pb.width = pb.boxWidth * pb.state.Len()
 }
 
-func (pb *PaletteBox) Update(c tcell.Color) {
-	pb.lock.Lock()
-	defer pb.lock.Unlock()
-	pb.items[pb.pos] = c
-}
-
-func (pb *PaletteBox) Up(step int) {
-	pb.lock.Lock()
-	defer pb.lock.Unlock()
-	pb.pos++
-	if pb.pos >= len(pb.items) {
-		pb.pos = 0
-	}
-}
-
-func (pb *PaletteBox) Down(step int) {
-	pb.lock.Lock()
-	defer pb.lock.Unlock()
-	pb.pos--
-	if pb.pos < 0 {
-		pb.pos = len(pb.items) - 1
-	}
-}
+func (pb *PaletteBox) Up(step int)   { pb.state.Next() }
+func (pb *PaletteBox) Down(step int) { pb.state.Prev() }
 
 func (pb *PaletteBox) SetPointerStyle(st tcell.Style) { pb.pst = st }

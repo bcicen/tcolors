@@ -14,7 +14,12 @@ const (
 	defaultGlyph = ' '
 )
 
+type ChangeHandler interface {
+	Handle(StateChange)
+}
+
 type Section interface {
+	ChangeHandler
 	Up(int)
 	Down(int)
 	Draw(int, int, tcell.Screen) int
@@ -30,18 +35,22 @@ type Display struct {
 	PaletteNav *PaletteBox
 	sections   []Section
 	sectionN   int
+	hues       []*noire.Color // modified hues
 	xHues      []*noire.Color // base hues
 	bigStep    bool           // navigation step basis
 	width      int
+	state      *State
 	lock       sync.RWMutex
 }
 
 func NewDisplay(width int) *Display {
+	state := NewDefaultState()
 	d := &Display{
-		HueNav:     NewHueBar(0),
-		SatNav:     NewSaturationBar(0),
-		BrightNav:  NewBrightnessBar(0),
-		PaletteNav: NewPaletteBox(0),
+		state:      state,
+		HueNav:     NewHueBar(state),
+		SatNav:     NewSaturationBar(state),
+		BrightNav:  NewBrightnessBar(state),
+		PaletteNav: NewPaletteBox(state),
 	}
 	d.sections = []Section{
 		d.PaletteNav,
@@ -70,9 +79,9 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (d *Display) Reset() {
-	d.HueNav.SetPos(0)
-	d.SatNav.SetValue(1)
-	d.BrightNav.SetValue(0)
+	d.HueNav.SetValue(100)
+	d.SatNav.SetValue(100)
+	d.BrightNav.SetValue(100)
 	d.build()
 }
 
@@ -93,58 +102,21 @@ func (d *Display) Brightness() float64   { return d.BrightNav.Value() }
 func (d *Display) Selected() tcell.Color { return d.HueNav.Selected() }
 
 func (d *Display) mkhues() {
-	var (
-		incr float64 = 1
-		r    float64 = 255
-		g    float64 = 0
-		b    float64 = 0
-	)
-	d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-
-	for b < 256 {
-		b += incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-	}
-	for r > 0 {
-		r -= incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-	}
-	for g < 256 {
-		g += incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-	}
-	for b > 0 {
-		b -= incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-	}
-	for r < 256 {
-		r += incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
-	}
-	for g > 0 {
-		g -= incr
-		d.xHues = append(d.xHues, noire.NewRGB(r, g, b))
+	for i := 0.0; i < 359; i += 0.5 {
+		d.xHues = append(d.xHues, noire.NewHSV(float64(i), 100, 100))
 	}
 }
 
-func applySaturation(level float64, c *noire.Color) *noire.Color {
-	switch {
-	case level > step:
-		return c.Saturate(level)
-	case level < -step:
-		return c.Desaturate(level * -1)
-	}
-	return c
+func applySaturation(s float64, c *noire.Color) *noire.Color {
+	h := c.Hue()
+	l := c.Lightness()
+	return noire.NewHSV(h, s, l)
 }
 
-func applyBrightness(level float64, c *noire.Color) *noire.Color {
-	switch {
-	case level > step:
-		return c.Brighten(level)
-	case level < -step:
-		return c.Darken(level * -1)
-	}
-	return c
+func applyValue(l float64, c *noire.Color) *noire.Color {
+	h := c.Hue()
+	s := c.Saturation()
+	return noire.NewHSV(h, s, l)
 }
 
 func toTColor(c *noire.Color) tcell.Color {
@@ -153,20 +125,21 @@ func toTColor(c *noire.Color) tcell.Color {
 }
 
 func (d *Display) build() {
-	var n int
-	var c *noire.Color
-	buf := make([]tcell.Color, len(d.xHues))
-
-	for n = range d.xHues {
-		c = applySaturation(d.Saturation(), d.xHues[n])
-		c = applyBrightness(d.Brightness(), c)
-		buf[n] = toTColor(c)
+	change := d.state.Flush()
+	for _, sec := range d.sections {
+		sec.Handle(change)
 	}
-	d.HueNav.Update(buf[0:n])
+}
 
-	d.SatNav.Update(d.xHues[d.HueNav.pos])
-	d.BrightNav.Update(d.xHues[d.HueNav.pos])
-	d.PaletteNav.Update(d.HueNav.Selected())
+func (d *Display) SetColor(c tcell.Color) {
+	r, g, b := c.RGB()
+	nc := noire.NewRGB(float64(r), float64(g), float64(b))
+	h, s, v := nc.HSV()
+
+	d.state.SetSaturation(s)
+	d.state.SetValue(v)
+	d.state.SetHue(h)
+	d.build()
 }
 
 func (d *Display) SectionUp() (ok bool) {

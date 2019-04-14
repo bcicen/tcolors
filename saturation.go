@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
@@ -15,12 +14,12 @@ type SaturationBar struct {
 	offset int
 	width  int
 	pst    tcell.Style // pointer style
-	lock   sync.RWMutex
+	state  *State
 }
 
-func NewSaturationBar(width int) *SaturationBar {
-	bar := &SaturationBar{width: width}
-	for i := -1.0; i < 0.005; i += 0.005 {
+func NewSaturationBar(s *State) *SaturationBar {
+	bar := &SaturationBar{state: s}
+	for i := 0.5; i < 100.6; i += 0.5 {
 		bar.scale = append(bar.scale, i)
 	}
 	bar.items = make([]tcell.Color, len(bar.scale))
@@ -47,7 +46,7 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
 
-	s.SetCell(bar.width/2, y+3, bar.pst, []rune(fmt.Sprintf("%+3.2f", bar.Value()+1))...)
+	s.SetCell(bar.width/2, y+3, bar.pst, []rune(fmt.Sprintf("%+3.2f", bar.Value()-0.5))...)
 
 	return 4
 }
@@ -56,7 +55,7 @@ func (bar *SaturationBar) Value() float64 { return bar.scale[bar.pos] }
 func (bar *SaturationBar) SetValue(n float64) {
 	var idx int
 	for idx < len(bar.scale)-1 {
-		if bar.scale[idx+1] > n {
+		if bar.scale[idx+1]-0.5 > n {
 			break
 		}
 		idx++
@@ -64,31 +63,52 @@ func (bar *SaturationBar) SetValue(n float64) {
 
 	switch {
 	case idx > bar.pos:
-		bar.Up(idx - bar.pos)
+		bar.up(idx - bar.pos)
 	case idx < bar.pos:
-		bar.Down(bar.pos - idx)
+		bar.down(bar.pos - idx)
 	}
 }
 
 func (bar *SaturationBar) Resize(w int) {
 	bar.width = w
-	bar.Up(0)
-	bar.Down(0)
+	bar.up(0)
+	bar.down(0)
 }
 
-func (bar *SaturationBar) Update(base *noire.Color) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
+// State change handler
+func (bar *SaturationBar) Handle(change StateChange) {
+	var nc *noire.Color
 
-	for n, val := range bar.scale {
-		bar.items[n] = toTColor(applySaturation(val, base))
+	if change.Includes(HueChanged, ValueChanged) {
+		nc = bar.state.BaseColor()
+
+		for n, val := range bar.scale {
+			nc = applySaturation(val, nc)
+			nc = applyValue(bar.state.Value(), nc)
+			bar.items[n] = toTColor(nc)
+		}
+	}
+
+	if change.Includes(SaturationChanged) {
+		bar.SetValue(bar.state.Saturation())
 	}
 }
 
-func (bar *SaturationBar) Up(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
+func (bar *SaturationBar) setState() {
+	bar.state.SetSaturation(bar.scale[bar.pos])
+}
 
+func (bar *SaturationBar) Up(step int) {
+	bar.up(step)
+	bar.setState()
+}
+
+func (bar *SaturationBar) Down(step int) {
+	bar.down(step)
+	bar.setState()
+}
+
+func (bar *SaturationBar) up(step int) {
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
@@ -109,10 +129,7 @@ func (bar *SaturationBar) Up(step int) {
 	}
 }
 
-func (bar *SaturationBar) Down(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
-
+func (bar *SaturationBar) down(step int) {
 	switch {
 	case step <= 0:
 	case bar.pos == 0:

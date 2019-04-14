@@ -1,25 +1,28 @@
 package main
 
 import (
-	"sync"
-
 	"github.com/gdamore/tcell"
+	"github.com/teacat/noire"
+)
+
+const (
+	hueMax   = 359.0
+	hueIncr  = 0.5
+	hueCount = int(hueMax / hueIncr)
 )
 
 type HueBar struct {
-	items  []tcell.Color // navigation colors
-	mItems []int         // minimap sample indices
+	items  [hueCount]tcell.Color // navigation colors
+	mItems []int                 // minimap sample indices
 	pos    int
 	width  int
 	pst    tcell.Style // pointer style
-	lock   sync.RWMutex
+	state  *State
 }
 
-func NewHueBar(width int) *HueBar {
-	return &HueBar{width: width}
-}
+func NewHueBar(s *State) *HueBar { return &HueBar{state: s} }
 
-func (bar *HueBar) SetPos(n int)          { bar.pos = n }
+func (bar *HueBar) SetValue(n float64)    { bar.pos = int(n / hueIncr) }
 func (bar *HueBar) Selected() tcell.Color { return bar.items[bar.pos] }
 func (bar *HueBar) center() int           { return (bar.width / 2) }
 
@@ -68,15 +71,28 @@ func (bar *HueBar) miniStep() int {
 
 func (bar *HueBar) Resize(w int) {
 	bar.width = w
-	bar.Update(bar.items)
+	bar.buildMini()
 }
 
-func (bar *HueBar) Update(a []tcell.Color) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
-	bar.items = append(bar.items[:0], a...)
+func (bar *HueBar) Handle(change StateChange) {
+	var n int
+	var nc *noire.Color
 
-	// build minimap indices
+	if change.Includes(SaturationChanged, ValueChanged) {
+		for i := 0.0; i < hueMax; i += hueIncr {
+			nc = noire.NewHSV(i, bar.state.Saturation(), bar.state.Value())
+			bar.items[n] = toTColor(nc)
+			n++
+		}
+	}
+
+	if change.Includes(SelectedChanged, HueChanged) {
+		bar.SetValue(bar.state.Hue())
+	}
+}
+
+// build minimap indices
+func (bar *HueBar) buildMini() {
 	bar.mItems = bar.mItems[0:]
 	miniStep := bar.miniStep()
 	for n := 0; n < len(bar.items); n += miniStep {
@@ -129,8 +145,6 @@ func (bar *HueBar) MiniMap() []tcell.Color {
 }
 
 func (bar *HueBar) Up(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
 	bar.pos += step
 	if bar.pos >= len(bar.items)-1 {
 		bar.pos -= len(bar.items) - 1
@@ -138,8 +152,6 @@ func (bar *HueBar) Up(step int) {
 }
 
 func (bar *HueBar) Down(step int) {
-	bar.lock.Lock()
-	defer bar.lock.Unlock()
 	bar.pos -= step
 	if bar.pos < 0 {
 		bar.pos += len(bar.items) - 1
