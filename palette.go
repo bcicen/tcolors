@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gdamore/tcell"
+	"github.com/teacat/noire"
 )
 
 var padPalette = false
@@ -111,7 +112,13 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	return 10
 }
 
-func (pb *PaletteBox) Handle(change StateChange) {}
+func (pb *PaletteBox) Handle(change StateChange) {
+	if change == NoChange {
+		return
+	}
+	nc := noire.NewHSV(pb.state.Hue(), pb.state.Saturation(), pb.state.Value())
+	pb.state.SetSelected(toTColor(nc))
+}
 
 func (pb *PaletteBox) Resize(w int) {
 	pb.boxWidth = (w / 2) / pb.state.Len()

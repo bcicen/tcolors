@@ -83,8 +83,7 @@ func (bar *SaturationBar) Handle(change StateChange) {
 		nc = bar.state.BaseColor()
 
 		for n, val := range bar.scale {
-			nc = applySaturation(val, nc)
-			nc = applyValue(bar.state.Value(), nc)
+			nc = noire.NewHSV(bar.state.Hue(), val, bar.state.Value())
 			bar.items[n] = toTColor(nc)
 		}
 	}

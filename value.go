@@ -65,27 +65,25 @@ func (bar *BrightnessBar) SetValue(n float64) {
 
 	switch {
 	case idx > bar.pos:
-		bar.Up(idx - bar.pos)
+		bar.up(idx - bar.pos)
 	case idx < bar.pos:
-		bar.Down(bar.pos - idx)
+		bar.down(bar.pos - idx)
 	}
 }
 
 func (bar *BrightnessBar) Resize(w int) {
 	bar.width = w
-	bar.Up(0)
-	bar.Down(0)
+	bar.up(0)
+	bar.down(0)
 }
 
+// State change handler
 func (bar *BrightnessBar) Handle(change StateChange) {
-
 	var nc *noire.Color
 
 	if change.Includes(HueChanged, SaturationChanged) {
-		nc = bar.state.BaseColor()
-
 		for n, val := range bar.scale {
-			nc = applySaturation(val, nc)
+			nc = noire.NewHSV(bar.state.Hue(), bar.state.Saturation(), val)
 			bar.items[n] = toTColor(nc)
 		}
 	}
@@ -97,6 +95,18 @@ func (bar *BrightnessBar) Handle(change StateChange) {
 }
 
 func (bar *BrightnessBar) Up(step int) {
+	bar.up(step)
+	bar.setState()
+}
+
+func (bar *BrightnessBar) Down(step int) {
+	bar.down(step)
+	bar.setState()
+}
+
+func (bar *BrightnessBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
+
+func (bar *BrightnessBar) up(step int) {
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
@@ -117,7 +127,7 @@ func (bar *BrightnessBar) Up(step int) {
 	}
 }
 
-func (bar *BrightnessBar) Down(step int) {
+func (bar *BrightnessBar) down(step int) {
 	switch {
 	case step <= 0:
 	case bar.pos == 0:
@@ -136,4 +146,6 @@ func (bar *BrightnessBar) Down(step int) {
 	}
 }
 
-func (bar *BrightnessBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
+func (bar *BrightnessBar) setState() {
+	bar.state.SetValue(bar.scale[bar.pos])
+}

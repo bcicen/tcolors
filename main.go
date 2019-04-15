@@ -5,11 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/bcicen/tcolors/logging"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
 
 var (
+	log   = logging.Init()
 	boxW  = 120
 	boxH  = 80
 	disp  *Display
@@ -54,6 +56,7 @@ func draw(s tcell.Screen) {
 }
 
 func main() {
+	defer log.Exit()
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
 	s, e := tcell.NewScreen()
 	if e != nil {

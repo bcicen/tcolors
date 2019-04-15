@@ -107,18 +107,6 @@ func (d *Display) mkhues() {
 	}
 }
 
-func applySaturation(s float64, c *noire.Color) *noire.Color {
-	h := c.Hue()
-	l := c.Lightness()
-	return noire.NewHSV(h, s, l)
-}
-
-func applyValue(l float64, c *noire.Color) *noire.Color {
-	h := c.Hue()
-	s := c.Saturation()
-	return noire.NewHSV(h, s, l)
-}
-
 func toTColor(c *noire.Color) tcell.Color {
 	r, g, b := c.RGB()
 	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
@@ -126,6 +114,8 @@ func toTColor(c *noire.Color) tcell.Color {
 
 func (d *Display) build() {
 	change := d.state.Flush()
+	log.Infof("handling change: %08b", change)
+	log.Infof("state: [h=%0.3f s=%0.3f v=%0.3f]", d.state.Hue(), d.state.Saturation(), d.state.Value())
 	for _, sec := range d.sections {
 		sec.Handle(change)
 	}
