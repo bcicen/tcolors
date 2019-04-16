@@ -25,6 +25,12 @@ func NewPaletteBox(s *State) *PaletteBox {
 // Draw redraws p at given coordinates and screen, returning the number
 // of rows occupied
 func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
+	_, h := s.Size()
+	boxHeight := h / 15
+	if boxHeight < 2 {
+		boxHeight = 2
+	}
+
 	pos := pb.state.Pos()
 	items := pb.state.SubColors()
 	selected := items[pos]
@@ -59,7 +65,6 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	y++
 
 	lx = x
-	h := pb.boxWidth / 3
 	cst := tcell.StyleDefault
 	for n, color := range items {
 		cst = cst.Background(tcell.ColorBlack).Foreground(color)
@@ -76,7 +81,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		}
 
 		for col := 0; col < pb.boxWidth; col++ {
-			for row := 0; row < h; row++ {
+			for row := 0; row < boxHeight; row++ {
 				switch {
 				case col == 0:
 					s.SetCell(lx, y+row, st, '▎')
@@ -84,7 +89,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 					s.SetCell(lx, y+row, st, '▕')
 				case padPalette && row == 0:
 					s.SetCell(lx, y+row, cst, '▄')
-				case padPalette && row == h-1:
+				case padPalette && row == boxHeight-1:
 					s.SetCell(lx, y+row, cst, '▀')
 				default:
 					s.SetCell(lx, y+row, cst, '█')
@@ -93,7 +98,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 			lx++
 		}
 	}
-	y += h
+	y += boxHeight
 
 	lx = x
 	for n := range items {
@@ -125,6 +130,7 @@ func (pb *PaletteBox) Resize(w int) {
 	pb.width = pb.boxWidth * pb.state.Len()
 }
 
+func (pb *PaletteBox) Width() int    { return pb.width }
 func (pb *PaletteBox) Up(step int)   { pb.state.Next() }
 func (pb *PaletteBox) Down(step int) { pb.state.Prev() }
 

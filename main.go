@@ -42,14 +42,14 @@ func draw(s tcell.Screen) {
 		s.SetCell(1, 0, st, ' ')
 	}
 
-	x := padding
+	x := paddingX
 	if disp.width == maxWidth {
 		x = (w - maxWidth) / 2
 	}
 	ly += disp.Draw(x, ly, s)
 
 	s.SetCell(1, h-4, tcell.StyleDefault, []rune(fmt.Sprintf("%08b", disp.state.pending))...)
-	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d] [x=%04d]", disp.HueNav.pos, disp.HueNav.width, x))...)
+	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d] [h=%04d] [x=%04d]", disp.HueNav.pos, disp.HueNav.width, h, x))...)
 	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
 	s.Show()
@@ -73,7 +73,8 @@ func main() {
 		Background(tcell.ColorBlack))
 	s.Clear()
 	w, _ := s.Size()
-	disp = NewDisplay(w)
+	disp = NewDisplay()
+	disp.Resize(w)
 
 	quit := make(chan struct{})
 	//go func() {

@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	padding      = 2
+	paddingX     = 2
+	paddingY     = 1
 	step         = 0.005 // default step for bar scale
 	maxWidth     = 200
 	defaultGlyph = ' '
@@ -23,7 +24,8 @@ type Section interface {
 	Up(int)
 	Down(int)
 	Draw(int, int, tcell.Screen) int
-	Resize(int)
+	Width() int
+	Resize(int) // resize section to given width
 	SetPointerStyle(tcell.Style)
 }
 
@@ -39,11 +41,12 @@ type Display struct {
 	xHues      []*noire.Color // base hues
 	bigStep    bool           // navigation step basis
 	width      int
+	height     int
 	state      *State
 	lock       sync.RWMutex
 }
 
-func NewDisplay(width int) *Display {
+func NewDisplay() *Display {
 	state := NewDefaultState()
 	d := &Display{
 		state:      state,
@@ -59,8 +62,6 @@ func NewDisplay(width int) *Display {
 		d.BrightNav,
 	}
 	d.mkhues()
-	d.Resize(width)
-	d.Reset()
 	return d
 }
 
@@ -73,7 +74,12 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 		} else {
 			sec.SetPointerStyle(indicatorSt)
 		}
-		y += sec.Draw(x, y, s)
+		if n == 0 {
+			offset := (d.width - sec.Width()) / 2
+			y += sec.Draw(x+offset, y, s)
+		} else {
+			y += sec.Draw(x, y, s)
+		}
 	}
 	return y
 }
@@ -88,7 +94,7 @@ func (d *Display) Reset() {
 func (d *Display) Resize(w int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
-	d.width = w - ((padding * 2) + 1)
+	d.width = w - ((paddingX * 2) + 1)
 	if d.width > maxWidth {
 		d.width = maxWidth
 	}

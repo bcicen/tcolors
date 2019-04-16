@@ -97,6 +97,8 @@ func (bar *SaturationBar) setState() {
 	bar.state.SetSaturation(bar.scale[bar.pos])
 }
 
+func (bar *SaturationBar) Width() int { return bar.width }
+
 func (bar *SaturationBar) Up(step int) {
 	bar.up(step)
 	bar.setState()

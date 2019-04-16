@@ -144,6 +144,8 @@ func (bar *HueBar) MiniMap() []tcell.Color {
 	return colors
 }
 
+func (bar *HueBar) Width() int { return bar.width }
+
 func (bar *HueBar) Up(step int) {
 	bar.pos += step
 	if bar.pos >= len(bar.items)-1 {

@@ -94,6 +94,8 @@ func (bar *BrightnessBar) Handle(change StateChange) {
 
 }
 
+func (bar *BrightnessBar) Width() int { return bar.width }
+
 func (bar *BrightnessBar) Up(step int) {
 	bar.up(step)
 	bar.setState()
