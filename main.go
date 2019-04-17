@@ -50,7 +50,6 @@ func draw(s tcell.Screen) {
 
 	s.SetCell(1, h-4, tcell.StyleDefault, []rune(fmt.Sprintf("%08b", disp.state.pending))...)
 	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d] [h=%04d] [x=%04d]", disp.HueNav.pos, disp.HueNav.width, h, x))...)
-	s.SetCell(1, h-2, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [off=%04d] [i=%04d] [w=%04d]", disp.BrightNav.pos, disp.BrightNav.offset, len(disp.BrightNav.items), disp.BrightNav.width))...)
 
 	s.Show()
 }
@@ -75,6 +74,7 @@ func main() {
 	w, _ := s.Size()
 	disp = NewDisplay()
 	disp.Resize(w)
+	disp.build()
 
 	quit := make(chan struct{})
 	//go func() {
@@ -171,7 +171,7 @@ loop:
 	//time.Sleep(5 * time.Second)
 
 	s.Fini()
-	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.BrightNav.scale))
+	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.ValueNav.scale))
 	for n, x := range disp.xHues {
 		h, s, l := x.HSL()
 		r, g, b := x.RGB()

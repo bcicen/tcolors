@@ -33,7 +33,7 @@ type Display struct {
 	rgb        []int32
 	HueNav     *HueBar
 	SatNav     *SaturationBar
-	BrightNav  *BrightnessBar
+	ValueNav   *ValueBar
 	PaletteNav *PaletteBox
 	sections   []Section
 	sectionN   int
@@ -52,14 +52,14 @@ func NewDisplay() *Display {
 		state:      state,
 		HueNav:     NewHueBar(state),
 		SatNav:     NewSaturationBar(state),
-		BrightNav:  NewBrightnessBar(state),
+		ValueNav:   NewValueBar(state),
 		PaletteNav: NewPaletteBox(state),
 	}
 	d.sections = []Section{
 		d.PaletteNav,
 		d.HueNav,
 		d.SatNav,
-		d.BrightNav,
+		d.ValueNav,
 	}
 	d.mkhues()
 	return d
@@ -87,7 +87,7 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 func (d *Display) Reset() {
 	d.HueNav.SetValue(100)
 	d.SatNav.SetValue(100)
-	d.BrightNav.SetValue(100)
+	d.ValueNav.SetValue(100)
 	d.build()
 }
 
@@ -104,7 +104,7 @@ func (d *Display) Resize(w int) {
 }
 
 func (d *Display) Saturation() float64   { return d.SatNav.Value() }
-func (d *Display) Brightness() float64   { return d.BrightNav.Value() }
+func (d *Display) Brightness() float64   { return d.ValueNav.Value() }
 func (d *Display) Selected() tcell.Color { return d.HueNav.Selected() }
 
 func (d *Display) mkhues() {

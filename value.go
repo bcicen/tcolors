@@ -9,7 +9,7 @@ import (
 
 const scrollAhead = 3
 
-type BrightnessBar struct {
+type ValueBar struct {
 	items  []tcell.Color // navigation colors
 	scale  []float64
 	pos    int
@@ -19,8 +19,8 @@ type BrightnessBar struct {
 	state  *State
 }
 
-func NewBrightnessBar(s *State) *BrightnessBar {
-	bar := &BrightnessBar{state: s}
+func NewValueBar(s *State) *ValueBar {
+	bar := &ValueBar{state: s}
 	for i := 0.0; i < 100.1; i += 0.5 {
 		bar.scale = append(bar.scale, i)
 	}
@@ -30,7 +30,7 @@ func NewBrightnessBar(s *State) *BrightnessBar {
 
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
-func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
+func (bar *ValueBar) Draw(x, y int, s tcell.Screen) int {
 	var st tcell.Style
 
 	n := bar.offset
@@ -53,8 +53,8 @@ func (bar *BrightnessBar) Draw(x, y int, s tcell.Screen) int {
 	return 4
 }
 
-func (bar *BrightnessBar) Value() float64 { return bar.scale[bar.pos] }
-func (bar *BrightnessBar) SetValue(n float64) {
+func (bar *ValueBar) Value() float64 { return bar.scale[bar.pos] }
+func (bar *ValueBar) SetValue(n float64) {
 	var idx int
 	for idx < len(bar.scale)-1 {
 		if bar.scale[idx+1] > n {
@@ -71,14 +71,14 @@ func (bar *BrightnessBar) SetValue(n float64) {
 	}
 }
 
-func (bar *BrightnessBar) Resize(w int) {
+func (bar *ValueBar) Resize(w int) {
 	bar.width = w
 	bar.up(0)
 	bar.down(0)
 }
 
 // State change handler
-func (bar *BrightnessBar) Handle(change StateChange) {
+func (bar *ValueBar) Handle(change StateChange) {
 	var nc *noire.Color
 
 	if change.Includes(HueChanged, SaturationChanged) {
@@ -94,21 +94,21 @@ func (bar *BrightnessBar) Handle(change StateChange) {
 
 }
 
-func (bar *BrightnessBar) Width() int { return bar.width }
+func (bar *ValueBar) Width() int { return bar.width }
 
-func (bar *BrightnessBar) Up(step int) {
+func (bar *ValueBar) Up(step int) {
 	bar.up(step)
 	bar.setState()
 }
 
-func (bar *BrightnessBar) Down(step int) {
+func (bar *ValueBar) Down(step int) {
 	bar.down(step)
 	bar.setState()
 }
 
-func (bar *BrightnessBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
+func (bar *ValueBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
 
-func (bar *BrightnessBar) up(step int) {
+func (bar *ValueBar) up(step int) {
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 	switch {
@@ -129,7 +129,7 @@ func (bar *BrightnessBar) up(step int) {
 	}
 }
 
-func (bar *BrightnessBar) down(step int) {
+func (bar *ValueBar) down(step int) {
 	switch {
 	case step <= 0:
 	case bar.pos == 0:
@@ -148,6 +148,6 @@ func (bar *BrightnessBar) down(step int) {
 	}
 }
 
-func (bar *BrightnessBar) setState() {
+func (bar *ValueBar) setState() {
 	bar.state.SetValue(bar.scale[bar.pos])
 }
