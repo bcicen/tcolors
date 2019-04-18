@@ -24,6 +24,12 @@ var (
 	hiIndicatorSt = tcell.StyleDefault.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
 			Background(tcell.ColorBlack)
+	stepBasis int
+)
+
+const (
+	littleStep = 1
+	bigStep    = 10
 )
 
 func draw(s tcell.Screen) {
@@ -36,7 +42,7 @@ func draw(s tcell.Screen) {
 	ly := 1
 	st := tcell.StyleDefault
 
-	if disp.bigStep {
+	if stepBasis == bigStep {
 		s.SetCell(1, 0, st, '⏩')
 	} else {
 		s.SetCell(1, 0, st, ' ')
@@ -87,21 +93,23 @@ func main() {
 			ev := s.PollEvent()
 			switch ev := ev.(type) {
 			case *tcell.EventKey:
+				if ev.Modifiers()&tcell.ModShift == tcell.ModShift {
+					stepBasis = bigStep
+				} else {
+					stepBasis = littleStep
+				}
 				switch ev.Key() {
 				case tcell.KeyRune:
 					switch ev.Rune() {
-					case 's':
-						disp.ToggleStep()
-						draw(s)
 					case 'r':
 						disp.Reset()
 						draw(s)
 					case 'l':
-						if ok := disp.ValueDown(); ok {
+						if ok := disp.ValueDown(stepBasis); ok {
 							draw(s)
 						}
 					case 'h':
-						if ok := disp.ValueUp(); ok {
+						if ok := disp.ValueUp(stepBasis); ok {
 							draw(s)
 						}
 					case 'q':
@@ -109,11 +117,11 @@ func main() {
 						return
 					}
 				case tcell.KeyRight:
-					if ok := disp.ValueUp(); ok {
+					if ok := disp.ValueUp(stepBasis); ok {
 						draw(s)
 					}
 				case tcell.KeyLeft:
-					if ok := disp.ValueDown(); ok {
+					if ok := disp.ValueDown(stepBasis); ok {
 						draw(s)
 					}
 				case tcell.KeyUp:

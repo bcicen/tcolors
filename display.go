@@ -39,7 +39,6 @@ type Display struct {
 	sectionN   int
 	hues       []*noire.Color // modified hues
 	xHues      []*noire.Color // base hues
-	bigStep    bool           // navigation step basis
 	width      int
 	height     int
 	state      *State
@@ -154,25 +153,14 @@ func (d *Display) SectionDown() (ok bool) {
 	return true
 }
 
-func (d *Display) ValueUp() (ok bool) {
-	d.sections[d.sectionN].Up(d.stepSize())
+func (d *Display) ValueUp(step int) (ok bool) {
+	d.sections[d.sectionN].Up(step)
 	d.build()
 	return true
 }
 
-func (d *Display) ValueDown() (ok bool) {
-	d.sections[d.sectionN].Down(d.stepSize())
+func (d *Display) ValueDown(step int) (ok bool) {
+	d.sections[d.sectionN].Down(step)
 	d.build()
 	return true
-}
-
-func (d *Display) ToggleStep() {
-	d.bigStep = d.bigStep != true
-}
-
-func (d *Display) stepSize() int {
-	if d.bigStep {
-		return 10
-	}
-	return 2
 }

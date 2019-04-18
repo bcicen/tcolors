@@ -55,7 +55,7 @@ func (bar *SaturationBar) Value() float64 { return bar.scale[bar.pos] }
 func (bar *SaturationBar) SetValue(n float64) {
 	var idx int
 	for idx < len(bar.scale)-1 {
-		if bar.scale[idx+1]-0.5 > n {
+		if bar.scale[idx+1] > n {
 			break
 		}
 		idx++
@@ -119,7 +119,9 @@ func (bar *SaturationBar) up(step int) {
 	case bar.pos+step > max:
 		bar.pos = max
 	default:
+		log.Debugf("pos=%d", bar.pos)
 		bar.pos += step
+		log.Debugf("pos=%d", bar.pos)
 	}
 
 	if (bar.pos - bar.offset) > bar.width-scrollAhead {
@@ -131,6 +133,7 @@ func (bar *SaturationBar) up(step int) {
 }
 
 func (bar *SaturationBar) down(step int) {
+	log.Debugf("DOWN=%d", step)
 	switch {
 	case step <= 0:
 	case bar.pos == 0:
