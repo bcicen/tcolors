@@ -147,17 +147,19 @@ func (bar *HueBar) MiniMap() []tcell.Color {
 func (bar *HueBar) Width() int { return bar.width }
 
 func (bar *HueBar) Up(step int) {
-	bar.pos += step
-	if bar.pos >= len(bar.items)-1 {
-		bar.pos -= len(bar.items) - 1
+	n := int(bar.state.Hue()) + step
+	if n > hueMax {
+		n -= hueMax
 	}
+	bar.state.SetHue(float64(n))
 }
 
 func (bar *HueBar) Down(step int) {
-	bar.pos -= step
-	if bar.pos < 0 {
-		bar.pos += len(bar.items) - 1
+	n := int(bar.state.Hue()) - step
+	if n < 0 {
+		n += hueMax
 	}
+	bar.state.SetHue(float64(n))
 }
 
 func (bar *HueBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
