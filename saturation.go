@@ -52,7 +52,7 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (bar *SaturationBar) Value() float64 { return bar.scale[bar.pos] }
-func (bar *SaturationBar) SetValue(n float64) {
+func (bar *SaturationBar) SetPos(n float64) {
 	var idx int
 	for idx < len(bar.scale)-1 {
 		if bar.scale[idx+1] > n {
@@ -89,7 +89,7 @@ func (bar *SaturationBar) Handle(change StateChange) {
 	}
 
 	if change.Includes(SaturationChanged) {
-		bar.SetValue(bar.state.Saturation())
+		bar.SetPos(bar.state.Saturation())
 	}
 }
 

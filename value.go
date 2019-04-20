@@ -54,7 +54,7 @@ func (bar *ValueBar) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (bar *ValueBar) Value() float64 { return bar.scale[bar.pos] }
-func (bar *ValueBar) SetValue(n float64) {
+func (bar *ValueBar) SetPos(n float64) {
 	var idx int
 	for idx < len(bar.scale)-1 {
 		if bar.scale[idx+1] > n {
@@ -89,7 +89,7 @@ func (bar *ValueBar) Handle(change StateChange) {
 	}
 
 	if change.Includes(ValueChanged) {
-		bar.SetValue(bar.state.Value())
+		bar.SetPos(bar.state.Value())
 	}
 
 }

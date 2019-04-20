@@ -22,7 +22,7 @@ type HueBar struct {
 
 func NewHueBar(s *State) *HueBar { return &HueBar{state: s} }
 
-func (bar *HueBar) SetValue(n float64)    { bar.pos = int(n / hueIncr) }
+func (bar *HueBar) SetPos(n float64)      { bar.pos = int(n / hueIncr) }
 func (bar *HueBar) Selected() tcell.Color { return bar.items[bar.pos] }
 func (bar *HueBar) center() int           { return (bar.width / 2) }
 
@@ -87,7 +87,7 @@ func (bar *HueBar) Handle(change StateChange) {
 	}
 
 	if change.Includes(SelectedChanged, HueChanged) {
-		bar.SetValue(bar.state.Hue())
+		bar.SetPos(bar.state.Hue())
 	}
 }
 
