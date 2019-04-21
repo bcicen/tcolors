@@ -102,10 +102,6 @@ func (d *Display) Resize(w int) {
 	}
 }
 
-func (d *Display) Saturation() float64   { return d.SatNav.Value() }
-func (d *Display) Brightness() float64   { return d.ValueNav.Value() }
-func (d *Display) Selected() tcell.Color { return d.HueNav.Selected() }
-
 func (d *Display) mkhues() {
 	for i := 0.0; i < 359; i += 0.5 {
 		d.xHues = append(d.xHues, noire.NewHSV(float64(i), 100, 100))

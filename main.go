@@ -179,7 +179,7 @@ loop:
 	//time.Sleep(5 * time.Second)
 
 	s.Fini()
-	fmt.Printf("w=%d h=%d hues=%d bscale=%v\n", w, h, len(disp.HueNav.items), len(disp.ValueNav.scale))
+	fmt.Printf("w=%d h=%d hues=%d \n", w, h, len(disp.HueNav.items))
 	for n, x := range disp.xHues {
 		h, s, l := x.HSL()
 		r, g, b := x.RGB()
@@ -191,5 +191,4 @@ loop:
 		r, g, b := x.RGB()
 		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", 0, h, s, l, r, g, b)
 	}
-	fmt.Printf("%v\n", len(disp.SatNav.scale))
 }
