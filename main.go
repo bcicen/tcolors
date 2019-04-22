@@ -54,9 +54,6 @@ func draw(s tcell.Screen) {
 	}
 	ly += disp.Draw(x, ly, s)
 
-	s.SetCell(1, h-4, tcell.StyleDefault, []rune(fmt.Sprintf("%08b", disp.state.pending))...)
-	s.SetCell(1, h-3, tcell.StyleDefault, []rune(fmt.Sprintf("%04d [w=%04d] [h=%04d] [x=%04d]", disp.HueNav.pos, disp.HueNav.width, h, x))...)
-
 	s.Show()
 }
 
@@ -108,6 +105,14 @@ func main() {
 						if ok := disp.ValueDown(stepBasis); ok {
 							draw(s)
 						}
+					case 'k':
+						if ok := disp.SectionUp(); ok {
+							draw(s)
+						}
+					case 'j':
+						if ok := disp.SectionDown(); ok {
+							draw(s)
+						}
 					case 'h':
 						if ok := disp.ValueUp(stepBasis); ok {
 							draw(s)
@@ -139,7 +144,8 @@ func main() {
 					s.Sync()
 				}
 			case *tcell.EventResize:
-				w, _ := s.Size()
+				w, h := s.Size()
+				log.Debugf("handling resize: w=%04d h=%04d", w, h)
 				disp.Resize(w)
 				s.Clear()
 				draw(s)
