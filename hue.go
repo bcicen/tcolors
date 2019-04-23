@@ -38,6 +38,14 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 
 	s.SetCell(center+x, y, bar.pst, '▾')
 
+	// border bars
+	s.SetCell(x-1, y+1, bar.pst, '│')
+	s.SetCell(x-1, y+2, bar.pst, '│')
+	s.SetCell(x-1, y+3, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+1, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+3, bar.pst, '│')
+
 	for col, color := range bar.Items() {
 		s.SetCell(col+x, y+1, st.Background(color), ' ')
 		s.SetCell(col+x, y+2, st.Background(color), '▁')

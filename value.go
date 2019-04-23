@@ -35,6 +35,13 @@ func (bar *ValueBar) Draw(x, y int, s tcell.Screen) int {
 
 	n := bar.offset
 	col := 0
+
+	// border bars
+	s.SetCell(x-1, y+1, bar.pst, '│')
+	s.SetCell(x-1, y+2, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+1, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
+
 	for col <= bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
 		s.SetCell(col+x, y, blkSt, '█')

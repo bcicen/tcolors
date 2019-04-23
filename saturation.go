@@ -7,9 +7,16 @@ import (
 	"github.com/teacat/noire"
 )
 
+const (
+	satMin   = 0.5
+	satMax   = 100.0
+	satIncr  = 0.5
+	satCount = int(satMax/satIncr) + 1
+)
+
 type SaturationBar struct {
-	items  []tcell.Color // navigation colors
-	scale  []float64
+	items  [satCount]tcell.Color // navigation colors
+	scale  [satCount]float64
 	pos    int
 	offset int
 	width  int
@@ -19,10 +26,13 @@ type SaturationBar struct {
 
 func NewSaturationBar(s *State) *SaturationBar {
 	bar := &SaturationBar{state: s}
-	for i := 0.5; i < 100.6; i += 0.5 {
-		bar.scale = append(bar.scale, i)
+
+	i := satMin
+	for n, _ := range bar.scale {
+		bar.scale[n] = i
+		i += 0.5
 	}
-	bar.items = make([]tcell.Color, len(bar.scale))
+
 	return bar
 }
 
@@ -33,6 +43,13 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 
 	n := bar.offset
 	col := 0
+
+	// border bars
+	s.SetCell(x-1, y+1, bar.pst, '│')
+	s.SetCell(x-1, y+2, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+1, bar.pst, '│')
+	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
+
 	for col <= bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
 		s.SetCell(col+x, y, blkSt, '█')

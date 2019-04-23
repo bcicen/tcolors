@@ -90,10 +90,9 @@ func main() {
 			ev := s.PollEvent()
 			switch ev := ev.(type) {
 			case *tcell.EventKey:
+				stepBasis = littleStep
 				if ev.Modifiers()&tcell.ModShift == tcell.ModShift {
 					stepBasis = bigStep
-				} else {
-					stepBasis = littleStep
 				}
 				switch ev.Key() {
 				case tcell.KeyRune:
@@ -101,7 +100,7 @@ func main() {
 					case 'r':
 						disp.Reset()
 						draw(s)
-					case 'l':
+					case 'h':
 						if ok := disp.ValueDown(stepBasis); ok {
 							draw(s)
 						}
@@ -113,13 +112,15 @@ func main() {
 						if ok := disp.SectionDown(); ok {
 							draw(s)
 						}
-					case 'h':
+					case 'l':
 						if ok := disp.ValueUp(stepBasis); ok {
 							draw(s)
 						}
 					case 'q':
 						close(quit)
 						return
+					default:
+						log.Debugf("ignoring key [%s]", string(ev.Rune()))
 					}
 				case tcell.KeyRight:
 					if ok := disp.ValueUp(stepBasis); ok {

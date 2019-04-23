@@ -115,8 +115,8 @@ func toTColor(c *noire.Color) tcell.Color {
 
 func (d *Display) build() {
 	change := d.state.Flush()
-	log.Infof("handling change: %08b", change)
-	log.Infof("state: [h=%0.3f s=%0.3f v=%0.3f]", d.state.Hue(), d.state.Saturation(), d.state.Value())
+	log.Debugf("handling change: %08b", change)
+	log.Debugf("state: [h=%0.3f s=%0.3f v=%0.3f]", d.state.Hue(), d.state.Saturation(), d.state.Value())
 	for _, sec := range d.sections {
 		sec.Handle(change)
 	}
