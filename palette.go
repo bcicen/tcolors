@@ -8,7 +8,8 @@ import (
 )
 
 var padPalette = false
-var DefaultPaletteColor = tcell.NewRGBColor(76, 76, 76)
+
+const activePaletteHeight = 5
 
 type PaletteBox struct {
 	width    int
@@ -43,7 +44,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	loSt := indicatorSt.Background(selected)
 	st := hiSt
 
-	for row := 0; row < 5; row++ {
+	for row := 0; row < activePaletteHeight; row++ {
 		for col := 0; col < pb.width; col++ {
 			s.SetCell(x+col, y, st, ' ')
 		}
@@ -114,7 +115,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		lx += pb.boxWidth
 	}
 
-	return 10
+	return activePaletteHeight + boxHeight + 3
 }
 
 func (pb *PaletteBox) Handle(change StateChange) {

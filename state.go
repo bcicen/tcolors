@@ -41,7 +41,7 @@ func (ss *subState) Selected() tcell.Color {
 
 type State struct {
 	pos     int
-	sstates [8]*subState
+	sstates [7]*subState
 	lock    sync.RWMutex
 	pending StateChange
 }
