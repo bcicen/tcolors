@@ -136,9 +136,7 @@ func (bar *SaturationBar) up(step int) {
 	case bar.pos+step > max:
 		bar.pos = max
 	default:
-		log.Debugf("pos=%d", bar.pos)
 		bar.pos += step
-		log.Debugf("pos=%d", bar.pos)
 	}
 
 	if (bar.pos - bar.offset) > bar.width-scrollAhead {
@@ -150,7 +148,6 @@ func (bar *SaturationBar) up(step int) {
 }
 
 func (bar *SaturationBar) down(step int) {
-	log.Debugf("DOWN=%d", step)
 	switch {
 	case step <= 0:
 	case bar.pos == 0:

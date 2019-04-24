@@ -29,10 +29,14 @@ const (
 const AllChanged = SelectedChanged | HueChanged | SaturationChanged | ValueChanged
 
 type subState struct {
-	selected   tcell.Color
+	rgb        [3]int32
 	hue        float64
 	saturation float64
 	value      float64
+}
+
+func (ss *subState) Selected() tcell.Color {
+	return tcell.NewRGBColor(ss.rgb[0], ss.rgb[1], ss.rgb[2])
 }
 
 type State struct {
@@ -46,12 +50,15 @@ func NewDefaultState() *State {
 	hue := 20.0
 	s := NewState()
 	for n := range s.sstates {
+		r, g, b := noire.NewHSV(hue, 100, 100).RGB()
 		s.sstates[n] = &subState{
-			selected:   toTColor(noire.NewHSV(hue, 100, 100)),
 			hue:        hue,
 			saturation: 100,
 			value:      100,
 		}
+		s.sstates[n].rgb[0] = int32(r)
+		s.sstates[n].rgb[1] = int32(g)
+		s.sstates[n].rgb[2] = int32(b)
 		hue += 20
 	}
 	return s
@@ -62,7 +69,7 @@ func NewState() *State { return &State{pending: AllChanged} }
 func (s *State) SubColors() []tcell.Color {
 	a := make([]tcell.Color, len(s.sstates))
 	for n := range s.sstates {
-		a[n] = s.sstates[n].selected
+		a[n] = s.sstates[n].Selected()
 	}
 	return a
 }
@@ -71,8 +78,8 @@ func (s *State) Pos() int              { return s.pos }
 func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Hue() float64          { return s.sstates[s.pos].hue }
 func (s *State) Value() float64        { return s.sstates[s.pos].value }
-func (s *State) Selected() tcell.Color { return s.sstates[s.pos].selected }
 func (s *State) Saturation() float64   { return s.sstates[s.pos].saturation }
+func (s *State) Selected() tcell.Color { return s.sstates[s.pos].Selected() }
 
 // BaseColor returns the current color at full saturation and brightness
 func (s *State) BaseColor() *noire.Color { return noire.NewHSV(s.Hue(), 100, 100) }
@@ -110,10 +117,12 @@ func (s *State) Flush() StateChange {
 	return a
 }
 
-func (s *State) SetSelected(c tcell.Color) {
+func (s *State) SetSelected(r, g, b int32) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].selected = c
+	s.sstates[s.pos].rgb[0] = r
+	s.sstates[s.pos].rgb[1] = g
+	s.sstates[s.pos].rgb[2] = b
 	s.pending = s.pending | SelectedChanged
 }
 
