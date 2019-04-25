@@ -59,7 +59,7 @@ func NewDefaultState() *State {
 		s.sstates[n].rgb[0] = int32(r)
 		s.sstates[n].rgb[1] = int32(g)
 		s.sstates[n].rgb[2] = int32(b)
-		hue += 20
+		hue += 30
 	}
 	return s
 }
