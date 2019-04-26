@@ -1,17 +1,12 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gdamore/tcell"
-	"github.com/teacat/noire"
 )
 
-const scrollAhead = 3
-
-type ValueBar struct {
+type NavBar struct {
 	items  []tcell.Color // navigation colors
-	scale  []float64
+	label  string
 	pos    int
 	offset int
 	width  int
@@ -19,18 +14,16 @@ type ValueBar struct {
 	state  *State
 }
 
-func NewValueBar(s *State) *ValueBar {
-	bar := &ValueBar{state: s}
-	for i := 0.0; i < 100.1; i += 0.5 {
-		bar.scale = append(bar.scale, i)
+func NewNavBar(s *State, length int) *NavBar {
+	return &NavBar{
+		items: make([]tcell.Color, length),
+		state: s,
 	}
-	bar.items = make([]tcell.Color, len(bar.scale))
-	return bar
 }
 
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
-func (bar *ValueBar) Draw(x, y int, s tcell.Screen) int {
+func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 	var st tcell.Style
 
 	n := bar.offset
@@ -54,22 +47,15 @@ func (bar *ValueBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
-
-	s.SetCell(bar.width/2, y+3, bar.pst, []rune(fmt.Sprintf("%5.1f  ", bar.Value()))...)
+	s.SetCell(bar.width/2, y+3, bar.pst, []rune(bar.label)...)
 
 	return 4
 }
 
-func (bar *ValueBar) Value() float64 { return bar.scale[bar.pos] }
-func (bar *ValueBar) SetPos(n float64) {
-	var idx int
-	for idx < len(bar.scale)-1 {
-		if bar.scale[idx+1] > n {
-			break
-		}
-		idx++
-	}
+func (bar *NavBar) SetLabel(s string) { bar.label = s }
 
+func (bar *NavBar) SetPos(idx int) {
+	log.Debugf("SETPOS=%d", idx)
 	switch {
 	case idx > bar.pos:
 		bar.up(idx - bar.pos)
@@ -78,44 +64,24 @@ func (bar *ValueBar) SetPos(n float64) {
 	}
 }
 
-func (bar *ValueBar) Resize(w int) {
+func (bar *NavBar) Resize(w int) {
 	bar.width = w
 	bar.up(0)
 	bar.down(0)
 }
 
-// State change handler
-func (bar *ValueBar) Handle(change StateChange) {
-	var nc *noire.Color
+// NavBar implements Section
+func (bar *NavBar) Up(int)                         {}
+func (bar *NavBar) Down(int)                       {}
+func (bar *NavBar) Handle(StateChange)             {}
+func (bar *NavBar) Width() int                     { return bar.width }
+func (bar *NavBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
 
-	if change.Includes(HueChanged, SaturationChanged) {
-		for n, val := range bar.scale {
-			nc = noire.NewHSV(bar.state.Hue(), bar.state.Saturation(), val)
-			bar.items[n] = toTColor(nc)
-		}
-	}
-
-	if change.Includes(ValueChanged) {
-		bar.SetPos(bar.state.Value())
-	}
-
-}
-
-func (bar *ValueBar) Width() int { return bar.width }
-
-func (bar *ValueBar) Up(step int) {
-	bar.up(step)
-	bar.setState()
-}
-
-func (bar *ValueBar) Down(step int) {
-	bar.down(step)
-	bar.setState()
-}
-
-func (bar *ValueBar) up(step int) {
+func (bar *NavBar) up(step int) {
+	log.Debugf("OFFS=%d POS=%d LEN=%d STEP=%d", bar.offset, bar.pos, len(bar.items), step)
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
+
 	switch {
 	case step <= 0:
 	case bar.pos == max:
@@ -134,7 +100,7 @@ func (bar *ValueBar) up(step int) {
 	}
 }
 
-func (bar *ValueBar) down(step int) {
+func (bar *NavBar) down(step int) {
 	switch {
 	case step <= 0:
 	case bar.pos == 0:
@@ -151,10 +117,4 @@ func (bar *ValueBar) down(step int) {
 	if bar.offset < 0 {
 		bar.offset = 0
 	}
-}
-
-func (bar *ValueBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
-
-func (bar *ValueBar) setState() {
-	bar.state.SetValue(bar.scale[bar.pos])
 }
