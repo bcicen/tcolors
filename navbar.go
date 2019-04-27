@@ -4,6 +4,8 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+const scrollAhead = 3
+
 type NavBar struct {
 	items  []tcell.Color // navigation colors
 	label  string
