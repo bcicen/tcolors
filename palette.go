@@ -128,7 +128,7 @@ func (pb *PaletteBox) Handle(change StateChange) {
 }
 
 func (pb *PaletteBox) Resize(w int) {
-	pb.boxWidth = (w / 2) / pb.state.Len()
+	pb.boxWidth = w / pb.state.Len()
 	pb.width = pb.boxWidth * pb.state.Len()
 }
 
