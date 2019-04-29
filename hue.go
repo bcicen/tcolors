@@ -46,20 +46,32 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
 	s.SetCell(bar.width+x+1, y+3, bar.pst, '│')
 
-	for col, color := range bar.Items() {
-		s.SetCell(col+x, y+1, st.Background(color), ' ')
-		s.SetCell(col+x, y+2, st.Background(color), '▁')
-		//if col == center-boxPad {
-		//s.SetCell(center+x-boxPad, y+1, bar.pst.Background(color), '┌')
-		//}
-		//if col == center+boxPad {
-		//s.SetCell(center+x+boxPad, y+1, bar.pst.Background(color), '┐')
-		//}
+	idx := bar.pos - bar.center()
+	if idx < 0 {
+		idx += len(bar.items)
+	}
+	for col := 0; col <= bar.width; col++ {
+		st = st.Background(bar.items[idx])
+		s.SetCell(col+x, y+1, st, ' ')
+		s.SetCell(col+x, y+2, st, '▁')
+		idx++
+		if idx >= len(bar.items) {
+			idx = 0
+		}
 	}
 
-	for col, color := range bar.MiniMap() {
-		st = st.Background(color)
+	midx := bar.MiniPos() - bar.center()
+	if midx < 0 {
+		midx += len(bar.mItems)
+	}
+	for col := 0; col <= bar.width; col++ {
+		idx = bar.mItems[midx]
+		st = st.Background(bar.items[idx])
 		s.SetCell(col+x, y+3, st, ' ')
+		midx++
+		if midx >= len(bar.mItems) {
+			midx = 0
+		}
 	}
 
 	s.SetCell(center+x-boxPad, y+4, bar.pst, '└')
@@ -107,20 +119,7 @@ func (bar *HueBar) buildMini() {
 	}
 }
 
-func (bar *HueBar) Items() []tcell.Color {
-	l := bar.pos - bar.center()
-	r := bar.pos + bar.center() + 1
-	ilen := len(bar.items)
-	if l < 0 {
-		return append(bar.items[ilen+l:], bar.items[0:r]...)
-	}
-	if r > ilen {
-		return append(bar.items[l:ilen-1], bar.items[0:r-ilen]...)
-	}
-	return bar.items[l:r]
-}
-
-func (bar *HueBar) MiniMap() []tcell.Color {
+func (bar *HueBar) MiniPos() int {
 	var mpos int
 	for mpos < len(bar.mItems)-1 {
 		if bar.mItems[mpos+1] >= bar.pos {
@@ -128,27 +127,7 @@ func (bar *HueBar) MiniMap() []tcell.Color {
 		}
 		mpos++
 	}
-
-	l := mpos - bar.center()
-	r := mpos + bar.center() + 1
-	ilen := len(bar.mItems)
-
-	var a []int
-	switch {
-	case l < 0:
-		a = append(bar.mItems[ilen+l:], bar.mItems[0:r]...)
-	case r > ilen:
-		a = append(bar.mItems[l:], bar.mItems[0:r-ilen]...)
-	default:
-		a = bar.mItems[l:r]
-	}
-
-	var colors []tcell.Color
-	for _, idx := range a {
-		colors = append(colors, bar.items[idx])
-	}
-
-	return colors
+	return mpos
 }
 
 func (bar *HueBar) Width() int { return bar.width }
