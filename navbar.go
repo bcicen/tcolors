@@ -57,7 +57,6 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 func (bar *NavBar) SetLabel(s string) { bar.label = s }
 
 func (bar *NavBar) SetPos(idx int) {
-	log.Debugf("SETPOS=%d", idx)
 	switch {
 	case idx > bar.pos:
 		bar.up(idx - bar.pos)
@@ -80,7 +79,6 @@ func (bar *NavBar) Width() int                     { return bar.width }
 func (bar *NavBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
 
 func (bar *NavBar) up(step int) {
-	log.Debugf("OFFS=%d POS=%d LEN=%d STEP=%d", bar.offset, bar.pos, len(bar.items), step)
 	max := len(bar.items) - 1
 	maxOffset := max - bar.width
 
