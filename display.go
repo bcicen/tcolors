@@ -73,12 +73,7 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 		} else {
 			sec.SetPointerStyle(indicatorSt)
 		}
-		if n == 0 {
-			offset := (d.width - sec.Width()) / 2
-			y += sec.Draw(x+offset, y, s)
-		} else {
-			y += sec.Draw(x, y, s)
-		}
+		y += sec.Draw(x, y, s)
 	}
 	return y
 }

@@ -41,7 +41,7 @@ func (ss *subState) Selected() tcell.Color {
 
 type State struct {
 	pos     int
-	sstates [7]*subState
+	sstates [7]*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
 	pending StateChange
 }

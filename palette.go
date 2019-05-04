@@ -9,11 +9,15 @@ import (
 
 var padPalette = false
 
-const activePaletteHeight = 5
+const (
+	activePaletteHeight = 5
+	palletePadding      = 2
+)
 
 type PaletteBox struct {
 	width    int
 	boxWidth int
+	xStretch int
 	pst      tcell.Style // pointer style
 	state    *State
 }
@@ -31,10 +35,32 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	if boxHeight < 2 {
 		boxHeight = 2
 	}
+	x += palletePadding
 
 	pos := pb.state.Pos()
 	items := pb.state.SubColors()
 	selected := items[pos]
+
+	// distribute stretch evenly across boxes
+	// where appropriate to facilitate centering
+	centerIdx := pb.state.Len() / 2
+	boxWidths := make([]int, pb.state.Len())
+	boxWidths[centerIdx] = pb.xStretch
+
+	for boxWidths[centerIdx]/3 >= 1 {
+		boxWidths[centerIdx] -= 2
+		boxWidths[centerIdx-1] += 1
+	}
+	log.Debugf("STRETCHMASK %v", boxWidths)
+	for n := len(boxWidths) - 1; n > centerIdx; n-- {
+		boxWidths[n] = boxWidths[len(boxWidths)-1-n]
+	}
+
+	// apply default boxwidth
+	for n := range boxWidths {
+		boxWidths[n] += pb.boxWidth
+	}
+	log.Debugf("BOXWIDTHS %v", boxWidths)
 
 	r, g, b := selected.RGB()
 	s.SetCell(x+(pb.width-11)/2, y, hiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
@@ -53,21 +79,23 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 
 	lx := x
 	for n := range items {
+		bw := boxWidths[n]
 		if n == pos {
 			st = hiSt
 		} else {
 			st = loSt
 		}
-		for col := 0; col < pb.boxWidth; col++ {
+		for col := 0; col < bw; col++ {
 			s.SetCell(lx+col, y, st, '▁')
 		}
-		lx += pb.boxWidth
+		lx += bw
 	}
 	y++
 
 	lx = x
 	cst := tcell.StyleDefault
 	for n, color := range items {
+		bw := boxWidths[n]
 		cst = cst.Background(tcell.ColorBlack).Foreground(color)
 
 		switch {
@@ -81,12 +109,12 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 			st = indicatorSt.Background(color)
 		}
 
-		for col := 0; col < pb.boxWidth; col++ {
+		for col := 0; col < bw; col++ {
 			for row := 0; row < boxHeight; row++ {
 				switch {
 				case col == 0:
 					s.SetCell(lx, y+row, st, '▎')
-				case col == pb.boxWidth-1:
+				case col == bw-1:
 					s.SetCell(lx, y+row, st, '▕')
 				case padPalette && row == 0:
 					s.SetCell(lx, y+row, cst, '▄')
@@ -103,16 +131,17 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 
 	lx = x
 	for n := range items {
+		bw := boxWidths[n]
 		if n == pos {
 			st = hiIndicatorSt.Background(tcell.ColorBlack)
 		} else {
 			st = indicatorSt.Background(tcell.ColorBlack)
 		}
-		for col := 0; col < pb.boxWidth; col++ {
+		for col := 0; col < bw; col++ {
 			//s.SetCell(lx+col, y, st, []rune(fmt.Sprintf("%d", n))...)
 			s.SetCell(lx+col, y, st, '▔')
 		}
-		lx += pb.boxWidth
+		lx += bw
 	}
 
 	return activePaletteHeight + boxHeight + 3
@@ -128,8 +157,10 @@ func (pb *PaletteBox) Handle(change StateChange) {
 }
 
 func (pb *PaletteBox) Resize(w int) {
-	pb.boxWidth = w / pb.state.Len()
+	pb.boxWidth = (w - (palletePadding * 2)) / pb.state.Len()
 	pb.width = pb.boxWidth * pb.state.Len()
+	pb.xStretch = w - pb.width - palletePadding - 1
+	pb.width += pb.xStretch
 }
 
 func (pb *PaletteBox) Width() int    { return pb.width }
