@@ -51,16 +51,23 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		boxWidths[centerIdx] -= 2
 		boxWidths[centerIdx-1] += 1
 	}
-	log.Debugf("STRETCHMASK %v", boxWidths)
+
+	nextIdx := centerIdx - 1
+	for nextIdx >= 0 {
+		for boxWidths[nextIdx] >= 2 {
+			boxWidths[nextIdx] -= 1
+			boxWidths[nextIdx-1] += 1
+		}
+		nextIdx--
+	}
+	// mirror first half of array
 	for n := len(boxWidths) - 1; n > centerIdx; n-- {
 		boxWidths[n] = boxWidths[len(boxWidths)-1-n]
 	}
-
 	// apply default boxwidth
 	for n := range boxWidths {
 		boxWidths[n] += pb.boxWidth
 	}
-	log.Debugf("BOXWIDTHS %v", boxWidths)
 
 	r, g, b := selected.RGB()
 	s.SetCell(x+(pb.width-11)/2, y, hiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
