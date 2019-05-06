@@ -198,4 +198,5 @@ loop:
 		r, g, b := x.RGB()
 		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", 0, h, s, l, r, g, b)
 	}
+	disp.state.Save()
 }

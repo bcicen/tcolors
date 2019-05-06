@@ -47,6 +47,10 @@ type Display struct {
 
 func NewDisplay() *Display {
 	state := NewDefaultState()
+	err := state.Load()
+	if err != nil {
+		panic(err)
+	}
 	d := &Display{
 		state:      state,
 		HueNav:     NewHueBar(state),
