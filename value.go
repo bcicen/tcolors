@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/bcicen/tcolors/state"
 	"github.com/teacat/noire"
 )
 
@@ -17,7 +19,7 @@ type ValueBar struct {
 	scale [valCount]float64
 }
 
-func NewValueBar(s *State) *ValueBar {
+func NewValueBar(s *state.State) *ValueBar {
 	bar := &ValueBar{NavBar: NewNavBar(s, valCount)}
 
 	i := valMin
@@ -31,17 +33,17 @@ func NewValueBar(s *State) *ValueBar {
 }
 
 // State change handler
-func (bar *ValueBar) Handle(change StateChange) {
+func (bar *ValueBar) Handle(change state.Change) {
 	var nc *noire.Color
 
-	if change.Includes(HueChanged, SaturationChanged) {
+	if change.Includes(state.HueChanged, state.SaturationChanged) {
 		for n, val := range bar.scale {
 			nc = noire.NewHSV(bar.state.Hue(), bar.state.Saturation(), val)
 			bar.items[n] = toTColor(nc)
 		}
 	}
 
-	if change.Includes(ValueChanged) {
+	if change.Includes(state.ValueChanged) {
 		bar.SetPos(roundFloat(bar.state.Value() / valIncr))
 		bar.SetLabel(fmt.Sprintf("%5.1f ", bar.scale[bar.pos]))
 	}

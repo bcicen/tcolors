@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -24,7 +25,7 @@ type SaturationBar struct {
 	scale [satCount]float64
 }
 
-func NewSaturationBar(s *State) *SaturationBar {
+func NewSaturationBar(s *state.State) *SaturationBar {
 	bar := &SaturationBar{NavBar: NewNavBar(s, satCount)}
 
 	i := satMin
@@ -45,10 +46,10 @@ func (bar *SaturationBar) Draw(x, y int, s tcell.Screen) int {
 }
 
 // State change handler
-func (bar *SaturationBar) Handle(change StateChange) {
+func (bar *SaturationBar) Handle(change state.Change) {
 	var nc *noire.Color
 
-	if change.Includes(HueChanged, ValueChanged) {
+	if change.Includes(state.HueChanged, state.ValueChanged) {
 		nc = bar.state.BaseColor()
 
 		for n, val := range bar.scale {
@@ -57,7 +58,7 @@ func (bar *SaturationBar) Handle(change StateChange) {
 		}
 	}
 
-	if change.Includes(SaturationChanged) {
+	if change.Includes(state.SaturationChanged) {
 		bar.SetPos(roundFloat(bar.state.Saturation() / satIncr))
 		bar.SetLabel(fmt.Sprintf("%5.1f ", bar.scale[bar.pos]))
 	}

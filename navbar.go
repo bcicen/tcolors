@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 )
 
@@ -13,10 +14,10 @@ type NavBar struct {
 	offset int
 	width  int
 	pst    tcell.Style // pointer style
-	state  *State
+	state  *state.State
 }
 
-func NewNavBar(s *State, length int) *NavBar {
+func NewNavBar(s *state.State, length int) *NavBar {
 	return &NavBar{
 		items: make([]tcell.Color, length),
 		state: s,
@@ -74,7 +75,7 @@ func (bar *NavBar) Resize(w int) {
 // NavBar implements Section
 func (bar *NavBar) Up(int)                         {}
 func (bar *NavBar) Down(int)                       {}
-func (bar *NavBar) Handle(StateChange)             {}
+func (bar *NavBar) Handle(state.Change)            {}
 func (bar *NavBar) Width() int                     { return bar.width }
 func (bar *NavBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
 

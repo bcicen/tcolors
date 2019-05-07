@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -17,10 +18,10 @@ type HueBar struct {
 	pos    int
 	width  int
 	pst    tcell.Style // pointer style
-	state  *State
+	state  *state.State
 }
 
-func NewHueBar(s *State) *HueBar { return &HueBar{state: s} }
+func NewHueBar(s *state.State) *HueBar { return &HueBar{state: s} }
 
 func (bar *HueBar) SetPos(n float64) { bar.pos = int(n / hueIncr) }
 func (bar *HueBar) center() int      { return (bar.width / 2) }
@@ -94,11 +95,11 @@ func (bar *HueBar) Resize(w int) {
 	bar.buildMini()
 }
 
-func (bar *HueBar) Handle(change StateChange) {
+func (bar *HueBar) Handle(change state.Change) {
 	var n int
 	var nc *noire.Color
 
-	if change.Includes(SaturationChanged, ValueChanged) {
+	if change.Includes(state.SaturationChanged, state.ValueChanged) {
 		for i := 0.0; i < hueMax; i += hueIncr {
 			nc = noire.NewHSV(i, bar.state.Saturation(), bar.state.Value())
 			bar.items[n] = toTColor(nc)
@@ -106,7 +107,7 @@ func (bar *HueBar) Handle(change StateChange) {
 		}
 	}
 
-	if change.Includes(SelectedChanged, HueChanged) {
+	if change.Includes(state.SelectedChanged, state.HueChanged) {
 		bar.SetPos(bar.state.Hue())
 	}
 }

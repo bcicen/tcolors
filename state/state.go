@@ -1,98 +1,34 @@
-package main
+package state
 
 import (
-	"encoding/binary"
 	"fmt"
-	"math"
 	"os"
 	"sync"
 
+	"github.com/bcicen/tcolors/logging"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
 
-var malformedErr = fmt.Errorf("malformed state file")
-
-const subStateCount = 7
-const subStateByteSize = 56
-const stateByteSize = subStateCount*subStateByteSize + 8
-
-type StateChange uint8
-
-func (sc StateChange) Includes(other ...StateChange) bool {
-	for _, x := range other {
-		if sc&x == x {
-			return true
-		}
-	}
-	return false
-}
-
-const (
-	NoChange StateChange = 1 << iota
-	SelectedChanged
-	HueChanged
-	SaturationChanged
-	ValueChanged
+var (
+	log          = logging.Init()
+	malformedErr = fmt.Errorf("malformed state file")
 )
 
-const AllChanged = SelectedChanged | HueChanged | SaturationChanged | ValueChanged
-
-type subState struct {
-	rgb        [3]int32
-	hue        float64
-	saturation float64
-	value      float64
-}
-
-func (ss *subState) load(b []byte) error {
-	var offset int
-
-	if len(b) != subStateByteSize {
-		return malformedErr
-	}
-
-	ss.rgb[0] = int32FromBytes(b[offset : offset+4])
-	offset += 4
-	ss.rgb[1] = int32FromBytes(b[offset : offset+4])
-	offset += 4
-	ss.rgb[2] = int32FromBytes(b[offset : offset+4])
-	offset += 4
-
-	ss.hue = float64FromBytes(b[offset : offset+8])
-	offset += 8
-	ss.saturation = float64FromBytes(b[offset : offset+8])
-	offset += 8
-	ss.value = float64FromBytes(b[offset : offset+8])
-	offset += 8
-
-	return nil
-}
-
-func (ss *subState) bytes() []byte {
-	var buf [subStateByteSize]byte
-	var offset int
-	for _, n := range ss.rgb {
-		offset += writeInt32Bytes(buf[offset:], n)
-	}
-	offset += writeFloat64Bytes(buf[offset:], ss.hue)
-	offset += writeFloat64Bytes(buf[offset:], ss.saturation)
-	offset += writeFloat64Bytes(buf[offset:], ss.value)
-	return buf[:]
-}
-
-func (ss *subState) Selected() tcell.Color {
-	return tcell.NewRGBColor(ss.rgb[0], ss.rgb[1], ss.rgb[2])
-}
+const (
+	subStateCount    = 7
+	subStateByteSize = 56
+	stateByteSize    = subStateCount*subStateByteSize + 8
+)
 
 type State struct {
 	pos     int
 	sstates [subStateCount]*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
-	pending StateChange
+	pending Change
 }
 
-func NewDefaultState() *State {
+func NewDefault() *State {
 	hue := 20.0
 	s := NewState()
 	for n := range s.sstates {
@@ -116,7 +52,7 @@ func (s *State) Load() error {
 	var buf [stateByteSize]byte
 	var offset int
 
-	path := fmt.Sprintf("%s/state.bin", configPath())
+	path := statePath()
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -145,6 +81,7 @@ func (s *State) Load() error {
 		}
 		s.sstates[i].load(buf[offset : offset+subStateByteSize])
 		offset += subStateByteSize
+		log.Debugf("loaded substate [%d] from %s", i, path)
 	}
 
 	log.Infof("loaded state from %s", path)
@@ -152,7 +89,7 @@ func (s *State) Load() error {
 }
 
 func (s *State) Save() {
-	path := fmt.Sprintf("%s/state.bin", configPath())
+	path := statePath()
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
@@ -220,8 +157,8 @@ func (s *State) Prev() {
 	s.pending = AllChanged
 }
 
-// Return StateChange since previous flush
-func (s *State) Flush() StateChange {
+// Return state Change since previous flush
+func (s *State) Flush() Change {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	a := s.pending
@@ -257,28 +194,4 @@ func (s *State) SetValue(n float64) {
 	defer s.lock.Unlock()
 	s.sstates[s.pos].value = n
 	s.pending = s.pending | ValueChanged
-}
-
-func writeInt32Bytes(buf []byte, n int32) int {
-	binary.BigEndian.PutUint32(buf, uint32(n))
-	return 4
-}
-
-func int32FromBytes(buf []byte) int32 {
-	return int32(binary.BigEndian.Uint32(buf))
-}
-
-func float64FromBytes(buf []byte) float64 {
-	bits := binary.LittleEndian.Uint64(buf)
-	return math.Float64frombits(bits)
-}
-
-func writeFloat64Bytes(buf []byte, float float64) int {
-	bits := math.Float64bits(float)
-	binary.LittleEndian.PutUint64(buf[:], bits)
-	return 8
-}
-
-func configPath() string {
-	return "."
 }

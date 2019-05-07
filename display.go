@@ -3,6 +3,7 @@ package main
 import (
 	"sync"
 
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -16,7 +17,7 @@ const (
 )
 
 type ChangeHandler interface {
-	Handle(StateChange)
+	Handle(state.Change)
 }
 
 type Section interface {
@@ -41,12 +42,12 @@ type Display struct {
 	xHues      []*noire.Color // base hues
 	width      int
 	height     int
-	state      *State
+	state      *state.State
 	lock       sync.RWMutex
 }
 
 func NewDisplay() *Display {
-	state := NewDefaultState()
+	state := state.NewDefault()
 	err := state.Load()
 	if err != nil {
 		panic(err)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -19,10 +20,10 @@ type PaletteBox struct {
 	boxWidth int
 	xStretch int
 	pst      tcell.Style // pointer style
-	state    *State
+	state    *state.State
 }
 
-func NewPaletteBox(s *State) *PaletteBox {
+func NewPaletteBox(s *state.State) *PaletteBox {
 	pb := &PaletteBox{state: s}
 	return pb
 }
@@ -154,8 +155,8 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	return activePaletteHeight + boxHeight + 3
 }
 
-func (pb *PaletteBox) Handle(change StateChange) {
-	if change == NoChange {
+func (pb *PaletteBox) Handle(change state.Change) {
+	if change == state.NoChange {
 		return
 	}
 	nc := noire.NewHSV(pb.state.Hue(), pb.state.Saturation(), pb.state.Value())
