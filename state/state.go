@@ -52,7 +52,11 @@ func (s *State) Load() error {
 	var buf [stateByteSize]byte
 	var offset int
 
-	path := statePath()
+	path, err := statePath()
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -84,22 +88,25 @@ func (s *State) Load() error {
 		log.Debugf("loaded substate [%d] from %s", i, path)
 	}
 
-	log.Infof("loaded state from %s", path)
+	log.Infof("loaded state [%s]", path)
 	return nil
 }
 
-func (s *State) Save() {
-	path := statePath()
+func (s *State) Save() error {
+	path, err := statePath()
+	if err != nil {
+		return err
+	}
+	log.Infof("saving state [%s]", path)
+
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer f.Close()
+
 	_, err = f.Write(s.bytes())
-	if err != nil {
-		panic(err)
-	}
-	log.Infof("saved state to %s", path)
+	return err
 }
 
 // Bytes returns a byte-serialized representation
