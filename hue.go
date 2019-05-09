@@ -29,7 +29,6 @@ func (bar *HueBar) center() int      { return (bar.width / 2) }
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
-	//log.Debugf("POS=%d LEN=%d CENTER=%d", bar.pos, len(bar.items), bar.center())
 	center := bar.width / 2
 	boxPad := bar.width / 30
 	if boxPad < 2 {

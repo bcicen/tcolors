@@ -7,7 +7,6 @@ import (
 
 	"github.com/bcicen/tcolors/logging"
 	"github.com/gdamore/tcell"
-	"github.com/teacat/noire"
 )
 
 var (
@@ -80,11 +79,7 @@ func main() {
 	disp.build()
 
 	quit := make(chan struct{})
-	//go func() {
-	//time.Sleep(1 * time.Second)
-	//disp.SetColor(tcell.NewRGBColor(207, 064, 138))
-	//draw(s)
-	//}()
+
 	go func() {
 		for {
 			ev := s.PollEvent()
@@ -166,37 +161,7 @@ loop:
 		}
 	}
 
-	w, h := s.Size()
-
 	s.Clear()
-	//lx := 1
-	//ly := 1
-	//for i := 0.0; i < 360.5; i += 0.5 {
-	//c := noire.NewHSL(i, 100, 50)
-	//st := tcell.StyleDefault.Background(toTColor(c))
-	//s.SetCell(lx, ly, st, []rune(fmt.Sprintf("%0.2f ", i))...)
-	//lx += 2
-	//if lx >= w {
-	//ly++
-	//lx = 0
-	//}
-	//}
-	//s.Show()
-	//s.Sync()
-	//time.Sleep(5 * time.Second)
-
 	s.Fini()
-	fmt.Printf("w=%d h=%d hues=%d \n", w, h, len(disp.HueNav.items))
-	for n, x := range disp.xHues {
-		h, s, l := x.HSL()
-		r, g, b := x.RGB()
-		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", n, h, s, l, r, g, b)
-	}
-	for i := 0; i < 1; i++ {
-		x := noire.NewRGB(207, 64, 138)
-		h, s, l := x.HSL()
-		r, g, b := x.RGB()
-		fmt.Printf("[%d] %+0.2f %+0.2f %+0.2f [%0.3f %0.3f %0.3f]\n", 0, h, s, l, r, g, b)
-	}
 	disp.state.Save()
 }

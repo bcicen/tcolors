@@ -146,7 +146,6 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 			st = indicatorSt.Background(tcell.ColorBlack)
 		}
 		for col := 0; col < bw; col++ {
-			//s.SetCell(lx+col, y, st, []rune(fmt.Sprintf("%d", n))...)
 			s.SetCell(lx+col, y, st, '▔')
 		}
 		lx += bw
