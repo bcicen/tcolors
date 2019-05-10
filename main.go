@@ -9,10 +9,13 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+const (
+	littleStep = 1
+	bigStep    = 10
+)
+
 var (
 	log   = logging.Init()
-	boxW  = 120
-	boxH  = 80
 	disp  *Display
 	blkSt = tcell.StyleDefault.
 		Background(tcell.ColorBlack).
@@ -24,11 +27,6 @@ var (
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
 			Background(tcell.ColorBlack)
 	stepBasis int
-)
-
-const (
-	littleStep = 1
-	bigStep    = 10
 )
 
 func draw(s tcell.Screen) {

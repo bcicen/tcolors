@@ -9,11 +9,8 @@ import (
 )
 
 const (
-	paddingX     = 2
-	paddingY     = 1
-	step         = 0.005 // default step for bar scale
-	maxWidth     = 105
-	defaultGlyph = ' '
+	paddingX = 2
+	maxWidth = 105
 )
 
 type ChangeHandler interface {

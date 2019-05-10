@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math"
+
 	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 )
@@ -118,4 +120,8 @@ func (bar *NavBar) down(step int) {
 	if bar.offset < 0 {
 		bar.offset = 0
 	}
+}
+
+func roundFloat(num float64) int {
+	return int(num + math.Copysign(0.5, num))
 }

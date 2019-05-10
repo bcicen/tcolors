@@ -47,7 +47,6 @@ func (bar *ValueBar) Handle(change state.Change) {
 		bar.SetPos(roundFloat(bar.state.Value() / valIncr))
 		bar.SetLabel(fmt.Sprintf("%5.1f ", bar.scale[bar.pos]))
 	}
-
 }
 
 func (bar *ValueBar) Up(step int) {

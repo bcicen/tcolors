@@ -8,9 +8,8 @@ import (
 	"github.com/teacat/noire"
 )
 
-var padPalette = false
-
 const (
+	padPalette          = false
 	activePaletteHeight = 5
 	palletePadding      = 2
 )

@@ -2,16 +2,11 @@ package main
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
-
-func roundFloat(num float64) int {
-	return int(num + math.Copysign(0.5, num))
-}
 
 const (
 	satMin   = 0.0
