@@ -6,6 +6,7 @@ const (
 	HueChanged
 	SaturationChanged
 	ValueChanged
+	ErrorMsgChanged
 )
 
 const AllChanged = SelectedChanged | HueChanged | SaturationChanged | ValueChanged

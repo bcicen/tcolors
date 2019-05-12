@@ -28,19 +28,12 @@ type Section interface {
 }
 
 type Display struct {
-	rgb        []int32
-	HueNav     *HueBar
-	SatNav     *SaturationBar
-	ValueNav   *ValueBar
-	PaletteNav *PaletteBox
-	sections   []Section
-	sectionN   int
-	hues       []*noire.Color // modified hues
-	xHues      []*noire.Color // base hues
-	width      int
-	height     int
-	state      *state.State
-	lock       sync.RWMutex
+	rgb      []int32
+	sections []Section
+	sectionN int
+	width    int
+	state    *state.State
+	lock     sync.RWMutex
 }
 
 func NewDisplay() *Display {
@@ -50,25 +43,22 @@ func NewDisplay() *Display {
 		panic(err)
 	}
 	d := &Display{
-		state:      state,
-		HueNav:     NewHueBar(state),
-		SatNav:     NewSaturationBar(state),
-		ValueNav:   NewValueBar(state),
-		PaletteNav: NewPaletteBox(state),
+		state: state,
 	}
 	d.sections = []Section{
-		d.PaletteNav,
-		d.HueNav,
-		d.SatNav,
-		d.ValueNav,
+		NewPaletteBox(state),
+		NewHueBar(state),
+		NewSaturationBar(state),
+		NewValueBar(state),
 	}
-	d.mkhues()
 	return d
 }
 
 // Draw redraws display at given coordinates, returning the number
 // of rows occupied
 func (d *Display) Draw(x, y int, s tcell.Screen) int {
+	d.lock.Lock()
+	defer d.lock.Unlock()
 	for n, sec := range d.sections {
 		if n == d.sectionN {
 			sec.SetPointerStyle(hiIndicatorSt)
@@ -80,13 +70,6 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 	return y
 }
 
-func (d *Display) Reset() {
-	d.HueNav.SetPos(100)
-	d.SatNav.SetPos(100)
-	d.ValueNav.SetPos(100)
-	d.build()
-}
-
 func (d *Display) Resize(w int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
@@ -96,12 +79,6 @@ func (d *Display) Resize(w int) {
 	}
 	for _, sec := range d.sections {
 		sec.Resize(d.width)
-	}
-}
-
-func (d *Display) mkhues() {
-	for i := 0.0; i < 359; i += 0.5 {
-		d.xHues = append(d.xHues, noire.NewHSV(float64(i), 100, 100))
 	}
 }
 

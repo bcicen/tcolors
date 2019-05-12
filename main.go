@@ -26,6 +26,9 @@ var (
 	hiIndicatorSt = tcell.StyleDefault.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
 			Background(tcell.ColorBlack)
+	errSt = tcell.StyleDefault.
+		Foreground(tcell.NewRGBColor(255, 000, 043)).
+		Background(tcell.ColorBlack)
 	stepBasis int
 )
 
@@ -90,9 +93,6 @@ func main() {
 				switch ev.Key() {
 				case tcell.KeyRune:
 					switch ev.Rune() {
-					case 'r':
-						disp.Reset()
-						draw(s)
 					case 'h':
 						if ok := disp.ValueDown(stepBasis); ok {
 							draw(s)
