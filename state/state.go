@@ -22,11 +22,10 @@ const (
 )
 
 type State struct {
-	pos      int
-	sstates  [subStateCount]*subState // must be odd number for centering to work properly
-	lock     sync.RWMutex
-	pending  Change
-	errorMsg string
+	pos     int
+	sstates [subStateCount]*subState // must be odd number for centering to work properly
+	lock    sync.RWMutex
+	pending Change
 }
 
 func NewDefault() *State {

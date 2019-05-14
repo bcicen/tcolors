@@ -32,6 +32,7 @@ type Display struct {
 	sections []Section
 	sectionN int
 	width    int
+	errMsg   *ErrorMsg
 	state    *state.State
 	lock     sync.RWMutex
 }
@@ -43,7 +44,8 @@ func NewDisplay() *Display {
 		panic(err)
 	}
 	d := &Display{
-		state: state,
+		state:  state,
+		errMsg: NewErrorMsg(),
 	}
 	d.sections = []Section{
 		NewPaletteBox(state),
@@ -67,6 +69,7 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 		}
 		y += sec.Draw(x, y, s)
 	}
+	d.errMsg.Draw(x, s)
 	return y
 }
 
@@ -80,6 +83,7 @@ func (d *Display) Resize(w int) {
 	for _, sec := range d.sections {
 		sec.Resize(d.width)
 	}
+	d.errMsg.Resize(d.width)
 }
 
 func toTColor(c *noire.Color) tcell.Color {
