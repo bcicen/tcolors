@@ -161,5 +161,7 @@ loop:
 
 	s.Clear()
 	s.Fini()
-	disp.state.Save()
+	if err := disp.Close(); err != nil {
+		fmt.Println(err)
+	}
 }

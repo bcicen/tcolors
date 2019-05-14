@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/bcicen/tcolors/state"
@@ -38,22 +39,24 @@ type Display struct {
 }
 
 func NewDisplay() *Display {
-	state := state.NewDefault()
-	err := state.Load()
-	if err != nil {
-		panic(err)
-	}
 	d := &Display{
-		state:  state,
+		state:  state.NewDefault(),
 		errMsg: NewErrorMsg(),
 	}
 	d.sections = []Section{
-		NewPaletteBox(state),
-		NewHueBar(state),
-		NewSaturationBar(state),
-		NewValueBar(state),
+		NewPaletteBox(d.state),
+		NewHueBar(d.state),
+		NewSaturationBar(d.state),
+		NewValueBar(d.state),
+	}
+	if err := d.state.Load(); err != nil {
+		d.errMsg.Set(fmt.Sprintf("failed to load state: %s", err))
 	}
 	return d
+}
+
+func (d *Display) Close() error {
+	return d.state.Save()
 }
 
 // Draw redraws display at given coordinates, returning the number
