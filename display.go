@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
@@ -10,8 +11,10 @@ import (
 )
 
 const (
-	paddingX = 2
-	maxWidth = 105
+	paddingX   = 2
+	maxWidth   = 105
+	littleStep = 1
+	bigStep    = 10
 )
 
 type ChangeHandler interface {
@@ -29,19 +32,22 @@ type Section interface {
 }
 
 type Display struct {
-	rgb      []int32
-	sections []Section
-	sectionN int
-	width    int
-	errMsg   *ErrorMsg
-	state    *state.State
-	lock     sync.RWMutex
+	rgb       []int32
+	sections  []Section
+	sectionN  int
+	width     int
+	errMsg    *ErrorMsg
+	stepBasis int
+	state     *state.State
+	quit      chan struct{}
+	lock      sync.RWMutex
 }
 
-func NewDisplay() *Display {
+func NewDisplay(s tcell.Screen) *Display {
 	d := &Display{
 		state:  state.NewDefault(),
 		errMsg: NewErrorMsg(),
+		quit:   make(chan struct{}),
 	}
 	d.sections = []Section{
 		NewPaletteBox(d.state),
@@ -52,18 +58,45 @@ func NewDisplay() *Display {
 	if err := d.state.Load(); err != nil {
 		d.errMsg.Set(fmt.Sprintf("failed to load state: %s", err))
 	}
+
+	w, _ := s.Size()
+	d.Resize(w)
+	d.build()
+
+	go d.eventHandler(s)
 	return d
 }
 
-func (d *Display) Close() error {
-	return d.state.Save()
+func (d *Display) Done() error {
+	for {
+		select {
+		case <-d.quit:
+			return d.state.Save()
+		case <-time.After(time.Millisecond * 50):
+		}
+	}
 }
 
-// Draw redraws display at given coordinates, returning the number
-// of rows occupied
-func (d *Display) Draw(x, y int, s tcell.Screen) int {
+func (d *Display) Draw(s tcell.Screen) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
+
+	w, h := s.Size()
+	if w == 0 || h == 0 {
+		return
+	}
+
+	x, y := paddingX, 1
+	if d.width == maxWidth {
+		x = (w - maxWidth) / 2 // center display
+	}
+
+	if d.stepBasis == bigStep {
+		s.SetCell(1, 0, tcell.StyleDefault, '⏩')
+	} else {
+		s.SetCell(1, 0, tcell.StyleDefault, ' ')
+	}
+
 	for n, sec := range d.sections {
 		if n == d.sectionN {
 			sec.SetPointerStyle(hiIndicatorSt)
@@ -73,7 +106,8 @@ func (d *Display) Draw(x, y int, s tcell.Screen) int {
 		y += sec.Draw(x, y, s)
 	}
 	d.errMsg.Draw(x, s)
-	return y
+
+	s.Show()
 }
 
 func (d *Display) Resize(w int) {
@@ -130,14 +164,72 @@ func (d *Display) SectionDown() (ok bool) {
 	return true
 }
 
-func (d *Display) ValueUp(step int) (ok bool) {
-	d.sections[d.sectionN].Up(step)
+func (d *Display) ValueUp() (ok bool) {
+	d.sections[d.sectionN].Up(d.stepBasis)
 	d.build()
 	return true
 }
 
-func (d *Display) ValueDown(step int) (ok bool) {
-	d.sections[d.sectionN].Down(step)
+func (d *Display) ValueDown() (ok bool) {
+	d.sections[d.sectionN].Down(d.stepBasis)
 	d.build()
 	return true
+}
+
+func (d *Display) eventHandler(s tcell.Screen) {
+	for {
+		redraw := false
+		d.stepBasis = littleStep
+
+		ev := s.PollEvent()
+		switch ev := ev.(type) {
+		case *tcell.EventKey:
+			if ev.Modifiers()&tcell.ModShift == tcell.ModShift {
+				d.stepBasis = bigStep
+			}
+			switch ev.Key() {
+			case tcell.KeyRune:
+				switch ev.Rune() {
+				case 'h':
+					redraw = d.ValueDown()
+				case 'k':
+					redraw = d.SectionUp()
+				case 'j':
+					redraw = d.SectionDown()
+				case 'l':
+					redraw = d.ValueUp()
+				case 'q':
+					close(d.quit)
+					return
+				default:
+					log.Debugf("ignoring key [%s]", string(ev.Rune()))
+				}
+			case tcell.KeyRight:
+				redraw = d.ValueUp()
+			case tcell.KeyLeft:
+				redraw = d.ValueDown()
+			case tcell.KeyUp:
+				redraw = d.SectionUp()
+			case tcell.KeyDown:
+				redraw = d.SectionDown()
+			case tcell.KeyEscape, tcell.KeyCtrlC:
+				close(d.quit)
+				return
+			case tcell.KeyCtrlL:
+				s.Sync()
+			}
+
+		case *tcell.EventResize:
+			w, h := s.Size()
+			log.Debugf("handling resize: w=%04d h=%04d", w, h)
+			d.Resize(w)
+			s.Clear()
+			s.Sync()
+			redraw = true
+		}
+
+		if redraw {
+			d.Draw(s)
+		}
+	}
 }
