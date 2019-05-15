@@ -29,6 +29,7 @@ func (bar *HueBar) center() int      { return (bar.width / 2) }
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
+	const h = 4
 	center := bar.width / 2
 	boxPad := bar.width / 30
 	if boxPad < 2 {
@@ -40,12 +41,10 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	s.SetCell(center+x, y, bar.pst, '▾')
 
 	// border bars
-	s.SetCell(x-1, y+1, bar.pst, '│')
-	s.SetCell(x-1, y+2, bar.pst, '│')
-	s.SetCell(x-1, y+3, bar.pst, '│')
-	s.SetCell(bar.width+x+1, y+1, bar.pst, '│')
-	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
-	s.SetCell(bar.width+x+1, y+3, bar.pst, '│')
+	for i := 1; i <= h; i++ {
+		s.SetCell(x-1, y+i, bar.pst, '│')
+		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
+	}
 
 	idx := bar.pos - bar.center()
 	if idx < 0 {
@@ -56,8 +55,10 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 			idx = 0
 		}
 		st = st.Background(bar.items[idx])
-		s.SetCell(col+x, y+1, st, ' ')
-		s.SetCell(col+x, y+2, st, '▁')
+		for i := 1; i < h-1; i++ {
+			s.SetCell(col+x, y+i, st, ' ')
+		}
+		s.SetCell(col+x, y+h-1, st, '▁')
 		idx++
 	}
 
@@ -71,14 +72,16 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 		}
 		idx = bar.mItems[midx]
 		st = st.Background(bar.items[idx])
-		s.SetCell(col+x, y+3, st, ' ')
+		s.SetCell(col+x, y+h, st, ' ')
 		midx++
 	}
 
-	s.SetCell(center+x-boxPad, y+4, bar.pst, '└')
-	s.SetCell(center+x+boxPad, y+4, bar.pst, '┘')
+	y += h + 1
 
-	return 5
+	s.SetCell(center+x-boxPad, y, bar.pst, '└')
+	s.SetCell(center+x+boxPad, y, bar.pst, '┘')
+
+	return h + 2
 }
 
 func (bar *HueBar) miniStep() int {

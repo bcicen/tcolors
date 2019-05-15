@@ -29,22 +29,24 @@ func NewNavBar(s *state.State, length int) *NavBar {
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
+	const h = 3
 	var st tcell.Style
 
 	n := bar.offset
 	col := 0
 
 	// border bars
-	s.SetCell(x-1, y+1, bar.pst, '│')
-	s.SetCell(x-1, y+2, bar.pst, '│')
-	s.SetCell(bar.width+x+1, y+1, bar.pst, '│')
-	s.SetCell(bar.width+x+1, y+2, bar.pst, '│')
+	for i := 1; i <= h; i++ {
+		s.SetCell(x-1, y+i, bar.pst, '│')
+		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
+	}
 
 	for col <= bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
 		s.SetCell(col+x, y, blkSt, '█')
-		s.SetCell(col+x, y+1, st, ' ')
-		s.SetCell(col+x, y+2, st, ' ')
+		for i := 1; i <= h; i++ {
+			s.SetCell(col+x, y+i, st, ' ')
+		}
 
 		col++
 		n++
@@ -52,9 +54,9 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
-	s.SetCell(bar.width/2, y+3, bar.pst, []rune(bar.label)...)
+	s.SetCell(bar.width/2, y+4, bar.pst, []rune(bar.label)...)
 
-	return 4
+	return h + 1
 }
 
 func (bar *NavBar) SetLabel(s string) { bar.label = s }
