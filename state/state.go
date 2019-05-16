@@ -49,6 +49,13 @@ func NewDefault() *State {
 func NewState() *State { return &State{pending: AllChanged} }
 
 func (s *State) Load() error {
+	if err := s.load(); err != nil {
+		return fmt.Errorf("failed to load state: %s", err)
+	}
+	return nil
+}
+
+func (s *State) load() error {
 	var buf [stateByteSize]byte
 	var offset int
 
@@ -201,4 +208,18 @@ func (s *State) SetValue(n float64) {
 	defer s.lock.Unlock()
 	s.sstates[s.pos].value = n
 	s.pending = s.pending | ValueChanged
+}
+
+func (s *State) OutputHex() (txt string) {
+	for _, ss := range s.sstates {
+		txt = fmt.Sprintf("%s; %06x", txt, ss.Selected().Hex())
+	}
+	return txt
+}
+
+func (s *State) OutputRGB() (txt string) {
+	for _, ss := range s.sstates {
+		txt = fmt.Sprintf("%s; %03d %03d %03d", txt, ss.rgb[0], ss.rgb[1], ss.rgb[2])
+	}
+	return txt
 }
