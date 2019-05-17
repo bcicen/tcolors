@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -56,7 +55,7 @@ func NewDisplay(s tcell.Screen) *Display {
 		NewValueBar(d.state),
 	}
 	if err := d.state.Load(); err != nil {
-		d.errMsg.Set(fmt.Sprintf("failed to load state: %s", err))
+		d.errMsg.Set(err.Error())
 	}
 
 	w, _ := s.Size()

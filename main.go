@@ -1,10 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/bcicen/tcolors/logging"
+	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 )
 
@@ -26,6 +28,19 @@ var (
 
 func main() {
 	defer log.Exit()
+
+	var (
+		printFlag = flag.Bool("p", false, "output current palette contents in common representations")
+	)
+
+	flag.Parse()
+	if *printFlag {
+		tstate := state.NewDefault()
+		errExit(tstate.Load())
+		fmt.Printf("%s\n\n", tstate.OutputHex())
+		fmt.Printf("%s\n\n", tstate.OutputRGB())
+		os.Exit(1)
+	}
 
 	// initialize screen
 	tcell.SetEncodingFallback(tcell.EncodingFallbackASCII)
@@ -51,5 +66,12 @@ func main() {
 	s.Fini()
 	if err != nil {
 		fmt.Println(err)
+	}
+}
+
+func errExit(err error) {
+	if err != nil {
+		fmt.Printf("[error]: %s\n", err.Error())
+		os.Exit(1)
 	}
 }

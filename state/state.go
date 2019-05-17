@@ -3,6 +3,7 @@ package state
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/bcicen/tcolors/logging"
@@ -210,16 +211,18 @@ func (s *State) SetValue(n float64) {
 	s.pending = s.pending | ValueChanged
 }
 
-func (s *State) OutputHex() (txt string) {
+func (s *State) OutputHex() string {
+	var txt []string
 	for _, ss := range s.sstates {
-		txt = fmt.Sprintf("%s; %06x", txt, ss.Selected().Hex())
+		txt = append(txt, fmt.Sprintf("#%06x", ss.Selected().Hex()))
 	}
-	return txt
+	return strings.Join(txt, ", ")
 }
 
-func (s *State) OutputRGB() (txt string) {
+func (s *State) OutputRGB() string {
+	var txt []string
 	for _, ss := range s.sstates {
-		txt = fmt.Sprintf("%s; %03d %03d %03d", txt, ss.rgb[0], ss.rgb[1], ss.rgb[2])
+		txt = append(txt, fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2]))
 	}
-	return txt
+	return strings.Join(txt, ", ")
 }
