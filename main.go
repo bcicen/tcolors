@@ -38,6 +38,7 @@ func main() {
 		tstate := state.NewDefault()
 		errExit(tstate.Load())
 		fmt.Printf("%s\n\n", tstate.OutputHex())
+		fmt.Printf("%s\n\n", tstate.OutputHSV())
 		fmt.Printf("%s\n\n", tstate.OutputRGB())
 		os.Exit(1)
 	}

@@ -214,7 +214,15 @@ func (s *State) SetValue(n float64) {
 func (s *State) OutputHex() string {
 	var txt []string
 	for _, ss := range s.sstates {
-		txt = append(txt, fmt.Sprintf("#%06x", ss.Selected().Hex()))
+		txt = append(txt, fmt.Sprintf("%06x", ss.Selected().Hex()))
+	}
+	return strings.Join(txt, ", ")
+}
+
+func (s *State) OutputHSV() string {
+	var txt []string
+	for _, ss := range s.sstates {
+		txt = append(txt, fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value))
 	}
 	return strings.Join(txt, ", ")
 }
