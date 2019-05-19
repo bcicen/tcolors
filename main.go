@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/bcicen/tcolors/logging"
 	"github.com/bcicen/tcolors/state"
@@ -30,17 +31,29 @@ func main() {
 	defer log.Exit()
 
 	var (
-		printFlag = flag.Bool("p", false, "output current palette contents in common representations")
+		printFlag  = flag.Bool("p", false, "output current palette contents")
+		formatFlag = flag.String("f", "all", "color format to output (hex, rgb, hsv)")
 	)
 
 	flag.Parse()
 	if *printFlag {
 		tstate := state.NewDefault()
 		errExit(tstate.Load())
-		fmt.Printf("%s\n\n", tstate.OutputHex())
-		fmt.Printf("%s\n\n", tstate.OutputHSV())
-		fmt.Printf("%s\n\n", tstate.OutputRGB())
-		os.Exit(1)
+
+		cfmt := strings.ToLower(strings.Trim(*formatFlag, " "))
+		switch cfmt {
+		case "all":
+			tstate.OutputTable()
+		case "hex":
+			fmt.Printf("%s\n", tstate.OutputHex())
+		case "hsv":
+			fmt.Printf("%s\n", tstate.OutputHSV())
+		case "rgb":
+			fmt.Printf("%s\n", tstate.OutputRGB())
+		default:
+			errExit(fmt.Errorf("unknown format \"%s\"", cfmt))
+		}
+		os.Exit(0)
 	}
 
 	// initialize screen

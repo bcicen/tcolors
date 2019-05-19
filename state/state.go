@@ -8,6 +8,7 @@ import (
 
 	"github.com/bcicen/tcolors/logging"
 	"github.com/gdamore/tcell"
+	"github.com/olekukonko/tablewriter"
 	"github.com/teacat/noire"
 )
 
@@ -209,6 +210,21 @@ func (s *State) SetValue(n float64) {
 	defer s.lock.Unlock()
 	s.sstates[s.pos].value = n
 	s.pending = s.pending | ValueChanged
+}
+
+// OutputTable prints a table-formatted representation of the current State
+func (s *State) OutputTable() {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Color", "Hex", "HSV", "RGB"})
+
+	for n, ss := range s.sstates {
+		hex := fmt.Sprintf("%06x", ss.Selected().Hex())
+		hsv := fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value)
+		rgb := fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2])
+		table.Append([]string{fmt.Sprintf("%d", n), hex, hsv, rgb})
+	}
+
+	table.Render()
 }
 
 func (s *State) OutputHex() string {
