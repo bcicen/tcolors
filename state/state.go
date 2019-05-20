@@ -215,7 +215,7 @@ func (s *State) SetValue(n float64) {
 // OutputTable prints a table-formatted representation of the current State
 func (s *State) OutputTable() {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Color", "Hex", "HSV", "RGB"})
+	table.SetHeader([]string{"#", "Hex", "HSV", "RGB"})
 
 	for n, ss := range s.sstates {
 		hex := fmt.Sprintf("%06x", ss.Selected().Hex())
