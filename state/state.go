@@ -1,6 +1,7 @@
 package state
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -138,7 +139,7 @@ func (s *State) bytes() []byte {
 func (s *State) SubColors() []tcell.Color {
 	a := make([]tcell.Color, len(s.sstates))
 	for n := range s.sstates {
-		a[n] = s.sstates[n].Selected()
+		a[n] = s.sstates[n].TColor()
 	}
 	return a
 }
@@ -148,7 +149,7 @@ func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Hue() float64          { return s.sstates[s.pos].hue }
 func (s *State) Value() float64        { return s.sstates[s.pos].value }
 func (s *State) Saturation() float64   { return s.sstates[s.pos].saturation }
-func (s *State) Selected() tcell.Color { return s.sstates[s.pos].Selected() }
+func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
 
 // BaseColor returns the current color at full saturation and brightness
 func (s *State) BaseColor() *noire.Color { return noire.NewHSV(s.Hue(), 100, 100) }
@@ -216,41 +217,43 @@ func (s *State) SetValue(n float64) {
 	s.pending = s.pending | ValueChanged
 }
 
-// OutputTable prints a table-formatted representation of the current State
-func (s *State) OutputTable() {
-	table := tablewriter.NewWriter(os.Stdout)
+// TableString returns an ascii table formatted representation of the current State
+func (s *State) TableString() string {
+	var buf bytes.Buffer
+	table := tablewriter.NewWriter(&buf)
 	table.SetHeader([]string{"#", "Hex", "HSV", "RGB"})
 
 	for n, ss := range s.sstates {
-		hex := fmt.Sprintf("%06x", ss.Selected().Hex())
+		hex := fmt.Sprintf("%06x", ss.TColor().Hex())
 		hsv := fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value)
 		rgb := fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2])
 		table.Append([]string{fmt.Sprintf("%d", n), hex, hsv, rgb})
 	}
 
 	table.Render()
+	return buf.String()
 }
 
-func (s *State) OutputHex() string {
+func (s *State) HexString() string {
 	var txt []string
 	for _, ss := range s.sstates {
-		txt = append(txt, fmt.Sprintf("%06x", ss.Selected().Hex()))
+		txt = append(txt, ss.HexString())
 	}
 	return strings.Join(txt, ", ")
 }
 
-func (s *State) OutputHSV() string {
+func (s *State) HSVString() string {
 	var txt []string
 	for _, ss := range s.sstates {
-		txt = append(txt, fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value))
+		txt = append(txt, ss.HSVString())
 	}
 	return strings.Join(txt, ", ")
 }
 
-func (s *State) OutputRGB() string {
+func (s *State) RGBString() string {
 	var txt []string
 	for _, ss := range s.sstates {
-		txt = append(txt, fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2]))
+		txt = append(txt, ss.RGBString())
 	}
 	return strings.Join(txt, ", ")
 }

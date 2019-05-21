@@ -1,7 +1,10 @@
 package state
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell"
+	"github.com/teacat/noire"
 )
 
 type subState struct {
@@ -11,8 +14,24 @@ type subState struct {
 	value      float64
 }
 
-func (ss *subState) Selected() tcell.Color {
+func (ss *subState) NColor() *noire.Color {
+	return noire.NewHSV(ss.hue, ss.saturation, ss.value)
+}
+
+func (ss *subState) TColor() tcell.Color {
 	return tcell.NewRGBColor(ss.rgb[0], ss.rgb[1], ss.rgb[2])
+}
+
+func (ss *subState) HexString() string {
+	return fmt.Sprintf("%06x", ss.TColor().Hex())
+}
+
+func (ss *subState) HSVString() string {
+	return fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value)
+}
+
+func (ss *subState) RGBString() string {
+	return fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2])
 }
 
 func (ss *subState) load(b []byte) error {

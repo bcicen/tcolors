@@ -43,13 +43,13 @@ func main() {
 		cfmt := strings.ToLower(strings.Trim(*formatFlag, " "))
 		switch cfmt {
 		case "all":
-			tstate.OutputTable()
+			fmt.Printf("%s\n", tstate.TableString())
 		case "hex":
-			fmt.Printf("%s\n", tstate.OutputHex())
+			fmt.Printf("%s\n", tstate.HexString())
 		case "hsv":
-			fmt.Printf("%s\n", tstate.OutputHSV())
+			fmt.Printf("%s\n", tstate.HSVString())
 		case "rgb":
-			fmt.Printf("%s\n", tstate.OutputRGB())
+			fmt.Printf("%s\n", tstate.RGBString())
 		default:
 			errExit(fmt.Errorf("unknown format \"%s\"", cfmt))
 		}
