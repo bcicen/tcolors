@@ -159,7 +159,7 @@ func (pb *PaletteBox) Handle(change state.Change) {
 	}
 	nc := noire.NewHSV(pb.state.Hue(), pb.state.Saturation(), pb.state.Value())
 	r, g, b := nc.RGB()
-	pb.state.SetSelected(int32(r), int32(g), int32(b))
+	pb.state.SetRGB(int32(r), int32(g), int32(b))
 }
 
 func (pb *PaletteBox) Resize(w int) {

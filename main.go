@@ -37,8 +37,8 @@ func main() {
 
 	flag.Parse()
 	if *printFlag {
-		tstate := state.NewDefault()
-		errExit(tstate.Load())
+		tstate, err := state.Load()
+		errExit(err)
 
 		cfmt := strings.ToLower(strings.Trim(*formatFlag, " "))
 		switch cfmt {

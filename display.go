@@ -43,18 +43,21 @@ type Display struct {
 }
 
 func NewDisplay(s tcell.Screen) *Display {
+	tstate, err := state.Load()
+
 	d := &Display{
-		state:  state.NewDefault(),
+		state:  tstate,
 		errMsg: NewErrorMsg(),
 		quit:   make(chan struct{}),
+		sections: []Section{
+			NewPaletteBox(tstate),
+			NewHueBar(tstate),
+			NewSaturationBar(tstate),
+			NewValueBar(tstate),
+		},
 	}
-	d.sections = []Section{
-		NewPaletteBox(d.state),
-		NewHueBar(d.state),
-		NewSaturationBar(d.state),
-		NewValueBar(d.state),
-	}
-	if err := d.state.Load(); err != nil {
+
+	if err != nil {
 		d.errMsg.Set(err.Error())
 	}
 

@@ -30,9 +30,20 @@ type State struct {
 	pending Change
 }
 
+// Load attempts to read a stored state from disk. If no stored state exists or
+// is readable, a default State and error will be returned.
+func Load() (*State, error) {
+	s := NewDefault()
+	if err := s.load(); err != nil {
+		return s, fmt.Errorf("failed to load state: %s", err)
+	}
+	return s, nil
+}
+
+// NewDefault returns a State initialized with default colors
 func NewDefault() *State {
 	hue := 20.0
-	s := NewState()
+	s := New()
 	for n := range s.sstates {
 		r, g, b := noire.NewHSV(hue, 100, 100).RGB()
 		s.sstates[n] = &subState{
@@ -48,14 +59,7 @@ func NewDefault() *State {
 	return s
 }
 
-func NewState() *State { return &State{pending: AllChanged} }
-
-func (s *State) Load() error {
-	if err := s.load(); err != nil {
-		return fmt.Errorf("failed to load state: %s", err)
-	}
-	return nil
-}
+func New() *State { return &State{pending: AllChanged} }
 
 func (s *State) load() error {
 	var buf [stateByteSize]byte
@@ -182,7 +186,7 @@ func (s *State) Flush() Change {
 	return a
 }
 
-func (s *State) SetSelected(r, g, b int32) {
+func (s *State) SetRGB(r, g, b int32) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.sstates[s.pos].rgb[0] = r
