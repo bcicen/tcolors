@@ -54,7 +54,7 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
-	s.SetCell(bar.width/2, y+4, bar.pst, []rune(bar.label)...)
+	s.SetCell(x+((bar.width-4)/2), y+4, bar.pst, []rune(bar.label)...)
 
 	return h + 1
 }
