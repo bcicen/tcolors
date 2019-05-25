@@ -25,7 +25,6 @@ type Section interface {
 	Up(int)
 	Down(int)
 	Draw(int, int, tcell.Screen) int
-	Width() int
 	Resize(int) // resize section to given width
 	SetPointerStyle(tcell.Style)
 }

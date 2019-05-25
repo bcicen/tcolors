@@ -80,7 +80,6 @@ func (bar *NavBar) Resize(w int) {
 func (bar *NavBar) Up(int)                         {}
 func (bar *NavBar) Down(int)                       {}
 func (bar *NavBar) Handle(state.Change)            {}
-func (bar *NavBar) Width() int                     { return bar.width }
 func (bar *NavBar) SetPointerStyle(st tcell.Style) { bar.pst = st }
 
 func (bar *NavBar) up(step int) {

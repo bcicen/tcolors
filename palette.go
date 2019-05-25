@@ -169,7 +169,6 @@ func (pb *PaletteBox) Resize(w int) {
 	pb.width += pb.xStretch
 }
 
-func (pb *PaletteBox) Width() int    { return pb.width }
 func (pb *PaletteBox) Up(step int)   { pb.state.Next() }
 func (pb *PaletteBox) Down(step int) { pb.state.Prev() }
 

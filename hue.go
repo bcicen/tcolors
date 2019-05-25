@@ -147,8 +147,6 @@ func (bar *HueBar) buildMini() {
 	}
 }
 
-func (bar *HueBar) Width() int { return bar.width }
-
 func (bar *HueBar) Up(step int) {
 	n := int(bar.state.Hue()) + step
 	if n > hueMax {
