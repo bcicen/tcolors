@@ -31,10 +31,6 @@ func (bar *HueBar) center() int      { return (bar.width / 2) }
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	const h = 4
 	center := bar.width / 2
-	boxPad := bar.width / 30
-	if boxPad < 2 {
-		boxPad = 2
-	}
 	st := tcell.StyleDefault.
 		Foreground(tcell.ColorBlack)
 
@@ -46,6 +42,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
 	}
 
+	// draw main bar
 	idx := bar.pos - bar.center()
 	if idx < 0 {
 		idx += len(bar.items)
@@ -62,7 +59,8 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 		idx++
 	}
 
-	midx := bar.MiniPos() - bar.center() - 1
+	// draw minimap
+	midx := bar.miniPos() - bar.center() - 1
 	if midx < 0 {
 		midx += len(bar.mItems)
 	}
@@ -78,18 +76,14 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 
 	y += h + 1
 
-	s.SetCell(center+x-boxPad, y, bar.pst, '└')
-	s.SetCell(center+x+boxPad, y, bar.pst, '┘')
+	miniBoxW := bar.miniBox()
+	s.SetCell(center+x-miniBoxW, y, bar.pst, '└')
+	if bar.width%2 != 0 && miniBoxW%2 == 0 {
+		miniBoxW++
+	}
+	s.SetCell(center+x+miniBoxW, y, bar.pst, '┘')
 
 	return h + 2
-}
-
-func (bar *HueBar) miniStep() int {
-	n := len(bar.items) / bar.width
-	if n > 13 {
-		n = 13
-	}
-	return n
 }
 
 func (bar *HueBar) Resize(w int) {
@@ -114,16 +108,26 @@ func (bar *HueBar) Handle(change state.Change) {
 	}
 }
 
-// build minimap indices
-func (bar *HueBar) buildMini() {
-	bar.mItems = bar.mItems[0:]
-	miniStep := bar.miniStep()
-	for n := 0; n < len(bar.items); n += miniStep {
-		bar.mItems = append(bar.mItems, n)
+// return width of minimap displayed in main map
+func (bar *HueBar) miniBox() int {
+	w := bar.width / 30
+	if w < 2 {
+		w = 2
 	}
+	return w
 }
 
-func (bar *HueBar) MiniPos() int {
+// return minimap step increment
+func (bar *HueBar) miniStep() int {
+	n := len(bar.items) / bar.width
+	if n > 13 {
+		n = 13
+	}
+	return n
+}
+
+// return minimap index position (center) of active color
+func (bar *HueBar) miniPos() int {
 	var mpos int
 	for mpos < len(bar.mItems)-1 {
 		if bar.mItems[mpos+1] >= bar.pos {
@@ -132,6 +136,15 @@ func (bar *HueBar) MiniPos() int {
 		mpos++
 	}
 	return mpos
+}
+
+// build minimap indices
+func (bar *HueBar) buildMini() {
+	bar.mItems = bar.mItems[0:]
+	miniStep := bar.miniStep()
+	for n := 0; n < len(bar.items); n += miniStep {
+		bar.mItems = append(bar.mItems, n)
+	}
 }
 
 func (bar *HueBar) Width() int { return bar.width }
