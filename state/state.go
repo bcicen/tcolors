@@ -25,6 +25,7 @@ const (
 )
 
 type State struct {
+	name    string
 	pos     int
 	sstates [subStateCount]*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
@@ -33,9 +34,9 @@ type State struct {
 
 // Load attempts to read a stored state from disk. If no stored state exists or
 // is readable, a default State and error will be returned.
-func Load() (*State, error) {
+func Load(path string) (*State, error) {
 	s := NewDefault()
-	if err := s.load(); err != nil {
+	if err := s.load(path); err != nil {
 		return s, fmt.Errorf("failed to load state: %s", err)
 	}
 	return s, nil
@@ -61,50 +62,6 @@ func NewDefault() *State {
 }
 
 func New() *State { return &State{pending: AllChanged} }
-
-func (s *State) load() error {
-	var buf [stateByteSize]byte
-	var offset int
-
-	path, err := statePath()
-	if err != nil {
-		return err
-	}
-
-	f, err := os.Open(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-	defer f.Close()
-
-	n, err := f.Read(buf[:])
-	if err != nil {
-		return err
-	}
-	if n != stateByteSize {
-		return malformedErr
-	}
-
-	sscount := int(int32FromBytes(buf[offset : offset+4]))
-	offset += 4
-	s.pos = int(int32FromBytes(buf[offset : offset+4]))
-	offset += 4
-
-	for i := 0; i < sscount; i++ {
-		if i > subStateCount {
-			break
-		}
-		s.sstates[i].load(buf[offset : offset+subStateByteSize])
-		offset += subStateByteSize
-		log.Debugf("loaded substate [%d] from %s", i, path)
-	}
-
-	log.Infof("loaded state [%s]", path)
-	return nil
-}
 
 func (s *State) Save() error {
 	path, err := statePath()
@@ -147,6 +104,7 @@ func (s *State) SubColors() []tcell.Color {
 func (s *State) Pos() int              { return s.pos }
 func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Hue() float64          { return s.sstates[s.pos].hue }
+func (s *State) Name() string          { return s.name }
 func (s *State) Value() float64        { return s.sstates[s.pos].value }
 func (s *State) Saturation() float64   { return s.sstates[s.pos].saturation }
 func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
