@@ -3,7 +3,6 @@ package state
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 
@@ -26,6 +25,7 @@ const (
 
 type State struct {
 	name    string
+	path    string
 	pos     int
 	sstates [subStateCount]*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
@@ -63,34 +63,11 @@ func NewDefault() *State {
 
 func New() *State { return &State{pending: AllChanged} }
 
-func (s *State) Save() error {
-	path, err := statePath()
-	if err != nil {
-		return err
+func (s *State) Save(path string) error {
+	if err := s.save(path); err != nil {
+		return fmt.Errorf("failed to save palette state: %s", err)
 	}
-	log.Infof("saving state [%s]", path)
-
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.Write(s.bytes())
-	return err
-}
-
-// Bytes returns a byte-serialized representation
-// of the current state
-func (s *State) bytes() []byte {
-	var buf [stateByteSize]byte
-	var offset int
-	offset += writeInt32Bytes(buf[offset:], int32(len(s.sstates)))
-	offset += writeInt32Bytes(buf[offset:], int32(s.pos))
-	for _, ss := range s.sstates {
-		offset += copy(buf[offset:], ss.bytes())
-	}
-	return buf[:]
+	return nil
 }
 
 func (s *State) SubColors() []tcell.Color {

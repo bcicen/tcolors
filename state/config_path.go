@@ -6,12 +6,17 @@ import (
 	"regexp"
 )
 
-func defaultPalettePath() (string, error) {
+var DefaultPalettePath = defaultPalettePath()
+
+func defaultPalettePath() string {
 	path, err := getConfigPath()
 	if err != nil {
-		return path, err
+		panic(err)
 	}
-	return fmt.Sprintf("%s/default.toml", path), ensureDir(path)
+	if err := ensureDir(path); err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%s/default.toml", path)
 }
 
 // attempt create dir if not exist

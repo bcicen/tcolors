@@ -32,15 +32,16 @@ func main() {
 
 	var (
 		printFlag  = flag.Bool("p", false, "output current palette contents")
-		formatFlag = flag.String("f", "all", "color format to output (hex, rgb, hsv)")
+		outputFlag = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
+		fileFlag   = flag.String("f", state.DefaultPalettePath, "specify palette file")
 	)
 
 	flag.Parse()
-	if *printFlag {
-		tstate, err := state.Load()
-		errExit(err)
+	tstate, err := state.Load(*fileFlag)
+	errExit(err)
 
-		cfmt := strings.ToLower(strings.Trim(*formatFlag, " "))
+	if *printFlag {
+		cfmt := strings.ToLower(strings.Trim(*outputFlag, " "))
 		switch cfmt {
 		case "all":
 			fmt.Printf("%s\n", tstate.TableString())
@@ -73,9 +74,9 @@ func main() {
 	s.Clear()
 
 	// initialize Display
-	disp := NewDisplay(s)
+	disp := NewDisplay(s, tstate)
 
-	err := disp.Done()
+	err = disp.Done()
 	s.Clear()
 	s.Fini()
 	if err != nil {

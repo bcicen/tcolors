@@ -41,9 +41,7 @@ type Display struct {
 	lock      sync.RWMutex
 }
 
-func NewDisplay(s tcell.Screen) *Display {
-	tstate, err := state.Load()
-
+func NewDisplay(s tcell.Screen, tstate *state.State) *Display {
 	d := &Display{
 		state:  tstate,
 		errMsg: NewErrorMsg(),
@@ -54,10 +52,6 @@ func NewDisplay(s tcell.Screen) *Display {
 			NewSaturationBar(tstate),
 			NewValueBar(tstate),
 		},
-	}
-
-	if err != nil {
-		d.errMsg.Set(err.Error())
 	}
 
 	w, _ := s.Size()
@@ -72,7 +66,7 @@ func (d *Display) Done() error {
 	for {
 		select {
 		case <-d.quit:
-			return d.state.Save()
+			return d.state.Save("test.toml")
 		case <-time.After(time.Millisecond * 50):
 		}
 	}
