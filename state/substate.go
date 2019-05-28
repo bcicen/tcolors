@@ -19,7 +19,8 @@ func (ss *subState) NColor() *noire.Color {
 }
 
 func (ss *subState) TColor() tcell.Color {
-	return tcell.NewRGBColor(ss.rgb[0], ss.rgb[1], ss.rgb[2])
+	r, g, b := ss.NColor().RGB()
+	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }
 
 func (ss *subState) HexString() string {

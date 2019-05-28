@@ -89,10 +89,13 @@ func (d *Display) Draw(s tcell.Screen) {
 	}
 
 	if d.stepBasis == bigStep {
-		s.SetCell(1, 0, tcell.StyleDefault, '⏩')
+		s.SetCell(x, 0, tcell.StyleDefault, '⏩')
 	} else {
-		s.SetCell(1, 0, tcell.StyleDefault, ' ')
+		s.SetCell(x, 0, tcell.StyleDefault, ' ')
 	}
+
+	sname := d.state.Name()
+	s.SetCell((x+d.width)-len(sname)+1, 0, indicatorSt, []rune(sname)...)
 
 	for n, sec := range d.sections {
 		if n == d.sectionN {

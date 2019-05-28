@@ -45,8 +45,8 @@ func (s *State) save() error {
 func (s *State) load() error {
 	f, err := os.Open(s.path)
 	if err != nil {
-		if os.IsNotExist(err) && s.path == DefaultPalettePath {
-			// default palette does not exist yet, will be created on save
+		if os.IsNotExist(err) {
+			// palette does not exist yet, will be created on save
 			return nil
 		}
 		return fmt.Errorf("failed to load palette: %s", err)
