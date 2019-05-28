@@ -66,7 +66,7 @@ func (d *Display) Done() error {
 	for {
 		select {
 		case <-d.quit:
-			return d.state.Save("test.toml")
+			return d.state.Save()
 		case <-time.After(time.Millisecond * 50):
 		}
 	}

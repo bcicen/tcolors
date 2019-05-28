@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/teacat/noire"
@@ -24,10 +22,10 @@ type paletteColor struct {
 	HEX string `toml:"hex"`
 }
 
-func (s *State) save(path string) error {
-	log.Infof("saving state [%s]", path)
+func (s *State) save() error {
+	log.Infof("saving state [%s]", s.path)
 
-	config := PaletteConfig{Name: s.name}
+	config := PaletteConfig{Name: s.Name()}
 	for _, ss := range s.sstates {
 		var pc paletteColor
 		pc.RGB = []int{int(ss.rgb[0]), int(ss.rgb[1]), int(ss.rgb[2])}
@@ -35,12 +33,7 @@ func (s *State) save(path string) error {
 		config.Colors = append(config.Colors, pc)
 	}
 
-	if config.Name == "" {
-		config.Name = filepath.Base(path)
-		config.Name = strings.ReplaceAll(config.Name, ".toml", "")
-	}
-
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(s.path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -49,14 +42,10 @@ func (s *State) save(path string) error {
 	return toml.NewEncoder(f).Encode(config)
 }
 
-func (s *State) load(path string) error {
-	if path == "" {
-		path = DefaultPalettePath
-	}
-
-	f, err := os.Open(path)
+func (s *State) load() error {
+	f, err := os.Open(s.path)
 	if err != nil {
-		if os.IsNotExist(err) && path == DefaultPalettePath {
+		if os.IsNotExist(err) && s.path == DefaultPalettePath {
 			// default palette does not exist yet, will be created on save
 			return nil
 		}
@@ -74,10 +63,7 @@ func (s *State) load(path string) error {
 		return err
 	}
 
-	if config.Name == "" {
-		config.Name = filepath.Base(path)
-		config.Name = strings.ReplaceAll(config.Name, ".toml", "")
-	}
+	s.name = config.Name
 
 	for n, pc := range config.Colors {
 		if n > subStateCount {
@@ -88,10 +74,10 @@ func (s *State) load(path string) error {
 			return fmt.Errorf("[color%d] %s", n, err)
 		}
 		s.sstates[n].SetNColor(nc)
-		log.Debugf("loaded substate [%d] from %s", n, path)
+		log.Debugf("loaded substate [%d] from %s", n, s.path)
 	}
 
-	log.Infof("loaded state [%s]", path)
+	log.Infof("loaded state [%s]", s.path)
 	return nil
 }
 

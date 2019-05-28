@@ -8,6 +8,7 @@ import (
 
 	"github.com/bcicen/tcolors/logging"
 	"github.com/bcicen/tcolors/state"
+	"github.com/fatih/color"
 	"github.com/gdamore/tcell"
 )
 
@@ -25,6 +26,7 @@ var (
 	errSt = tcell.StyleDefault.
 		Foreground(tcell.NewRGBColor(255, 000, 043)).
 		Background(tcell.ColorBlack)
+	red = color.New(color.FgRed).SprintFunc()
 )
 
 func main() {
@@ -86,7 +88,7 @@ func main() {
 
 func errExit(err error) {
 	if err != nil {
-		fmt.Printf("[error]: %s\n", err.Error())
+		fmt.Printf("%s %s\n", red("err"), err.Error())
 		os.Exit(1)
 	}
 }

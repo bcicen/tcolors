@@ -3,6 +3,7 @@ package state
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -36,7 +37,8 @@ type State struct {
 // is readable, a default State and error will be returned.
 func Load(path string) (*State, error) {
 	s := NewDefault()
-	if err := s.load(path); err != nil {
+	s.path = path
+	if err := s.load(); err != nil {
 		return s, fmt.Errorf("failed to load state: %s", err)
 	}
 	return s, nil
@@ -63,11 +65,18 @@ func NewDefault() *State {
 
 func New() *State { return &State{pending: AllChanged} }
 
-func (s *State) Save(path string) error {
-	if err := s.save(path); err != nil {
+func (s *State) Save() error {
+	if err := s.save(); err != nil {
 		return fmt.Errorf("failed to save palette state: %s", err)
 	}
 	return nil
+}
+
+func (s *State) Name() string {
+	if s.name == "" {
+		return strings.ReplaceAll(filepath.Base(s.path), ".toml", "")
+	}
+	return s.name
 }
 
 func (s *State) SubColors() []tcell.Color {
@@ -81,7 +90,6 @@ func (s *State) SubColors() []tcell.Color {
 func (s *State) Pos() int              { return s.pos }
 func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Hue() float64          { return s.sstates[s.pos].hue }
-func (s *State) Name() string          { return s.name }
 func (s *State) Value() float64        { return s.sstates[s.pos].value }
 func (s *State) Saturation() float64   { return s.sstates[s.pos].saturation }
 func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
