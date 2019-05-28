@@ -17,9 +17,9 @@ type PaletteConfig struct {
 }
 
 type paletteColor struct {
-	RGB []int  `toml:"rgb"`
-	HSV []int  `toml:"hsv"`
-	HEX string `toml:"hex"`
+	RGB []int     `toml:"rgb"`
+	HSV []float64 `toml:"hsv"`
+	HEX string    `toml:"hex"`
 }
 
 func (s *State) save() error {
@@ -27,10 +27,7 @@ func (s *State) save() error {
 
 	config := PaletteConfig{Name: s.Name()}
 	for _, ss := range s.sstates {
-		var pc paletteColor
-		pc.RGB = []int{int(ss.rgb[0]), int(ss.rgb[1]), int(ss.rgb[2])}
-		pc.HEX = ss.HexString()
-		config.Colors = append(config.Colors, pc)
+		config.Colors = append(config.Colors, ss.PColor())
 	}
 
 	f, err := os.OpenFile(s.path, os.O_RDWR|os.O_CREATE, 0644)
@@ -92,7 +89,7 @@ func (pc *paletteColor) readColor() (*noire.Color, error) {
 		if err := pc.validHSV(); err != nil {
 			return nil, err
 		}
-		return noire.NewHSV(float64(pc.HSV[0]), float64(pc.HSV[1]), float64(pc.HSV[2])), nil
+		return noire.NewHSV(pc.HSV[0], pc.HSV[1], pc.HSV[2]), nil
 	case len(pc.HEX) != 0:
 		return nil, fmt.Errorf("missing definition")
 	default:

@@ -8,40 +8,77 @@ import (
 )
 
 type subState struct {
-	rgb        [3]int32
-	hue        float64
-	saturation float64
-	value      float64
+	*noire.Color
 }
 
 func (ss *subState) NColor() *noire.Color {
-	return noire.NewHSV(ss.hue, ss.saturation, ss.value)
+	return ss.Color
 }
 
 func (ss *subState) TColor() tcell.Color {
-	r, g, b := ss.NColor().RGB()
+	r, g, b := ss.RGB()
 	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }
 
+// PColor returns the current substate in a paletteColor suitable for
+// saving to config state file
+func (ss *subState) PColor() (pc paletteColor) {
+	r, g, b := ss.RGB()
+	h, s, v := ss.HSV()
+	pc.RGB = []int{int(r), int(g), int(b)}
+	pc.HEX = ss.HexString()
+	pc.HSV = []float64{h, s, v}
+	return pc
+}
+
+func (ss *subState) HSVIdx(n uint8) float64 {
+	h, s, v := ss.HSV()
+	switch n {
+	case 0:
+		return h
+	case 1:
+		return s
+	case 2:
+		return v
+	default:
+		panic(fmt.Sprintf("bad index selector: %d", n))
+	}
+}
+
+// SetNColor replaces the color for the current subState
+func (ss *subState) SetNColor(nc *noire.Color) {
+	ss.Color = nc
+}
+
+// SetHue sets the HSV hue for the current subState
+func (ss *subState) SetHue(n float64) {
+	log.Debugf("SET HUE (%f)", n)
+	_, s, v := ss.HSV()
+	ss.Color = noire.NewHSV(n, s, v)
+}
+
+// SetSaturation sets the HSV saturation for the current subState
+func (ss *subState) SetSaturation(n float64) {
+	h, _, v := ss.HSV()
+	ss.Color = noire.NewHSV(h, n, v)
+}
+
+// SetValue sets the HSV value for the current subState
+func (ss *subState) SetValue(n float64) {
+	h, s, _ := ss.HSV()
+	ss.Color = noire.NewHSV(h, s, n)
+}
+
 func (ss *subState) HexString() string {
-	return fmt.Sprintf("%06x", ss.TColor().Hex())
+	return ss.Hex()
 }
 
 func (ss *subState) HSVString() string {
-	return fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value)
+	h, s, v := ss.HSV()
+	return fmt.Sprintf("%03.0f %03.0f %03.0f", h, s, v)
 }
 
 func (ss *subState) RGBString() string {
-	return fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2])
-}
-
-func (ss *subState) SetNColor(nc *noire.Color) {
-	r, g, b := nc.RGB()
-	h, s, v := nc.HSV()
-	ss.rgb[0] = int32(r)
-	ss.rgb[1] = int32(g)
-	ss.rgb[2] = int32(b)
-	ss.hue = h
-	ss.saturation = s
-	ss.value = v
+	r, g, b := ss.RGB()
+	return fmt.Sprintf("%03.0f %03.0f %03.0f", r, g, b)
 }

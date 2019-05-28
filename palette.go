@@ -5,7 +5,6 @@ import (
 
 	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
-	"github.com/teacat/noire"
 )
 
 const (
@@ -153,15 +152,6 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	return activePaletteHeight + boxHeight + 3
 }
 
-func (pb *PaletteBox) Handle(change state.Change) {
-	if change == state.NoChange {
-		return
-	}
-	nc := noire.NewHSV(pb.state.Hue(), pb.state.Saturation(), pb.state.Value())
-	r, g, b := nc.RGB()
-	pb.state.SetRGB(int32(r), int32(g), int32(b))
-}
-
 func (pb *PaletteBox) Resize(w int) {
 	pb.boxWidth = (w - (palletePadding * 2)) / pb.state.Len()
 	pb.width = pb.boxWidth * pb.state.Len()
@@ -169,7 +159,7 @@ func (pb *PaletteBox) Resize(w int) {
 	pb.width += pb.xStretch
 }
 
-func (pb *PaletteBox) Up(step int)   { pb.state.Next() }
-func (pb *PaletteBox) Down(step int) { pb.state.Prev() }
-
+func (pb *PaletteBox) Handle(state.Change)            {}
+func (pb *PaletteBox) Up(step int)                    { pb.state.Next() }
+func (pb *PaletteBox) Down(step int)                  { pb.state.Prev() }
 func (pb *PaletteBox) SetPointerStyle(st tcell.Style) { pb.pst = st }

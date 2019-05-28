@@ -49,15 +49,7 @@ func NewDefault() *State {
 	hue := 20.0
 	s := New()
 	for n := range s.sstates {
-		r, g, b := noire.NewHSV(hue, 100, 100).RGB()
-		s.sstates[n] = &subState{
-			hue:        hue,
-			saturation: 100,
-			value:      100,
-		}
-		s.sstates[n].rgb[0] = int32(r)
-		s.sstates[n].rgb[1] = int32(g)
-		s.sstates[n].rgb[2] = int32(b)
+		s.sstates[n] = &subState{noire.NewHSV(hue, 100, 100)}
 		hue += 30
 	}
 	return s
@@ -89,10 +81,22 @@ func (s *State) SubColors() []tcell.Color {
 
 func (s *State) Pos() int              { return s.pos }
 func (s *State) Len() int              { return len(s.sstates) }
-func (s *State) Hue() float64          { return s.sstates[s.pos].hue }
-func (s *State) Value() float64        { return s.sstates[s.pos].value }
-func (s *State) Saturation() float64   { return s.sstates[s.pos].saturation }
 func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
+
+func (s *State) Hue() float64 {
+	hue, _, _ := s.sstates[s.pos].HSV()
+	return hue
+}
+
+func (s *State) Saturation() float64 {
+	_, sat, _ := s.sstates[s.pos].HSV()
+	return sat
+}
+
+func (s *State) Value() float64 {
+	_, _, val := s.sstates[s.pos].HSV()
+	return val
+}
 
 // BaseColor returns the current color at full saturation and brightness
 func (s *State) BaseColor() *noire.Color { return noire.NewHSV(s.Hue(), 100, 100) }
@@ -130,33 +134,24 @@ func (s *State) Flush() Change {
 	return a
 }
 
-func (s *State) SetRGB(r, g, b int32) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	s.sstates[s.pos].rgb[0] = r
-	s.sstates[s.pos].rgb[1] = g
-	s.sstates[s.pos].rgb[2] = b
-	s.pending = s.pending | SelectedChanged
-}
-
 func (s *State) SetHue(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].hue = n
+	s.sstates[s.pos].SetHue(n)
 	s.pending = s.pending | HueChanged
 }
 
 func (s *State) SetSaturation(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].saturation = n
+	s.sstates[s.pos].SetSaturation(n)
 	s.pending = s.pending | SaturationChanged
 }
 
 func (s *State) SetValue(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].value = n
+	s.sstates[s.pos].SetValue(n)
 	s.pending = s.pending | ValueChanged
 }
 
@@ -167,10 +162,12 @@ func (s *State) TableString() string {
 	table.SetHeader([]string{"#", "Hex", "HSV", "RGB"})
 
 	for n, ss := range s.sstates {
-		hex := fmt.Sprintf("%06x", ss.TColor().Hex())
-		hsv := fmt.Sprintf("%03.0f %03.0f %03.0f", ss.hue, ss.saturation, ss.value)
-		rgb := fmt.Sprintf("%03d %03d %03d", ss.rgb[0], ss.rgb[1], ss.rgb[2])
-		table.Append([]string{fmt.Sprintf("%d", n), hex, hsv, rgb})
+		table.Append([]string{
+			fmt.Sprintf("%d", n),
+			ss.HexString(),
+			ss.HSVString(),
+			ss.RGBString(),
+		})
 	}
 
 	table.Render()

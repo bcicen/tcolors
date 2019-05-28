@@ -92,20 +92,24 @@ func (bar *HueBar) Resize(w int) {
 }
 
 func (bar *HueBar) Handle(change state.Change) {
-	var n int
-	var nc *noire.Color
-
 	if change.Includes(state.SaturationChanged, state.ValueChanged) {
-		for i := 0.0; i < hueMax; i += hueIncr {
-			nc = noire.NewHSV(i, bar.state.Saturation(), bar.state.Value())
+		var hue float64
+		for n := 0; n < hueCount; n++ {
+			nc := noire.NewHSV(hue, bar.state.Saturation(), bar.state.Value())
 			bar.items[n] = toTColor(nc)
-			n++
+			hue += hueIncr
 		}
 	}
 
 	if change.Includes(state.SelectedChanged, state.HueChanged) {
 		bar.SetPos(bar.state.Hue())
 	}
+
+	for n, x := range bar.items {
+		r, g, b := x.RGB()
+		log.Debugf("[%03d] %03d %03d %03d", n, r, g, b)
+	}
+	log.Debugf("POS = %v", bar.pos)
 }
 
 // return width of minimap displayed in main map
@@ -150,7 +154,7 @@ func (bar *HueBar) buildMini() {
 func (bar *HueBar) Up(step int) {
 	n := int(bar.state.Hue()) + step
 	if n > hueMax {
-		n -= hueMax
+		n -= hueMax - 1
 	}
 	bar.state.SetHue(float64(n))
 }
@@ -158,7 +162,7 @@ func (bar *HueBar) Up(step int) {
 func (bar *HueBar) Down(step int) {
 	n := int(bar.state.Hue()) - step
 	if n < 0 {
-		n += hueMax
+		n += hueMax - 1
 	}
 	bar.state.SetHue(float64(n))
 }
