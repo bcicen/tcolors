@@ -104,12 +104,6 @@ func (bar *HueBar) Handle(change state.Change) {
 	if change.Includes(state.SelectedChanged, state.HueChanged) {
 		bar.SetPos(bar.state.Hue())
 	}
-
-	for n, x := range bar.items {
-		r, g, b := x.RGB()
-		log.Debugf("[%03d] %03d %03d %03d", n, r, g, b)
-	}
-	log.Debugf("POS = %v", bar.pos)
 }
 
 // return width of minimap displayed in main map

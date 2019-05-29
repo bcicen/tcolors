@@ -52,7 +52,6 @@ func (ss *subState) SetNColor(nc *noire.Color) {
 
 // SetHue sets the HSV hue for the current subState
 func (ss *subState) SetHue(n float64) {
-	log.Debugf("SET HUE (%f)", n)
 	_, s, v := ss.HSV()
 	ss.Color = noire.NewHSV(n, s, v)
 }
