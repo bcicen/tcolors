@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	log   = logging.Init()
-	blkSt = tcell.StyleDefault.
+	version = "dev-build"
+	log     = logging.Init()
+	blkSt   = tcell.StyleDefault.
 		Background(tcell.ColorBlack).
 		Foreground(tcell.ColorBlack)
 	indicatorSt = tcell.StyleDefault.
@@ -33,12 +34,19 @@ func main() {
 	defer log.Exit()
 
 	var (
-		printFlag  = flag.Bool("p", false, "output current palette contents")
-		outputFlag = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
-		fileFlag   = flag.String("f", state.DefaultPalettePath, "specify palette file")
+		printFlag   = flag.Bool("p", false, "output current palette contents")
+		outputFlag  = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
+		fileFlag    = flag.String("f", state.DefaultPalettePath, "specify palette file")
+		versionFlag = flag.Bool("v", false, "print version info")
 	)
 
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("tcolors v%s\n", version)
+		os.Exit(0)
+	}
+
 	tstate, err := state.Load(*fileFlag)
 	errExit(err)
 
