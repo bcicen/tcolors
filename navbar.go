@@ -15,6 +15,7 @@ type NavBar struct {
 	pos    int
 	offset int
 	width  int
+	height int
 	pst    tcell.Style // pointer style
 	state  *state.State
 }
@@ -29,14 +30,13 @@ func NewNavBar(s *state.State, length int) *NavBar {
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
-	const h = 3
 	var st tcell.Style
 
 	n := bar.offset
 	col := 0
 
 	// border bars
-	for i := 1; i <= h; i++ {
+	for i := 1; i <= bar.height; i++ {
 		s.SetCell(x-1, y+i, bar.pst, '│')
 		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
 	}
@@ -44,7 +44,7 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 	for col <= bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
 		s.SetCell(col+x, y, blkSt, '█')
-		for i := 1; i <= h; i++ {
+		for i := 1; i <= bar.height; i++ {
 			s.SetCell(col+x, y+i, st, ' ')
 		}
 
@@ -54,9 +54,13 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 
 	ix := (bar.pos - bar.offset) + x
 	s.SetCell(ix, y, bar.pst, '▾')
-	s.SetCell(x+((bar.width-4)/2), y+4, bar.pst, []rune(bar.label)...)
 
-	return h + 1
+	labelX := x + ((bar.width - 4) / 2)
+	for n, ch := range []rune(bar.label) {
+		s.SetCell(labelX+n, y+4, bar.pst, ch)
+	}
+
+	return bar.height + 1
 }
 
 func (bar *NavBar) SetLabel(s string) { bar.label = s }
@@ -70,7 +74,8 @@ func (bar *NavBar) SetPos(idx int) {
 	}
 }
 
-func (bar *NavBar) Resize(w int) {
+func (bar *NavBar) Resize(w, h int) {
+	bar.height = barHeight(h)
 	bar.width = w
 	bar.up(0)
 	bar.down(0)

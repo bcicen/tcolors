@@ -8,17 +8,17 @@ import (
 )
 
 const (
-	padPalette          = false
-	activePaletteHeight = 5
-	palletePadding      = 2
+	padPalette     = false
+	palletePadding = 2
 )
 
 type PaletteBox struct {
-	width    int
-	boxWidth int
-	xStretch int
-	pst      tcell.Style // pointer style
-	state    *state.State
+	width     int
+	boxWidth  int
+	boxHeight int
+	xStretch  int
+	pst       tcell.Style // pointer style
+	state     *state.State
 }
 
 func NewPaletteBox(s *state.State) *PaletteBox {
@@ -29,11 +29,7 @@ func NewPaletteBox(s *state.State) *PaletteBox {
 // Draw redraws p at given coordinates and screen, returning the number
 // of rows occupied
 func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
-	_, h := s.Size()
-	boxHeight := h / 15
-	if boxHeight < 2 {
-		boxHeight = 2
-	}
+	activePaletteHeight := pb.boxHeight * 3
 	x += palletePadding
 
 	pos := pb.state.Pos()
@@ -116,7 +112,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		}
 
 		for col := 0; col < bw; col++ {
-			for row := 0; row < boxHeight; row++ {
+			for row := 0; row < pb.boxHeight; row++ {
 				switch {
 				case col == 0:
 					s.SetCell(lx, y+row, st, '▎')
@@ -124,7 +120,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 					s.SetCell(lx, y+row, st, '▕')
 				case padPalette && row == 0:
 					s.SetCell(lx, y+row, cst, '▄')
-				case padPalette && row == boxHeight-1:
+				case padPalette && row == pb.boxHeight-1:
 					s.SetCell(lx, y+row, cst, '▀')
 				default:
 					s.SetCell(lx, y+row, cst, '█')
@@ -133,7 +129,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 			lx++
 		}
 	}
-	y += boxHeight
+	y += pb.boxHeight
 
 	lx = x
 	for n := range items {
@@ -149,10 +145,11 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		lx += bw
 	}
 
-	return activePaletteHeight + boxHeight + 3
+	return activePaletteHeight + pb.boxHeight + 3
 }
 
-func (pb *PaletteBox) Resize(w int) {
+func (pb *PaletteBox) Resize(w, h int) {
+	pb.boxHeight = barHeight(h)
 	pb.boxWidth = (w - (palletePadding * 2)) / pb.state.Len()
 	pb.width = pb.boxWidth * pb.state.Len()
 	pb.xStretch = w - pb.width - palletePadding - 1

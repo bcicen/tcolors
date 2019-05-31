@@ -25,7 +25,7 @@ type Section interface {
 	Up(int)
 	Down(int)
 	Draw(int, int, tcell.Screen) int
-	Resize(int) // resize section to given width
+	Resize(int, int) // resize section to given width and height
 	SetPointerStyle(tcell.Style)
 }
 
@@ -54,8 +54,8 @@ func NewDisplay(s tcell.Screen, tstate *state.State) *Display {
 		},
 	}
 
-	w, _ := s.Size()
-	d.Resize(w)
+	w, h := s.Size()
+	d.Resize(w, h)
 	d.build()
 
 	go d.eventHandler(s)
@@ -89,9 +89,9 @@ func (d *Display) Draw(s tcell.Screen) {
 	}
 
 	if d.stepBasis == bigStep {
-		s.SetCell(x, 0, tcell.StyleDefault, '⏩')
+		s.SetCell(x, 0, hiIndicatorSt, '⏩')
 	} else {
-		s.SetCell(x, 0, tcell.StyleDefault, ' ')
+		s.SetCell(x, 0, indicatorSt, ' ')
 	}
 
 	sname := d.state.Name()
@@ -111,7 +111,7 @@ func (d *Display) Draw(s tcell.Screen) {
 	log.Debugf("draw [%3.3fms]", time.Since(now).Seconds()*1000)
 }
 
-func (d *Display) Resize(w int) {
+func (d *Display) Resize(w, h int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 	d.width = w - ((paddingX * 2) + 1)
@@ -119,7 +119,7 @@ func (d *Display) Resize(w int) {
 		d.width = maxWidth
 	}
 	for _, sec := range d.sections {
-		sec.Resize(d.width)
+		sec.Resize(d.width, h)
 	}
 	d.errMsg.Resize(d.width)
 }
@@ -223,7 +223,7 @@ func (d *Display) eventHandler(s tcell.Screen) {
 		case *tcell.EventResize:
 			w, h := s.Size()
 			log.Debugf("handling resize: w=%04d h=%04d", w, h)
-			d.Resize(w)
+			d.Resize(w, h)
 			s.Clear()
 			s.Sync()
 			redraw = true

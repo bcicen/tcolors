@@ -15,19 +15,7 @@ import (
 var (
 	version = "dev-build"
 	log     = logging.Init()
-	blkSt   = tcell.StyleDefault.
-		Background(tcell.ColorBlack).
-		Foreground(tcell.ColorBlack)
-	indicatorSt = tcell.StyleDefault.
-			Foreground(tcell.NewRGBColor(110, 110, 110)).
-			Background(tcell.ColorBlack)
-	hiIndicatorSt = tcell.StyleDefault.
-			Foreground(tcell.NewRGBColor(255, 255, 255)).
-			Background(tcell.ColorBlack)
-	errSt = tcell.StyleDefault.
-		Foreground(tcell.NewRGBColor(255, 000, 043)).
-		Background(tcell.ColorBlack)
-	red = color.New(color.FgRed).SprintFunc()
+	red     = color.New(color.FgRed).SprintFunc()
 )
 
 func main() {

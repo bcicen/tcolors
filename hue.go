@@ -17,6 +17,7 @@ type HueBar struct {
 	mItems []int                 // minimap sample indices
 	pos    int
 	width  int
+	height int
 	pst    tcell.Style // pointer style
 	state  *state.State
 }
@@ -29,7 +30,6 @@ func (bar *HueBar) center() int      { return (bar.width / 2) }
 // Draw redraws bar at given coordinates and screen, returning the number
 // of rows occupied
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
-	const h = 4
 	center := bar.width / 2
 	st := tcell.StyleDefault.
 		Foreground(tcell.ColorBlack)
@@ -37,7 +37,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	s.SetCell(center+x, y, bar.pst, '▾')
 
 	// border bars
-	for i := 1; i <= h; i++ {
+	for i := 1; i <= bar.height; i++ {
 		s.SetCell(x-1, y+i, bar.pst, '│')
 		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
 	}
@@ -52,10 +52,10 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 			idx = 0
 		}
 		st = st.Background(bar.items[idx])
-		for i := 1; i < h-1; i++ {
+		for i := 1; i < bar.height-1; i++ {
 			s.SetCell(col+x, y+i, st, ' ')
 		}
-		s.SetCell(col+x, y+h-1, st, '▁')
+		s.SetCell(col+x, y+bar.height-1, st, '▁')
 		idx++
 	}
 
@@ -70,23 +70,29 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 		}
 		idx = bar.mItems[midx]
 		st = st.Background(bar.items[idx])
-		s.SetCell(col+x, y+h, st, ' ')
+		s.SetCell(col+x, y+bar.height, st, ' ')
 		midx++
 	}
 
-	y += h + 1
+	y += bar.height + 1
 
-	miniBoxW := bar.miniBox()
-	s.SetCell(center+x-miniBoxW, y, bar.pst, '└')
-	if bar.width%2 != 0 && miniBoxW%2 == 0 {
-		miniBoxW++
+	// draw map->minimap borders
+	spacing := 1
+	if bar.height > 2 {
+		spacing = 2
+		miniBoxW := bar.miniBox()
+		s.SetCell(center+x-miniBoxW, y, bar.pst, '└')
+		if bar.width%2 != 0 && miniBoxW%2 == 0 {
+			miniBoxW++
+		}
+		s.SetCell(center+x+miniBoxW, y, bar.pst, '┘')
 	}
-	s.SetCell(center+x+miniBoxW, y, bar.pst, '┘')
 
-	return h + 2
+	return bar.height + spacing
 }
 
-func (bar *HueBar) Resize(w int) {
+func (bar *HueBar) Resize(w, h int) {
+	bar.height = barHeight(h) + 1
 	bar.width = w
 	bar.buildMini()
 }
