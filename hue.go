@@ -39,7 +39,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	// border bars
 	for i := 1; i <= bar.height; i++ {
 		s.SetCell(x-1, y+i, bar.pst, '│')
-		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
+		s.SetCell(bar.width+x, y+i, bar.pst, '│')
 	}
 
 	// draw main bar
@@ -47,7 +47,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	if idx < 0 {
 		idx += len(bar.items)
 	}
-	for col := 0; col <= bar.width; col++ {
+	for col := 0; col < bar.width; col++ {
 		if idx >= len(bar.items) {
 			idx = 0
 		}
@@ -64,7 +64,7 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	if midx < 0 {
 		midx += len(bar.mItems)
 	}
-	for col := 0; col <= bar.width; col++ {
+	for col := 0; col < bar.width; col++ {
 		if midx >= len(bar.mItems) {
 			midx = 0
 		}

@@ -38,10 +38,10 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 	// border bars
 	for i := 1; i <= bar.height; i++ {
 		s.SetCell(x-1, y+i, bar.pst, '│')
-		s.SetCell(bar.width+x+1, y+i, bar.pst, '│')
+		s.SetCell(bar.width+x, y+i, bar.pst, '│')
 	}
 
-	for col <= bar.width && n < len(bar.items) {
+	for col < bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
 		s.SetCell(col+x, y, blkSt, '█')
 		for i := 1; i <= bar.height; i++ {

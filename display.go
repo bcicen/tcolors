@@ -84,9 +84,7 @@ func (d *Display) Draw(s tcell.Screen) {
 	}
 
 	x, y := paddingX, 1
-	if d.width == maxWidth {
-		x = (w - maxWidth) / 2 // center display
-	}
+	x = (w - d.width) / 2 // center display
 
 	if d.stepBasis == bigStep {
 		s.SetCell(x, 0, hiIndicatorSt, '⏩')
@@ -118,6 +116,9 @@ func (d *Display) Resize(w, h int) {
 	if d.width > maxWidth {
 		d.width = maxWidth
 	}
+
+	// ensure total width aligns well with palette count
+	d.width = (d.width / d.state.Len()) * d.state.Len()
 	for _, sec := range d.sections {
 		sec.Resize(d.width, h)
 	}

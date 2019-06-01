@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	padPalette     = false
-	palletePadding = 2
+	padPalette     = true
+	palettePadding = 2
 )
 
 type PaletteBox struct {
@@ -29,8 +29,7 @@ func NewPaletteBox(s *state.State) *PaletteBox {
 // Draw redraws p at given coordinates and screen, returning the number
 // of rows occupied
 func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
-	activePaletteHeight := pb.boxHeight * 3
-	x += palletePadding
+	activePaletteHeight := int(float64(pb.boxHeight) * 2.5)
 
 	pos := pb.state.Pos()
 	items := pb.state.SubColors()
@@ -149,11 +148,9 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 }
 
 func (pb *PaletteBox) Resize(w, h int) {
-	pb.boxHeight = barHeight(h)
-	pb.boxWidth = (w - (palletePadding * 2)) / pb.state.Len()
-	pb.width = pb.boxWidth * pb.state.Len()
-	pb.xStretch = w - pb.width - palletePadding - 1
-	pb.width += pb.xStretch
+	pb.boxHeight = barHeight(h) + 1
+	pb.boxWidth = w / pb.state.Len()
+	pb.width = w
 }
 
 func (pb *PaletteBox) Handle(state.Change)            {}
