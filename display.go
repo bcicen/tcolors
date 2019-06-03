@@ -186,7 +186,7 @@ func (d *Display) eventHandler(s tcell.Screen) {
 		ev := s.PollEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventKey:
-			if ev.Modifiers()&tcell.ModShift == tcell.ModShift {
+			if ev.Modifiers()&tcell.ModShift == tcell.ModShift && d.sectionN != 0 {
 				d.stepBasis = bigStep
 			}
 			switch ev.Key() {
