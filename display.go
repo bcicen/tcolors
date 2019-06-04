@@ -76,7 +76,8 @@ func (d *Display) Draw(s tcell.Screen) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	now := time.Now()
+	timer := log.NewTimer("draw")
+	defer timer.End()
 
 	w, h := s.Size()
 	if w == 0 || h == 0 {
@@ -106,7 +107,6 @@ func (d *Display) Draw(s tcell.Screen) {
 	d.errMsg.Draw(x, s)
 
 	s.Show()
-	log.Debugf("draw [%3.3fms]", time.Since(now).Seconds()*1000)
 }
 
 func (d *Display) Resize(w, h int) {
