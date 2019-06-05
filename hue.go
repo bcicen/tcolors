@@ -123,11 +123,7 @@ func (bar *HueBar) miniBox() int {
 
 // return minimap step increment
 func (bar *HueBar) miniStep() int {
-	n := len(bar.items) / bar.width
-	if n > 13 {
-		n = 13
-	}
-	return n
+	return roundFloat(float64(len(bar.items)) / float64(bar.width))
 }
 
 // return minimap index position (center) of active color
@@ -144,7 +140,7 @@ func (bar *HueBar) miniPos() int {
 
 // build minimap indices
 func (bar *HueBar) buildMini() {
-	bar.mItems = bar.mItems[0:]
+	bar.mItems = []int{}
 	miniStep := bar.miniStep()
 	for n := 0; n < len(bar.items); n += miniStep {
 		bar.mItems = append(bar.mItems, n)
