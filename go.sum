@@ -31,6 +31,8 @@ github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/teacat/noire v1.0.0 h1:+s/oXhDE+HuBUgObpjO3dHEPupo5yiLiUg+7/R6FmYk=
 github.com/teacat/noire v1.0.0/go.mod h1:7FDkAv8Eaxqg/9rbSgACb/fVNsTM9khy+rFC6pcnXEE=
+github.com/teacat/noire v1.0.1-0.20190530132314-b56850edcb6f h1:cryarUaVVeCcn9EUe1KG9vZQFni9ztAMAvhBDsM97ik=
+github.com/teacat/noire v1.0.1-0.20190530132314-b56850edcb6f/go.mod h1:7FDkAv8Eaxqg/9rbSgACb/fVNsTM9khy+rFC6pcnXEE=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 h1:DH4skfRX4EBpamg7iV4ZlCpblAHI6s6TDM39bFZumv8=
 golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/text v0.3.0 h1:g61tztE5qeGQ89tm6NTjjM9VPIm088od1l6aSorWRWg=
