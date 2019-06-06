@@ -134,6 +134,9 @@ func (d *Display) build() {
 	change := d.state.Flush()
 	log.Debugf("handling change: %08b", change)
 	log.Debugf("state: [h=%0.3f s=%0.3f v=%0.3f]", d.state.Hue(), d.state.Saturation(), d.state.Value())
+	timer := log.NewTimer("handle")
+	defer timer.End()
+
 	for _, sec := range d.sections {
 		sec.Handle(change)
 	}
