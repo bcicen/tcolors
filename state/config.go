@@ -35,6 +35,8 @@ func (s *State) save() error {
 		return err
 	}
 	defer f.Close()
+	f.Truncate(0)
+	f.Seek(0, 0)
 
 	return toml.NewEncoder(f).Encode(config)
 }
