@@ -11,5 +11,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/stretchr/testify v1.3.0 // indirect
-	github.com/teacat/noire v1.0.1-0.20190530132314-b56850edcb6f
+	github.com/teacat/noire v1.0.1-0.20190608035601-886f670bc8a7
 )

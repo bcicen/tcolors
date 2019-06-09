@@ -28,7 +28,6 @@ func NewSaturationBar(s *state.State) *SaturationBar {
 		bar.scale[n] = i
 		i += satIncr
 	}
-	bar.scale[0] = 0.1
 
 	return bar
 }
