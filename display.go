@@ -84,18 +84,21 @@ func (d *Display) Draw(s tcell.Screen) {
 		return
 	}
 
-	x, y := paddingX, 1
+	x, y := paddingX, 0
 	x = (w - d.width) / 2 // center display
 
+	// draw header
 	if d.stepBasis == bigStep {
-		s.SetCell(x, 0, hiIndicatorSt, '⏩')
+		s.SetCell(x, y, indicatorSt, '⏩')
 	} else {
-		s.SetCell(x, 0, indicatorSt, ' ')
+		s.SetCell(x, y, indicatorSt, '⏵')
 	}
 
 	sname := d.state.Name()
-	s.SetCell((x+d.width)-len(sname)+1, 0, indicatorSt, []rune(sname)...)
+	s.SetCell((x+d.width)-len(sname), y, indicatorSt, []rune(sname)...)
+	y += 2
 
+	// draw sections
 	for n, sec := range d.sections {
 		if n == d.sectionN {
 			sec.SetPointerStyle(hiIndicatorSt)
