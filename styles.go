@@ -23,10 +23,10 @@ var (
 // return bar height for given screen height
 func barHeight(h int) int {
 	switch {
-	case h >= 30:
+	case h >= 29:
 		return 2
-	case h >= 24:
-		return 2
+	//case h >= 24:
+	//return 2
 	default:
 		return 1
 	}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/bcicen/tcolors/state"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
@@ -18,6 +20,7 @@ type HueBar struct {
 	pos    int
 	width  int
 	height int
+	label  string
 	pst    tcell.Style // pointer style
 	state  *state.State
 }
@@ -76,19 +79,12 @@ func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 
 	y += bar.height + 1
 
-	// draw map->minimap borders
-	spacing := 1
-	if bar.height > 2 {
-		spacing = 2
-		miniBoxW := bar.miniBox()
-		s.SetCell(center+x-miniBoxW, y, bar.pst, '└')
-		if bar.width%2 != 0 && miniBoxW%2 == 0 {
-			miniBoxW++
-		}
-		s.SetCell(center+x+miniBoxW, y, bar.pst, '┘')
+	labelX := x + ((bar.width - 4) / 2)
+	for n, ch := range []rune(bar.label) {
+		s.SetCell(labelX+n, y, bar.pst, ch)
 	}
 
-	return bar.height + spacing
+	return bar.height + 2
 }
 
 func (bar *HueBar) Resize(w, h int) {
@@ -109,16 +105,8 @@ func (bar *HueBar) Handle(change state.Change) {
 
 	if change.Includes(state.SelectedChanged, state.HueChanged) {
 		bar.SetPos(bar.state.Hue())
+		bar.label = fmt.Sprintf("%5.1f ", bar.state.Hue())
 	}
-}
-
-// return width of minimap displayed in main map
-func (bar *HueBar) miniBox() int {
-	w := bar.width / 30
-	if w < 2 {
-		w = 2
-	}
-	return w
 }
 
 // return minimap step increment
@@ -150,7 +138,7 @@ func (bar *HueBar) buildMini() {
 func (bar *HueBar) Up(step int) {
 	n := int(bar.state.Hue()) + step
 	if n > hueMax {
-		n -= hueMax - 1
+		n -= (hueMax + 1)
 	}
 	bar.state.SetHue(float64(n))
 }
@@ -158,7 +146,7 @@ func (bar *HueBar) Up(step int) {
 func (bar *HueBar) Down(step int) {
 	n := int(bar.state.Hue()) - step
 	if n < 0 {
-		n += hueMax - 1
+		n += hueMax + 1
 	}
 	bar.state.SetHue(float64(n))
 }

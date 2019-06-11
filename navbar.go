@@ -57,7 +57,7 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 
 	labelX := x + ((bar.width - 4) / 2)
 	for n, ch := range []rune(bar.label) {
-		s.SetCell(labelX+n, y+3, bar.pst, ch)
+		s.SetCell(labelX+n, y+bar.height+1, bar.pst, ch)
 	}
 
 	return bar.height + 1
