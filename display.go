@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 
 const (
 	paddingX   = 2
+	minWidth   = 26
+	minHeight  = 22
 	maxWidth   = 105
 	littleStep = 1
 	bigStep    = 10
@@ -33,6 +36,7 @@ type Display struct {
 	rgb       []int32
 	sections  []Section
 	sectionN  int
+	xPos      int
 	width     int
 	errMsg    *ErrorMsg
 	stepBasis int
@@ -72,6 +76,14 @@ func (d *Display) Done() error {
 	}
 }
 
+func (d *Display) drawSizeErr(s tcell.Screen) {
+	w, h := s.Size()
+	s.SetCell(1, 0, errSt, []rune("screen too small!")...)
+	s.SetCell(1, 1, errSt, []rune(fmt.Sprintf("[cur] %dx%d", w, h))...)
+	s.SetCell(1, 2, errSt, []rune(fmt.Sprintf("[min] %dx%d", minWidth, minHeight))...)
+	s.Show()
+}
+
 func (d *Display) Draw(s tcell.Screen) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
@@ -79,13 +91,12 @@ func (d *Display) Draw(s tcell.Screen) {
 	timer := log.NewTimer("draw")
 	defer timer.End()
 
-	w, h := s.Size()
-	if w == 0 || h == 0 {
+	if d.width < 0 {
+		d.drawSizeErr(s)
 		return
 	}
 
-	x, y := paddingX, 0
-	x = (w - d.width) / 2 // center display
+	x, y := d.xPos, 0
 
 	// draw header
 	if d.stepBasis == bigStep {
@@ -115,12 +126,19 @@ func (d *Display) Draw(s tcell.Screen) {
 func (d *Display) Resize(w, h int) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
+
+	if w < minWidth || h < minHeight {
+		d.width = -1
+		return
+	}
+
 	d.width = w - ((paddingX * 2) + 1)
 	if d.width > maxWidth {
 		d.width = maxWidth
 	}
-
 	// ensure total width aligns well with palette count
+	d.xPos = (w - d.width) / 2 // center display
+
 	d.width = (d.width / d.state.Len()) * d.state.Len()
 	for _, sec := range d.sections {
 		sec.Resize(d.width, h)
