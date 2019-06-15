@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bcicen/tcolors/state"
+	"github.com/bcicen/tcolors/widgets"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -38,7 +39,7 @@ type Display struct {
 	sectionN  int
 	xPos      int
 	width     int
-	errMsg    *ErrorMsg
+	errMsg    *widgets.ErrorMsg
 	stepBasis int
 	state     *state.State
 	quit      chan struct{}
@@ -48,13 +49,13 @@ type Display struct {
 func NewDisplay(s tcell.Screen, tstate *state.State) *Display {
 	d := &Display{
 		state:  tstate,
-		errMsg: NewErrorMsg(),
+		errMsg: widgets.NewErrorMsg(),
 		quit:   make(chan struct{}),
 		sections: []Section{
-			NewPaletteBox(tstate),
-			NewHueBar(tstate),
-			NewSaturationBar(tstate),
-			NewValueBar(tstate),
+			widgets.NewPaletteBox(tstate),
+			widgets.NewHueBar(tstate),
+			widgets.NewSaturationBar(tstate),
+			widgets.NewValueBar(tstate),
 		},
 	}
 
@@ -78,9 +79,10 @@ func (d *Display) Done() error {
 
 func (d *Display) drawSizeErr(s tcell.Screen) {
 	w, h := s.Size()
-	s.SetCell(1, 0, errSt, []rune("screen too small!")...)
-	s.SetCell(1, 1, errSt, []rune(fmt.Sprintf("[cur] %dx%d", w, h))...)
-	s.SetCell(1, 2, errSt, []rune(fmt.Sprintf("[min] %dx%d", minWidth, minHeight))...)
+	st := widgets.ErrSt
+	s.SetCell(1, 0, st, []rune("screen too small!")...)
+	s.SetCell(1, 1, st, []rune(fmt.Sprintf("[cur] %dx%d", w, h))...)
+	s.SetCell(1, 2, st, []rune(fmt.Sprintf("[min] %dx%d", minWidth, minHeight))...)
 	s.Show()
 }
 
@@ -100,21 +102,21 @@ func (d *Display) Draw(s tcell.Screen) {
 
 	// draw header
 	if d.stepBasis == bigStep {
-		s.SetCell(x, y, indicatorSt, '⏩')
+		s.SetCell(x, y, widgets.IndicatorSt, '⏩')
 	} else {
-		s.SetCell(x, y, indicatorSt, '⏵')
+		s.SetCell(x, y, widgets.IndicatorSt, '⏵')
 	}
 
 	sname := d.state.Name()
-	s.SetCell((x+d.width)-len(sname), y, indicatorSt, []rune(sname)...)
+	s.SetCell((x+d.width)-len(sname), y, widgets.IndicatorSt, []rune(sname)...)
 	y += 2
 
 	// draw sections
 	for n, sec := range d.sections {
 		if n == d.sectionN {
-			sec.SetPointerStyle(hiIndicatorSt)
+			sec.SetPointerStyle(widgets.HiIndicatorSt)
 		} else {
-			sec.SetPointerStyle(indicatorSt)
+			sec.SetPointerStyle(widgets.IndicatorSt)
 		}
 		y += sec.Draw(x, y, s)
 	}
@@ -144,11 +146,6 @@ func (d *Display) Resize(w, h int) {
 		sec.Resize(d.width, h)
 	}
 	d.errMsg.Resize(d.width)
-}
-
-func toTColor(c *noire.Color) tcell.Color {
-	r, g, b := c.RGB()
-	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }
 
 func (d *Display) build() {

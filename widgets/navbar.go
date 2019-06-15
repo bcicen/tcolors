@@ -1,4 +1,4 @@
-package main
+package widgets
 
 import (
 	"math"
@@ -43,7 +43,7 @@ func (bar *NavBar) Draw(x, y int, s tcell.Screen) int {
 
 	for col < bar.width && n < len(bar.items) {
 		st = st.Background(bar.items[n])
-		s.SetCell(col+x, y, blkSt, '█')
+		s.SetCell(col+x, y, BlkSt, '█')
 		for i := 1; i <= bar.height; i++ {
 			s.SetCell(col+x, y+i, st, ' ')
 		}

@@ -1,4 +1,4 @@
-package main
+package widgets
 
 import (
 	"time"
@@ -27,7 +27,7 @@ func (msg *ErrorMsg) Draw(x int, s tcell.Screen) int {
 	if len(msg.text) > 0 && time.Since(msg.ts) >= errDisplayTimeout {
 		// clear error message
 		for i := x; i <= msg.width; i++ {
-			s.SetCell(i, y, errSt, ' ')
+			s.SetCell(i, y, ErrSt, ' ')
 		}
 		msg.text = ""
 	} else {
@@ -35,7 +35,7 @@ func (msg *ErrorMsg) Draw(x int, s tcell.Screen) int {
 			if x+n > msg.width {
 				break
 			}
-			s.SetCell(x+n, y, errSt, ch)
+			s.SetCell(x+n, y, ErrSt, ch)
 		}
 	}
 

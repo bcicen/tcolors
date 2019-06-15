@@ -1,4 +1,4 @@
-package main
+package widgets
 
 import (
 	"fmt"
@@ -64,11 +64,11 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	}
 
 	r, g, b := selected.RGB()
-	s.SetCell(x+(pb.width-11)/2, y, hiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
+	s.SetCell(x+(pb.width-11)/2, y, HiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
 	y++
 
-	hiSt := hiIndicatorSt.Background(selected)
-	loSt := indicatorSt.Background(selected)
+	hiSt := HiIndicatorSt.Background(selected)
+	loSt := IndicatorSt.Background(selected)
 	st := hiSt
 
 	for row := 0; row < activePaletteHeight; row++ {
@@ -101,13 +101,13 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 
 		switch {
 		case padPalette && n == pos:
-			st = hiIndicatorSt
+			st = HiIndicatorSt
 		case n == pos:
-			st = hiIndicatorSt.Background(color)
+			st = HiIndicatorSt.Background(color)
 		case padPalette:
-			st = indicatorSt
+			st = IndicatorSt
 		default:
-			st = indicatorSt.Background(color)
+			st = IndicatorSt.Background(color)
 		}
 
 		for col := 0; col < bw; col++ {
@@ -134,9 +134,9 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	for n := range items {
 		bw := boxWidths[n]
 		if n == pos {
-			st = hiIndicatorSt.Background(tcell.ColorBlack)
+			st = HiIndicatorSt.Background(tcell.ColorBlack)
 		} else {
-			st = indicatorSt.Background(tcell.ColorBlack)
+			st = IndicatorSt.Background(tcell.ColorBlack)
 		}
 		for col := 0; col < bw; col++ {
 			s.SetCell(lx+col, y, st, '▔')
