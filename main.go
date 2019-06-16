@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	version = "dev-build"
+	version = "unknown"
+	build   = "dev"
 	log     = logging.Init()
 	red     = color.New(color.FgRed).SprintFunc()
 )
@@ -31,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Printf("tcolors v%s\n", version)
+		fmt.Printf("tcolors v%s %s\n", version, build)
 		os.Exit(0)
 	}
 

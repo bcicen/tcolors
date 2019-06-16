@@ -1,9 +1,9 @@
 NAME=tcolors
 VERSION=$(shell cat VERSION)
-LDFLAGS="-w -X main.version=$(VERSION)"
+LDFLAGS="-w -X main.version=$(VERSION) -X main.build=$(shell git log -1 --format=%cd.%h --date=short|tr -d -)"
 
 clean:
-	rm -rf build/ release/ arch-release/
+	rm -rvf build/ release/ arch-release/
 
 deps:
 	go mod download
