@@ -20,17 +20,15 @@ build-all: deps
 
 release:
 	mkdir release
-	go get github.com/progrium/gh-release/...
+	go get github.com/progrium/gh-release
 	cp build/* release
 	gh-release create bcicen/$(NAME) $(VERSION) \
 		$(shell git rev-parse --abbrev-ref HEAD) $(VERSION)
 
 arch-release:
 	mkdir -p arch-release
-	go get github.com/seletskiy/go-makepkg/...
 	cd arch-release && \
-		go-makepkg -p version "Commandline color picker and palette builder" git://github.com/bcicen/tcolors.git; \
 		git clone ssh://aur@aur.archlinux.org/tcolors.git; \
-		cp build/* tcolors/
+		sed -i "s/^pkgver=.*/pkgver=$(VERSION)/" tcolors/PKGBUILD
 	cd arch-release/tcolors/ && \
 		mksrcinfo
