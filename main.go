@@ -23,10 +23,11 @@ func main() {
 	defer log.Exit()
 
 	var (
-		printFlag   = flag.Bool("p", false, "output current palette contents")
-		outputFlag  = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
-		fileFlag    = flag.String("f", state.DefaultPalettePath, "specify palette file")
-		versionFlag = flag.Bool("v", false, "print version info")
+		printFlag        = flag.Bool("p", false, "output palette contents")
+		outputFlag       = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
+		outputOnExitFlag = flag.Bool("output-on-exit", false, "output palette file contents on exit")
+		fileFlag         = flag.String("f", state.DefaultPalettePath, "specify palette file")
+		versionFlag      = flag.Bool("v", false, "print version info")
 	)
 
 	flag.Parse()
@@ -40,20 +41,12 @@ func main() {
 	errExit(err)
 
 	if *printFlag {
-		cfmt := strings.ToLower(strings.Trim(*outputFlag, " "))
-		switch cfmt {
-		case "all":
-			fmt.Printf("%s\n", tstate.TableString())
-		case "hex":
-			fmt.Printf("%s\n", tstate.HexString())
-		case "hsv":
-			fmt.Printf("%s\n", tstate.HSVString())
-		case "rgb":
-			fmt.Printf("%s\n", tstate.RGBString())
-		default:
-			errExit(fmt.Errorf("unknown format \"%s\"", cfmt))
-		}
+		printPalette(tstate, *outputFlag)
 		os.Exit(0)
+	}
+
+	if *outputOnExitFlag {
+		defer printPalette(tstate, *outputFlag)
 	}
 
 	// initialize screen
@@ -80,6 +73,22 @@ func main() {
 	s.Fini()
 	if err != nil {
 		fmt.Println(err)
+	}
+}
+
+func printPalette(tstate *state.State, cfmt string) {
+	cfmt = strings.ToLower(strings.Trim(cfmt, " "))
+	switch cfmt {
+	case "all":
+		fmt.Printf("%s\n", tstate.TableString())
+	case "hex":
+		fmt.Printf("%s\n", tstate.HexString())
+	case "hsv":
+		fmt.Printf("%s\n", tstate.HSVString())
+	case "rgb":
+		fmt.Printf("%s\n", tstate.RGBString())
+	default:
+		errExit(fmt.Errorf("unknown format \"%s\"", cfmt))
 	}
 }
 
