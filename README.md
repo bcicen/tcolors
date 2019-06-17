@@ -3,12 +3,24 @@
 Commandline color picker and palette builder
 
 ## Installing
-Download the latest release for your platform:
+Download the [latest release](https://github.com/bcicen/tcolors/releases) for your platform:
+
+#### Linux / OSX
 
 ```bash
 curl -Lo tcolors https://github.com/bcicen/tcolors/releases/download/v0.1/tcolors-0.1-$(uname -s)-amd64
+chmod +x tcolors
 sudo mv tcolors /usr/local/bin/
-sudo chmod +x /usr/local/bin/tcolors
+```
+#### AUR
+
+`tcolors` is also available for Arch in the [AUR](https://aur.archlinux.org/packages/tcolors)
+
+#### Docker
+
+```bash
+docker run --rm -ti --name=tcolors \
+  quay.io/vektorlab/tcolors:latest
 ```
 
 ## Usage
@@ -17,13 +29,13 @@ Simply run `tcolors` to view and modify the default template. Changes are automa
 
 ### Palette files
 
-To create a new palette or switch between multiple palettes, use the `-f` option:
+To create a new palette or use a specific palette, use the `-f` option:
 
 ```bash
 tcolors -f logo-palette.toml
 ```
 
-Palette colors are stored in a human-readable TOML format and any changes are saved on exit.
+Palette colors are stored in a human-readable TOML format and all changes are saved on exit.
 
 ### Options
 
