@@ -8,6 +8,9 @@ clean:
 deps:
 	go mod download
 
+image:
+	docker build -t tcolors -f Dockerfile .
+
 build: deps
 	CGO_ENABLED=0 go build -ldflags $(LDFLAGS) -o $(NAME)
 

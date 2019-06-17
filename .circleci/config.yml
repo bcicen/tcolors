@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/build
+    docker:
+      - image: circleci/golang:latest
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.05.0-ce
+      - run: make image
+      - deploy: 
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "master" ]]; then
+              docker tag tcolors quay.io/vektorlab/tcolors:latest
+              docker tag tcolors quay.io/vektorlab/tcolors:$(cat VERSION)
+              docker login -u $DOCKER_USER -p $DOCKER_PASS quay.io
+              docker push quay.io/vektorlab/tcolors
+            fi
