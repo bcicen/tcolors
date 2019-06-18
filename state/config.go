@@ -64,16 +64,14 @@ func (s *State) load() error {
 	}
 
 	s.name = config.Name
+	s.sstates = make([]*subState, len(config.Colors))
 
 	for n, pc := range config.Colors {
-		if n > subStateCount {
-			break
-		}
 		nc, err := pc.readColor()
 		if err != nil {
 			return fmt.Errorf("[color%d] %s", n, err)
 		}
-		s.sstates[n].SetNColor(nc)
+		s.sstates[n] = &subState{nc}
 		log.Debugf("loaded substate [%d] from %s", n, s.path)
 	}
 

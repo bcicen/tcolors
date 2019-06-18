@@ -14,14 +14,9 @@ import (
 )
 
 var (
-	log          = logging.Init()
-	malformedErr = fmt.Errorf("malformed state file")
-)
-
-const (
-	subStateCount    = 7
-	subStateByteSize = 56
-	stateByteSize    = subStateCount*subStateByteSize + 8
+	defaultSubStateCount = 7
+	log                  = logging.Init()
+	malformedErr         = fmt.Errorf("malformed state file")
 )
 
 type State struct {
@@ -29,7 +24,7 @@ type State struct {
 	path    string
 	pos     int
 	isNew   bool
-	sstates [subStateCount]*subState // must be odd number for centering to work properly
+	sstates []*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
 	pending Change
 }
@@ -49,6 +44,7 @@ func Load(path string) (*State, error) {
 func NewDefault() *State {
 	hue := 20.0
 	s := New()
+	s.sstates = make([]*subState, defaultSubStateCount)
 	for n := range s.sstates {
 		s.sstates[n] = &subState{noire.NewHSV(hue, 100, 100)}
 		hue += 30
@@ -91,6 +87,48 @@ func (s *State) Pos() int              { return s.pos }
 func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
 
+// Add adds a new subState after the current position
+func (s *State) Add() {
+	if s.Len() >= 22 {
+		return
+	}
+
+	newSStates := make([]*subState, 0, s.Len()+1)
+	for n := range s.sstates {
+		newSStates = append(newSStates, s.sstates[n])
+		if n == s.pos {
+			newSStates = append(newSStates, newDefaultSubState())
+			continue
+		}
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.sstates = newSStates
+}
+
+// Remove removes the subState at the current position
+func (s *State) Remove() {
+	if s.Len() <= 1 {
+		return
+	}
+
+	newSStates := make([]*subState, 0, s.Len()-1)
+	for n := range s.sstates {
+		if n == s.pos {
+			continue
+		}
+		newSStates = append(newSStates, s.sstates[n])
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.sstates = newSStates
+	if s.pos >= s.Len() {
+		s.pos = s.Len() - 1
+	}
+}
+
 func (s *State) Hue() float64 {
 	hue, _, _ := s.sstates[s.pos].HSV()
 	return hue
@@ -113,7 +151,7 @@ func (s *State) BaseColor() *noire.Color { return noire.NewHSV(s.Hue(), 100, 100
 func (s *State) Next() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	if s.pos+1 >= len(s.sstates) {
+	if s.pos+1 >= s.Len() {
 		s.pos = 0
 	} else {
 		s.pos++
@@ -126,7 +164,7 @@ func (s *State) Prev() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	if s.pos-1 < 0 {
-		s.pos = len(s.sstates) - 1
+		s.pos = s.Len() - 1
 	} else {
 		s.pos--
 	}

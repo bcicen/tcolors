@@ -63,6 +63,11 @@ func NewDisplay(s tcell.Screen, tstate *state.State) *Display {
 	d.Resize(w, h)
 	d.build()
 
+	//if d.state.IsNew() {
+	//msg := fmt.Sprintf("creating new palette file: %s", d.state.Path())
+	//d.errMsg.Set(msg)
+	//}
+
 	go d.eventHandler(s)
 	return d
 }
@@ -202,6 +207,7 @@ func (d *Display) ValueDown() (ok bool) {
 func (d *Display) eventHandler(s tcell.Screen) {
 	for {
 		redraw := false
+		resize := false
 		d.stepBasis = littleStep
 
 		ev := s.PollEvent()
@@ -221,11 +227,17 @@ func (d *Display) eventHandler(s tcell.Screen) {
 					redraw = d.SectionDown()
 				case 'l':
 					redraw = d.ValueUp()
+				case 'a':
+					d.state.Add()
+					resize = true
+				case 'x':
+					d.state.Remove()
+					resize = true
 				case 'q':
 					close(d.quit)
 					return
 				default:
-					log.Debugf("ignoring key [%s]", string(ev.Rune()))
+					log.Debugf("ignoring rune key [%s]", string(ev.Rune()))
 				}
 			case tcell.KeyRight:
 				redraw = d.ValueUp()
@@ -240,9 +252,21 @@ func (d *Display) eventHandler(s tcell.Screen) {
 				return
 			case tcell.KeyCtrlL:
 				s.Sync()
+			case tcell.KeyInsert:
+				d.state.Add()
+				resize = true
+			case tcell.KeyDelete:
+				d.state.Remove()
+				resize = true
+			default:
+				log.Debugf("ignoring event key [%s]", ev.Name())
 			}
 
 		case *tcell.EventResize:
+			resize = true
+		}
+
+		if resize {
 			w, h := s.Size()
 			log.Debugf("handling resize: w=%04d h=%04d", w, h)
 			d.Resize(w, h)

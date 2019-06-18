@@ -11,6 +11,10 @@ type subState struct {
 	*noire.Color
 }
 
+func newDefaultSubState() *subState {
+	return &subState{noire.NewRGB(255, 255, 255)}
+}
+
 func (ss *subState) NColor() *noire.Color {
 	return ss.Color
 }
