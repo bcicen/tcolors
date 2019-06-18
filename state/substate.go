@@ -12,7 +12,7 @@ type subState struct {
 }
 
 func newDefaultSubState() *subState {
-	return &subState{noire.NewRGB(255, 255, 255)}
+	return &subState{noire.NewRGB(128, 128, 128)}
 }
 
 func (ss *subState) NColor() *noire.Color {

@@ -15,6 +15,7 @@ import (
 
 var (
 	defaultSubStateCount = 7
+	maxSubStateCount     = 14
 	log                  = logging.Init()
 	malformedErr         = fmt.Errorf("malformed state file")
 )
@@ -89,7 +90,7 @@ func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
 
 // Add adds a new subState after the current position
 func (s *State) Add() {
-	if s.Len() >= 22 {
+	if s.Len() >= maxSubStateCount {
 		return
 	}
 

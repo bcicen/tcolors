@@ -63,6 +63,10 @@ func (s *State) load() error {
 		return err
 	}
 
+	if len(config.Colors) > maxSubStateCount {
+		return fmt.Errorf("maximum palette size (%d) exceeded", maxSubStateCount)
+	}
+
 	s.name = config.Name
 	s.sstates = make([]*subState, len(config.Colors))
 

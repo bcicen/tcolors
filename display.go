@@ -143,14 +143,15 @@ func (d *Display) Resize(w, h int) {
 	if d.width > maxWidth {
 		d.width = maxWidth
 	}
-	// ensure total width aligns well with palette count
-	d.xPos = (w - d.width) / 2 // center display
 
+	// ensure total width aligns well with palette count
 	d.width = (d.width / d.state.Len()) * d.state.Len()
 	for _, sec := range d.sections {
 		sec.Resize(d.width, h)
 	}
 	d.errMsg.Resize(d.width)
+
+	d.xPos = (w - d.width) / 2 // center display
 }
 
 func (d *Display) build() {
