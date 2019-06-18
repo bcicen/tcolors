@@ -28,6 +28,7 @@ type State struct {
 	name    string
 	path    string
 	pos     int
+	isNew   bool
 	sstates [subStateCount]*subState // must be odd number for centering to work properly
 	lock    sync.RWMutex
 	pending Change
@@ -56,6 +57,13 @@ func NewDefault() *State {
 }
 
 func New() *State { return &State{pending: AllChanged} }
+
+// IsNew returns whether this state is newly created.
+// returns false if state was successfully loaded from file.
+func (s *State) IsNew() bool { return s.isNew }
+
+// Path returns the persistent filepath for state
+func (s *State) Path() string { return s.path }
 
 func (s *State) Save() error {
 	if err := s.save(); err != nil {

@@ -46,6 +46,7 @@ func (s *State) load() error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			// palette does not exist yet, will be created on save
+			s.isNew = true
 			return nil
 		}
 		return fmt.Errorf("failed to load palette: %s", err)
