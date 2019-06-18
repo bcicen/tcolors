@@ -92,7 +92,7 @@ func (pc *paletteColor) readColor() (*noire.Color, error) {
 		}
 		return noire.NewHSV(pc.HSV[0], pc.HSV[1], pc.HSV[2]), nil
 	case len(pc.HEX) != 0:
-		return nil, fmt.Errorf("missing definition")
+		return noire.NewHex(pc.HEX), nil
 	default:
 		return nil, fmt.Errorf("missing definition")
 	}
