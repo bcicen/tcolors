@@ -39,8 +39,9 @@ type Display struct {
 	sectionN  int
 	xPos      int
 	width     int
-	errMsg    *widgets.ErrorMsg
 	stepBasis int
+	menu      widgets.MenuFn
+	errMsg    *widgets.ErrorMsg
 	state     *state.State
 	quit      chan struct{}
 	lock      sync.RWMutex
@@ -234,6 +235,8 @@ func (d *Display) eventHandler(s tcell.Screen) {
 				case 'x':
 					d.state.Remove()
 					resize = true
+				case '?':
+					d.menu = widgets.HelpMenu
 				case 'q':
 					close(d.quit)
 					return
@@ -264,6 +267,13 @@ func (d *Display) eventHandler(s tcell.Screen) {
 			}
 
 		case *tcell.EventResize:
+			resize = true
+		}
+
+		for d.menu != nil {
+			s.Clear()
+			s.Sync()
+			d.menu = d.menu(s)
 			resize = true
 		}
 
