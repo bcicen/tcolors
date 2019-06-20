@@ -25,7 +25,20 @@ docker run --rm -ti --name=tcolors \
 
 ## Usage
 
-Simply run `tcolors` to view and modify the default template. Changes are automatically saved and will persist across sessions.
+Simply run `tcolors` to view and modify the default palette. Changes are automatically saved and will persist across sessions.
+
+### Keybindings
+
+Key | Description
+--- | ---
+`↑, k` | navigate up
+`↓, j` | navigate dow
+`←, h` | decrease selected value
+`→, l` | increase selected value
+`a, <ins>` | add a new palette color
+`x, <del>` | remove the selected palette color
+`q, <esc>` | exit tcolors
+`?` | show help menu
 
 ### Palette files
 
