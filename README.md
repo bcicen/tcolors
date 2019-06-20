@@ -32,7 +32,7 @@ Simply run `tcolors` to view and modify the default palette. Changes are automat
 Key | Description
 --- | ---
 `↑, k` | navigate up
-`↓, j` | navigate dow
+`↓, j` | navigate down
 `←, h` | decrease selected value
 `→, l` | increase selected value
 `a, <ins>` | add a new palette color
