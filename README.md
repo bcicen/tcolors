@@ -57,3 +57,4 @@ Option | Description
 -f | specify palette file to load/save changes to
 -p | output current palette contents
 -o | color format to output (hex, rgb, hsv, all) (default "all")
+-v | print version info
