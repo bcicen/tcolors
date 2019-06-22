@@ -230,11 +230,9 @@ func (d *Display) eventHandler(s tcell.Screen) {
 				case 'l':
 					redraw = d.ValueUp()
 				case 'a':
-					d.state.Add()
-					resize = true
+					resize = d.state.Add()
 				case 'x':
-					d.state.Remove()
-					resize = true
+					resize = d.state.Remove()
 				case '?':
 					d.menu = widgets.HelpMenu
 				case 'q':
@@ -257,11 +255,9 @@ func (d *Display) eventHandler(s tcell.Screen) {
 			case tcell.KeyCtrlL:
 				s.Sync()
 			case tcell.KeyInsert:
-				d.state.Add()
-				resize = true
+				resize = d.state.Add()
 			case tcell.KeyDelete:
-				d.state.Remove()
-				resize = true
+				resize = d.state.Remove()
 			default:
 				log.Debugf("ignoring event key [%s]", ev.Name())
 			}

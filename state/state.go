@@ -89,7 +89,7 @@ func (s *State) Len() int              { return len(s.sstates) }
 func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
 
 // Add adds a new subState after the current position
-func (s *State) Add() {
+func (s *State) Add() (ok bool) {
 	if s.Len() >= maxSubStateCount {
 		return
 	}
@@ -106,10 +106,11 @@ func (s *State) Add() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.sstates = newSStates
+	return true
 }
 
 // Remove removes the subState at the current position
-func (s *State) Remove() {
+func (s *State) Remove() (ok bool) {
 	if s.Len() <= 1 {
 		return
 	}
@@ -128,6 +129,7 @@ func (s *State) Remove() {
 	if s.pos >= s.Len() {
 		s.pos = s.Len() - 1
 	}
+	return true
 }
 
 func (s *State) Hue() float64 {
