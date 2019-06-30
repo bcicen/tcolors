@@ -75,7 +75,7 @@ func (s *State) load() error {
 		if err != nil {
 			return fmt.Errorf("[color%d] %s", n, err)
 		}
-		s.sstates[n] = &subState{nc}
+		s.sstates[n] = &subState{nc, nc.Hue()}
 		log.Debugf("loaded substate [%d] from %s", n, s.path)
 	}
 

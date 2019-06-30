@@ -47,7 +47,7 @@ func NewDefault() *State {
 	s := New()
 	s.sstates = make([]*subState, defaultSubStateCount)
 	for n := range s.sstates {
-		s.sstates[n] = &subState{noire.NewHSV(hue, 100, 100)}
+		s.sstates[n] = &subState{noire.NewHSV(hue, 100, 100), hue}
 		hue += 30
 	}
 	return s
@@ -133,8 +133,7 @@ func (s *State) Remove() (ok bool) {
 }
 
 func (s *State) Hue() float64 {
-	hue, _, _ := s.sstates[s.pos].HSV()
-	return hue
+	return s.sstates[s.pos].Hue()
 }
 
 func (s *State) Saturation() float64 {
