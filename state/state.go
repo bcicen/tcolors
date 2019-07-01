@@ -84,9 +84,9 @@ func (s *State) SubColors() []tcell.Color {
 	return a
 }
 
-func (s *State) Pos() int              { return s.pos }
-func (s *State) Len() int              { return len(s.sstates) }
-func (s *State) Selected() tcell.Color { return s.sstates[s.pos].TColor() }
+func (s *State) Pos() int            { return s.pos }
+func (s *State) Len() int            { return len(s.sstates) }
+func (s *State) selected() *subState { return s.sstates[s.Pos()] }
 
 // Add adds a new subState after the current position
 func (s *State) Add() (ok bool) {
@@ -133,16 +133,16 @@ func (s *State) Remove() (ok bool) {
 }
 
 func (s *State) Hue() float64 {
-	return s.sstates[s.pos].Hue()
+	return s.selected().Hue()
 }
 
 func (s *State) Saturation() float64 {
-	_, sat, _ := s.sstates[s.pos].HSV()
+	_, sat, _ := s.selected().HSV()
 	return sat
 }
 
 func (s *State) Value() float64 {
-	_, _, val := s.sstates[s.pos].HSV()
+	_, _, val := s.selected().HSV()
 	return val
 }
 
@@ -185,21 +185,21 @@ func (s *State) Flush() Change {
 func (s *State) SetHue(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].SetHue(n)
+	s.selected().SetHue(n)
 	s.pending = s.pending | HueChanged
 }
 
 func (s *State) SetSaturation(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].SetSaturation(n)
+	s.selected().SetSaturation(n)
 	s.pending = s.pending | SaturationChanged
 }
 
 func (s *State) SetValue(n float64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.sstates[s.pos].SetValue(n)
+	s.selected().SetValue(n)
 	s.pending = s.pending | ValueChanged
 }
 
