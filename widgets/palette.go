@@ -33,7 +33,7 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 
 	pos := pb.state.Pos()
 	items := pb.state.SubColors()
-	selected := items[pos]
+	selected := items[pos] // selected termbox color
 
 	// distribute stretch evenly across boxes
 	// where appropriate to facilitate centering
@@ -63,17 +63,33 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		boxWidths[n] += pb.boxWidth
 	}
 
-	r, g, b := selected.RGB()
-	s.SetCell(x+(pb.width-11)/2, y, HiIndicatorSt, []rune(fmt.Sprintf("%03d %03d %03d", r, g, b))...)
 	y++
+
+	// text header
+	r, g, b := selected.RGB()
+	header := fmt.Sprintf("%03d %03d %03d", r, g, b)
+	header += " #" + pb.state.Selected().Hex()
+
+	headerIdx := 0
+	headerRunes := []rune(header)
+	headerX := x + (pb.width-len(header))/2
+	headerY := y + (activePaletteHeight / 2) - 1
 
 	hiSt := HiIndicatorSt.Background(selected)
 	loSt := IndicatorSt.Background(selected)
+	headerSt := tcell.StyleDefault.
+		Foreground(selected).
+		Background(tcell.ColorBlack)
 	st := hiSt
 
 	for row := 0; row < activePaletteHeight; row++ {
 		for col := 0; col < pb.width; col++ {
-			s.SetCell(x+col, y, st, ' ')
+			if y == headerY && x+col >= headerX && headerIdx < len(headerRunes) {
+				s.SetCell(x+col, y, headerSt, headerRunes[headerIdx])
+				headerIdx++
+			} else {
+				s.SetCell(x+col, y, st, ' ')
+			}
 		}
 		y++
 	}

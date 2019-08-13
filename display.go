@@ -115,7 +115,7 @@ func (d *Display) Draw(s tcell.Screen) {
 
 	sname := d.state.Name()
 	s.SetCell((x+d.width)-len(sname), y, widgets.IndicatorSt, []rune(sname)...)
-	y += 2
+	y += 1
 
 	// draw sections
 	for n, sec := range d.sections {
