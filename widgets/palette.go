@@ -29,7 +29,7 @@ func NewPaletteBox(s *state.State) *PaletteBox {
 // Draw redraws p at given coordinates and screen, returning the number
 // of rows occupied
 func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
-	activePaletteHeight := int(float64(pb.boxHeight) * 2.5)
+	activePaletteHeight := int(float64(pb.boxHeight)*2.5) - 1
 
 	pos := pb.state.Pos()
 	items := pb.state.SubColors()
@@ -63,30 +63,41 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		boxWidths[n] += pb.boxWidth
 	}
 
+	// text box header
+	textBox := []rune(pb.text())
+	textBoxX := x + (pb.width-len(textBox))/2
+	textBoxSt := DefaultSt.
+		Foreground(tcell.NewRGBColor(160, 160, 160)).
+		Background(tcell.ColorBlack)
+
+	for col := 0; col < pb.width; col++ {
+		s.SetCell(x+col, y, textBoxSt, '▁')
+	}
 	y++
 
-	// text header
-	r, g, b := selected.RGB()
-	header := fmt.Sprintf("%03d %03d %03d", r, g, b)
-	header += " #" + pb.state.Selected().Hex()
+	for col := 0; col < pb.width; col++ {
+		switch {
+		case col == 0:
+			s.SetCell(x+col, y, textBoxSt, '▎')
+		case col == pb.width-1:
+			s.SetCell(x+col, y, textBoxSt, '▕')
+		case x+col == textBoxX:
+			s.SetCell(x+col, y, textBoxSt, textBox...)
+			col += len(textBox) - 1
+		}
+	}
+	y++
 
-	headerIdx := 0
-	headerRunes := []rune(header)
-	headerX := x + (pb.width-len(header))/2
-	headerY := y + (activePaletteHeight / 2) - 1
-
+	// palette main
 	hiSt := HiIndicatorSt.Background(selected)
 	loSt := IndicatorSt.Background(selected)
-	headerSt := tcell.StyleDefault.
-		Foreground(selected).
-		Background(tcell.ColorBlack)
+	textBoxSt = textBoxSt.Background(selected)
 	st := hiSt
 
 	for row := 0; row < activePaletteHeight; row++ {
 		for col := 0; col < pb.width; col++ {
-			if y == headerY && x+col >= headerX && headerIdx < len(headerRunes) {
-				s.SetCell(x+col, y, headerSt, headerRunes[headerIdx])
-				headerIdx++
+			if row == 0 {
+				s.SetCell(x+col, y, textBoxSt, '▔')
 			} else {
 				s.SetCell(x+col, y, st, ' ')
 			}
@@ -160,7 +171,24 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 		lx += bw
 	}
 
-	return activePaletteHeight + pb.boxHeight + 3
+	return activePaletteHeight + pb.boxHeight + 4
+}
+
+func (pb *PaletteBox) text() string {
+	const spacer = "  ▎ "
+
+	txt := "▎"
+	selected := pb.state.SubColors()[pb.state.Pos()]
+
+	r, g, b := selected.RGB()
+	txt = fmt.Sprintf("%03d %03d %03d", r, g, b)
+
+	txt += spacer + "#" + pb.state.Selected().Hex()
+
+	h, s, l := pb.state.Selected().HSL()
+	txt += spacer + fmt.Sprintf("%03.0f %03.0f %03.0f", h, s, l)
+
+	return txt
 }
 
 func (pb *PaletteBox) Resize(w, h int) {

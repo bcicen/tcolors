@@ -128,6 +128,8 @@ func (d *Display) Draw(s tcell.Screen) {
 	}
 	d.errMsg.Draw(x, s)
 
+	log.Noticef("lightness = %f", d.state.Selected().Lightness())
+
 	s.Show()
 }
 
