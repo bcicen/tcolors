@@ -47,7 +47,7 @@ func NewDefault() *State {
 	s := New()
 	s.sstates = make([]*subState, defaultSubStateCount)
 	for n := range s.sstates {
-		s.sstates[n] = &subState{noire.NewHSV(hue, 100, 100), hue}
+		s.sstates[n] = &subState{noire.NewHSV(hue, 80, 100), hue}
 		hue += 30
 	}
 	return s

@@ -1,6 +1,7 @@
 # tcolors
 
 Commandline color picker and palette builder
+<p align="center"><img src="https://bradley.codes/static/img/tcolors-screencap.png" alt="tcolors"/></p>
 
 ## Installing
 Download the [latest release](https://github.com/bcicen/tcolors/releases) for your platform:
