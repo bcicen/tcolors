@@ -223,6 +223,12 @@ func (d *Display) eventHandler(s tcell.Screen) {
 			switch ev.Key() {
 			case tcell.KeyRune:
 				switch ev.Rune() {
+				case 'H':
+					d.stepBasis = bigStep
+					redraw = d.ValueDown()
+				case 'L':
+					d.stepBasis = bigStep
+					redraw = d.ValueUp()
 				case 'h':
 					redraw = d.ValueDown()
 				case 'k':
