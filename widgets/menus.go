@@ -56,6 +56,7 @@ var helpMenuItems = []helpMenuItem{
 	{"↓, j", "navigate down"},
 	{"←, h", "decrease selected value"},
 	{"→, l", "increase selected value"},
+	{"<shift> + ←/→/h/l", "more quickly increase/decrease selected value"},
 	{"a, <ins>", "add a new palette color"},
 	{"x, <del>", "remove the selected palette color"},
 	{"q, <esc>", "exit tcolors"},
