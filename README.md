@@ -9,7 +9,7 @@ Download the [latest release](https://github.com/bcicen/tcolors/releases) for yo
 #### Linux / OSX
 
 ```bash
-curl -Lo tcolors https://github.com/bcicen/tcolors/releases/download/v0.1/tcolors-0.1-$(uname -s)-amd64
+curl -Lo tcolors https://github.com/bcicen/tcolors/releases/download/v0.2/tcolors-0.2-$(uname -s)-amd64
 chmod +x tcolors
 sudo mv tcolors /usr/local/bin/
 ```
