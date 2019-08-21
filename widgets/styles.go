@@ -11,10 +11,13 @@ var (
 			Background(tcell.ColorBlack).
 			Foreground(tcell.ColorBlack)
 	IndicatorSt = DefaultSt.
-			Foreground(tcell.NewRGBColor(190, 190, 190)).
+			Foreground(tcell.NewRGBColor(50, 50, 50)).
 			Background(tcell.ColorBlack)
 	HiIndicatorSt = DefaultSt.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
+			Background(tcell.ColorBlack)
+	TextBoxSt = DefaultSt.
+			Foreground(tcell.NewRGBColor(160, 160, 160)).
 			Background(tcell.ColorBlack)
 	ErrSt = DefaultSt.
 		Foreground(tcell.NewRGBColor(255, 000, 043)).

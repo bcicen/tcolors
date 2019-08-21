@@ -108,13 +108,13 @@ func (d *Display) Draw(s tcell.Screen) {
 
 	// draw header
 	if d.stepBasis == bigStep {
-		s.SetCell(x, y, widgets.IndicatorSt, '⏩')
+		s.SetCell(x, y, widgets.TextBoxSt, '⏩')
 	} else {
-		s.SetCell(x, y, widgets.IndicatorSt, '⏵')
+		s.SetCell(x, y, widgets.TextBoxSt, '⏵')
 	}
 
 	sname := d.state.Name()
-	s.SetCell((x+d.width)-len(sname), y, widgets.IndicatorSt, []rune(sname)...)
+	s.SetCell((x+d.width)-len(sname), y, widgets.TextBoxSt, []rune(sname)...)
 	y += 1
 
 	// draw sections

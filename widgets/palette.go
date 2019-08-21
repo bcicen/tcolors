@@ -66,23 +66,20 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	// text box header
 	textBox := []rune(pb.text())
 	textBoxX := x + (pb.width-len(textBox))/2
-	textBoxSt := DefaultSt.
-		Foreground(tcell.NewRGBColor(160, 160, 160)).
-		Background(tcell.ColorBlack)
 
 	for col := 0; col < pb.width; col++ {
-		s.SetCell(x+col, y, textBoxSt, '▁')
+		s.SetCell(x+col, y, TextBoxSt, '▁')
 	}
 	y++
 
 	for col := 0; col < pb.width; col++ {
 		switch {
 		case col == 0:
-			s.SetCell(x+col, y, textBoxSt, '▎')
+			s.SetCell(x+col, y, TextBoxSt, '▎')
 		case col == pb.width-1:
-			s.SetCell(x+col, y, textBoxSt, '▕')
+			s.SetCell(x+col, y, TextBoxSt, '▕')
 		case x+col == textBoxX:
-			s.SetCell(x+col, y, textBoxSt, textBox...)
+			s.SetCell(x+col, y, TextBoxSt, textBox...)
 			col += len(textBox) - 1
 		}
 	}
@@ -91,13 +88,13 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	// palette main
 	hiSt := HiIndicatorSt.Background(selected)
 	loSt := IndicatorSt.Background(selected)
-	textBoxSt = textBoxSt.Background(selected)
+	topSt := TextBoxSt.Background(selected)
 	st := hiSt
 
 	for row := 0; row < activePaletteHeight; row++ {
 		for col := 0; col < pb.width; col++ {
 			if row == 0 {
-				s.SetCell(x+col, y, textBoxSt, '▔')
+				s.SetCell(x+col, y, topSt, '▔')
 			} else {
 				s.SetCell(x+col, y, st, ' ')
 			}
