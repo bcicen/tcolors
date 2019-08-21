@@ -1,6 +1,9 @@
-# tcolors
+<p align="center"><img width="300px" src="https://bradley.codes/static/img/tcolors-logo-sm.png" alt="tcolors"/></p>
+
+#
 
 Commandline color picker and palette builder
+
 <p align="center"><img src="https://bradley.codes/static/img/tcolors-screencap.png" alt="tcolors"/></p>
 
 ## Installing
