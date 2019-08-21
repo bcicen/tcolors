@@ -11,7 +11,7 @@ var (
 			Background(tcell.ColorBlack).
 			Foreground(tcell.ColorBlack)
 	IndicatorSt = DefaultSt.
-			Foreground(tcell.NewRGBColor(110, 110, 110)).
+			Foreground(tcell.NewRGBColor(190, 190, 190)).
 			Background(tcell.ColorBlack)
 	HiIndicatorSt = DefaultSt.
 			Foreground(tcell.NewRGBColor(255, 255, 255)).
