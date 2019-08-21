@@ -1,4 +1,4 @@
-<p align="center"><img width="300px" src="https://bradley.codes/static/img/tcolors-logo-sm.png" alt="tcolors"/></p>
+<p align="center"><img width="300px" src="https://bradley.codes/static/img/tcolors-logo.png" alt="tcolors"/></p>
 
 **<p align="center">Commandline color picker and palette builder</p>**
 
