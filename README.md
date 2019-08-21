@@ -1,6 +1,6 @@
 <p align="center"><img width="300px" src="https://bradley.codes/static/img/tcolors-logo-sm.png" alt="tcolors"/></p>
 
-**<p align="center"><h3>Commandline color picker and palette builder</h3></p>**
+**<p align="center">Commandline color picker and palette builder</p>**
 
 <p align="center"><img src="https://bradley.codes/static/img/tcolors-screencap.png" alt="tcolors"/></p>
 
