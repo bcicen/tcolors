@@ -25,7 +25,7 @@ func main() {
 
 	var (
 		printFlag        = flag.Bool("p", false, "output palette contents")
-		outputFlag       = flag.String("o", "all", "color format to output (hex, rgb, hsv, all)")
+		outputFlag       = flag.String("o", "all", "color format to output (hex, rgb, hsv, term, all)")
 		outputOnExitFlag = flag.Bool("output-on-exit", false, "output palette file contents on exit")
 		fileFlag         = flag.String("f", state.DefaultPalettePath, "specify palette file")
 		versionFlag      = flag.Bool("v", false, "print version info")
@@ -89,6 +89,8 @@ func printPalette(tstate *state.State, cfmt string) {
 		fmt.Printf("%s\n", tstate.HSVString())
 	case "rgb":
 		fmt.Printf("%s\n", tstate.RGBString())
+	case "term":
+		fmt.Printf("%s\n", tstate.TermString())
 	default:
 		errExit(fmt.Errorf("unknown format \"%s\"", cfmt))
 	}

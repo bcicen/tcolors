@@ -213,7 +213,15 @@ func (s *State) SetValue(n float64) {
 func (s *State) TableString() string {
 	var buf bytes.Buffer
 	table := tablewriter.NewWriter(&buf)
-	table.SetHeader([]string{"#", "Hex", "HSV", "RGB"})
+	table.SetHeader([]string{"#", "Hex", "HSV", "RGB", "TERM"})
+
+	table.Append([]string{
+		"bg",
+		s.background.HexString(),
+		s.background.HSVString(),
+		s.background.RGBString(),
+		s.background.TermString(),
+	})
 
 	for n, ss := range s.sstates {
 		table.Append([]string{
@@ -221,6 +229,7 @@ func (s *State) TableString() string {
 			ss.HexString(),
 			ss.HSVString(),
 			ss.RGBString(),
+			ss.TermString(),
 		})
 	}
 
@@ -229,7 +238,7 @@ func (s *State) TableString() string {
 }
 
 func (s *State) HexString() string {
-	var txt []string
+	txt := []string{s.background.HexString()}
 	for _, ss := range s.sstates {
 		txt = append(txt, ss.HexString())
 	}
@@ -237,7 +246,7 @@ func (s *State) HexString() string {
 }
 
 func (s *State) HSVString() string {
-	var txt []string
+	txt := []string{s.background.HSVString()}
 	for _, ss := range s.sstates {
 		txt = append(txt, ss.HSVString())
 	}
@@ -245,9 +254,21 @@ func (s *State) HSVString() string {
 }
 
 func (s *State) RGBString() string {
-	var txt []string
+	txt := []string{s.background.RGBString()}
 	for _, ss := range s.sstates {
 		txt = append(txt, ss.RGBString())
 	}
 	return strings.Join(txt, ", ")
+}
+
+func (s *State) TermString() string {
+	txt := []string{termFn("_colorbg", s.background)}
+	for n, ss := range s.sstates {
+		txt = append(txt, termFn(fmt.Sprintf("_color%d", n), ss))
+	}
+	return strings.Join(txt, "\n")
+}
+
+func termFn(name string, ss *subState) string {
+	return fmt.Sprintf("%s() { echo -ne \"%s\"; }", name, ss.TermString())
 }

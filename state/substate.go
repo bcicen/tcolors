@@ -91,3 +91,9 @@ func (ss *subState) RGBString() string {
 	r, g, b := ss.RGB()
 	return fmt.Sprintf("%03.0f %03.0f %03.0f", r, g, b)
 }
+
+func (ss *subState) TermString() string {
+	r, g, b := ss.RGB()
+	rgbx := fmt.Sprintf("%03.0f;%03.0f;%03.0f", r, g, b)
+	return fmt.Sprintf("\\033[38;2;%sm$@\\033[0;00m", rgbx)
+}
