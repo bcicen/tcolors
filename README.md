@@ -88,7 +88,7 @@ Default output option providing a formatted table of colors
 
 #### Hex, RGB, HSV
 
-Each of this output options provide all colors in a single comma-delimited line; e.g:
+Each of these output options provide all colors in a single comma-delimited line; e.g:
 
 ```bash
 # tcolors -p -o hex
