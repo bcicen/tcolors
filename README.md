@@ -7,7 +7,14 @@
 #
 
 ## Installing
-Download the [latest release](https://github.com/bcicen/tcolors/releases) for your platform:
+
+Go get with:
+
+```bash
+go get github.com/bcicen/tcolors@v0.3.0
+```
+
+Or download the [latest release](https://github.com/bcicen/tcolors/releases) for your platform:
 
 #### Linux / OSX
 
