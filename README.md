@@ -62,11 +62,65 @@ tcolors -f logo-palette.toml
 
 Palette colors are stored in a human-readable TOML format and all changes are saved on exit.
 
+### Output
+
+In addition to a stored TOML palette file, `tcolors` provides several output options for parsing and using defined colors
+
+#### All
+
+Default output option providing a formatted table of colors
+
+```bash
+# tcolors -p
++----+--------+-------------+-------------+------------------------------------+
+| #  |  HEX   |     HSV     |     RGB     |                TERM                |
++----+--------+-------------+-------------+------------------------------------+
+| bg | 141414 | 000 000 008 | 020 020 020 | \033[38;2;020;020;020m$@\033[0;00m |
+|  0 | FF7733 | 020 080 100 | 255 119 051 | \033[38;2;255;119;051m$@\033[0;00m |
+|  1 | FFDD33 | 050 080 100 | 255 221 051 | \033[38;2;255;221;051m$@\033[0;00m |
+|  2 | C8FF59 | 080 065 100 | 200 255 089 | \033[38;2;200;255;089m$@\033[0;00m |
+|  3 | 55FF33 | 110 080 100 | 085 255 051 | \033[38;2;085;255;051m$@\033[0;00m |
+|  4 | 33FF77 | 140 080 100 | 051 255 119 | \033[38;2;051;255;119m$@\033[0;00m |
+|  5 | 33FFDD | 170 080 100 | 051 255 221 | \033[38;2;051;255;221m$@\033[0;00m |
+|  6 | 33BBFF | 200 080 100 | 051 187 255 | \033[38;2;051;187;255m$@\033[0;00m |
++----+--------+-------------+-------------+------------------------------------+
+```
+
+#### Hex, RGB, HSV
+
+Each of this output options provide all colors in a single comma-delimited line; e.g:
+
+```bash
+# tcolors -p -o hex
+141414, FF7733, FFDD33, C8FF59, 55FF33, 33FF77, 33FFDD, 33BBFF
+```
+
+#### Term
+
+The `term` output option provides a series of named functions for easy importing and terminal use
+```bash
+# tcolors -p -o term
+_colorbg() { echo -ne "\033[38;2;020;020;020m$@\033[0;00m"; }
+_color0() { echo -ne "\033[38;2;255;119;051m$@\033[0;00m"; }
+_color1() { echo -ne "\033[38;2;255;221;051m$@\033[0;00m"; }
+_color2() { echo -ne "\033[38;2;200;255;089m$@\033[0;00m"; }
+_color3() { echo -ne "\033[38;2;085;255;051m$@\033[0;00m"; }
+_color4() { echo -ne "\033[38;2;051;255;119m$@\033[0;00m"; }
+_color5() { echo -ne "\033[38;2;051;255;221m$@\033[0;00m"; }
+_color6() { echo -ne "\033[38;2;051;187;255m$@\033[0;00m"; }
+```
+
+Sourcing:
+```bash
+source <(tcolors -p -o term)
+echo "my $(_color2 what) a $(_color4 bright) $(_color6 day)"
+```
+
 ### Options
 
 Option | Description
 --- | ---
 -f | specify palette file to load/save changes to
 -p | output current palette contents
--o | color format to output (hex, rgb, hsv, all) (default "all")
+-o | color format to output (hex, rgb, hsv, term, all) (default "all")
 -v | print version info
