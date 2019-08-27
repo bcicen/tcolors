@@ -3,6 +3,7 @@ package widgets
 import (
 	"time"
 
+	"github.com/bcicen/tcolors/styles"
 	"github.com/gdamore/tcell"
 )
 
@@ -27,7 +28,7 @@ func (msg *ErrorMsg) Draw(x int, s tcell.Screen) int {
 	if len(msg.text) > 0 && time.Since(msg.ts) >= errDisplayTimeout {
 		// clear error message
 		for i := x; i <= msg.width; i++ {
-			s.SetCell(i, y, ErrSt, ' ')
+			s.SetCell(i, y, styles.Error, ' ')
 		}
 		msg.text = ""
 	} else {
@@ -35,7 +36,7 @@ func (msg *ErrorMsg) Draw(x int, s tcell.Screen) int {
 			if x+n > msg.width {
 				break
 			}
-			s.SetCell(x+n, y, ErrSt, ch)
+			s.SetCell(x+n, y, styles.Error, ch)
 		}
 	}
 

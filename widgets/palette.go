@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bcicen/tcolors/state"
+	"github.com/bcicen/tcolors/styles"
 	"github.com/gdamore/tcell"
 )
 
@@ -68,27 +69,27 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	textBoxX := x + (pb.width-len(textBox))/2
 
 	for col := 0; col < pb.width; col++ {
-		s.SetCell(x+col, y, TextBoxSt, '▁')
+		s.SetCell(x+col, y, styles.TextBox, '▁')
 	}
 	y++
 
 	for col := 0; col < pb.width; col++ {
 		switch {
 		case col == 0:
-			s.SetCell(x+col, y, TextBoxSt, '▎')
+			s.SetCell(x+col, y, styles.TextBox, '▎')
 		case col == pb.width-1:
-			s.SetCell(x+col, y, TextBoxSt, '▕')
+			s.SetCell(x+col, y, styles.TextBox, '▕')
 		case x+col == textBoxX:
-			s.SetCell(x+col, y, TextBoxSt, textBox...)
+			s.SetCell(x+col, y, styles.TextBox, textBox...)
 			col += len(textBox) - 1
 		}
 	}
 	y++
 
 	// palette main
-	hiSt := HiIndicatorSt.Background(selected)
-	loSt := IndicatorSt.Background(selected)
-	topSt := TextBoxSt.Background(selected)
+	hiSt := styles.IndicatorHi.Background(selected)
+	loSt := styles.Indicator.Background(selected)
+	topSt := styles.TextBox.Background(selected)
 	st := hiSt
 
 	for row := 0; row < activePaletteHeight; row++ {
@@ -118,20 +119,20 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	y++
 
 	lx = x
-	cst := tcell.StyleDefault
+	cst := styles.Default
 	for n, color := range items {
 		bw := boxWidths[n]
-		cst = cst.Background(tcell.ColorBlack).Foreground(color)
+		cst = cst.Foreground(color)
 
 		switch {
 		case padPalette && n == pos:
-			st = HiIndicatorSt
+			st = styles.IndicatorHi
 		case n == pos:
-			st = HiIndicatorSt.Background(color)
+			st = styles.IndicatorHi.Background(color)
 		case padPalette:
-			st = IndicatorSt
+			st = styles.Indicator
 		default:
-			st = IndicatorSt.Background(color)
+			st = styles.Indicator.Background(color)
 		}
 
 		for col := 0; col < bw; col++ {
@@ -158,9 +159,9 @@ func (pb *PaletteBox) Draw(x, y int, s tcell.Screen) int {
 	for n := range items {
 		bw := boxWidths[n]
 		if n == pos {
-			st = HiIndicatorSt.Background(tcell.ColorBlack)
+			st = styles.IndicatorHi
 		} else {
-			st = IndicatorSt.Background(tcell.ColorBlack)
+			st = styles.Indicator
 		}
 		for col := 0; col < bw; col++ {
 			s.SetCell(lx+col, y, st, '▔')

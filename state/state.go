@@ -21,13 +21,14 @@ var (
 )
 
 type State struct {
-	name    string
-	path    string
-	pos     int
-	isNew   bool
-	sstates []*subState // must be odd number for centering to work properly
-	lock    sync.RWMutex
-	pending Change
+	name       string
+	path       string
+	pos        int
+	isNew      bool
+	background *subState
+	sstates    []*subState // must be odd number for centering to work properly
+	lock       sync.RWMutex
+	pending    Change
 }
 
 // Load attempts to read a stored state from disk. If no stored state exists or
@@ -43,13 +44,16 @@ func Load(path string) (*State, error) {
 
 // NewDefault returns a State initialized with default colors
 func NewDefault() *State {
-	hue := 20.0
 	s := New()
+	s.background = &subState{noire.NewHSV(0, 0, 0), 0}
 	s.sstates = make([]*subState, defaultSubStateCount)
+
+	hue := 20.0
 	for n := range s.sstates {
 		s.sstates[n] = &subState{noire.NewHSV(hue, 80, 100), hue}
 		hue += 30
 	}
+
 	return s
 }
 
@@ -75,6 +79,8 @@ func (s *State) Name() string {
 	}
 	return s.name
 }
+
+func (s *State) Background() tcell.Color { return s.background.TColor() }
 
 func (s *State) SubColors() []tcell.Color {
 	a := make([]tcell.Color, len(s.sstates))

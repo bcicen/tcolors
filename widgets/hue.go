@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bcicen/tcolors/state"
+	"github.com/bcicen/tcolors/styles"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
 )
@@ -34,8 +35,7 @@ func (bar *HueBar) center() int      { return (bar.width / 2) }
 // of rows occupied
 func (bar *HueBar) Draw(x, y int, s tcell.Screen) int {
 	center := bar.width / 2
-	st := tcell.StyleDefault.
-		Foreground(tcell.ColorBlack)
+	st := styles.Default.Foreground(tcell.ColorBlack)
 
 	s.SetCell(center+x, y, bar.pst, '▾')
 

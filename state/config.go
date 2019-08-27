@@ -12,8 +12,9 @@ import (
 type fmtDecoder func(interface{}) (*noire.Color, error)
 
 type PaletteConfig struct {
-	Name   string
-	Colors []paletteColor `toml:"color"`
+	Name       string         `toml:"name"`
+	Background paletteColor   `toml:"background"`
+	Colors     []paletteColor `toml:"color"`
 }
 
 type paletteColor struct {
@@ -25,7 +26,11 @@ type paletteColor struct {
 func (s *State) save() error {
 	log.Infof("saving state [%s]", s.path)
 
-	config := PaletteConfig{Name: s.Name()}
+	config := PaletteConfig{
+		Name:       s.Name(),
+		Background: s.background.PColor(),
+	}
+
 	for _, ss := range s.sstates {
 		config.Colors = append(config.Colors, ss.PColor())
 	}
@@ -69,6 +74,16 @@ func (s *State) load() error {
 
 	s.name = config.Name
 	s.sstates = make([]*subState, len(config.Colors))
+
+	nc, err := config.Background.readColor()
+	if err != nil {
+		if err.Error() != "missing definition" {
+			return fmt.Errorf("[background] %s", err)
+		}
+	} else {
+		s.background = &subState{nc, nc.Hue()}
+		log.Debugf("loaded background from %s", s.path)
+	}
 
 	for n, pc := range config.Colors {
 		nc, err := pc.readColor()

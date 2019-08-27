@@ -1,6 +1,7 @@
 package widgets
 
 import (
+	"github.com/bcicen/tcolors/styles"
 	"github.com/gdamore/tcell"
 )
 
@@ -38,9 +39,9 @@ func drawHelpMenu(s tcell.Screen) {
 	y := 2
 
 	for n, item := range helpMenuItems {
-		s.SetCell(x+1, y+n, DefaultSt, []rune(item.key)...)
-		s.SetCell(x+maxL+2, y+n, DefaultSt, '|')
-		s.SetCell(x+maxL+4, y+n, DefaultSt, []rune(item.desc)...)
+		s.SetCell(x+1, y+n, styles.Default, []rune(item.key)...)
+		s.SetCell(x+maxL+2, y+n, styles.Default, '|')
+		s.SetCell(x+maxL+4, y+n, styles.Default, []rune(item.desc)...)
 	}
 
 	s.Show()

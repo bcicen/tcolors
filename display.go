@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bcicen/tcolors/state"
+	"github.com/bcicen/tcolors/styles"
 	"github.com/bcicen/tcolors/widgets"
 	"github.com/gdamore/tcell"
 	"github.com/teacat/noire"
@@ -85,7 +86,7 @@ func (d *Display) Done() error {
 
 func (d *Display) drawSizeErr(s tcell.Screen) {
 	w, h := s.Size()
-	st := widgets.ErrSt
+	st := styles.Error
 	s.SetCell(1, 0, st, []rune("screen too small!")...)
 	s.SetCell(1, 1, st, []rune(fmt.Sprintf("[cur] %dx%d", w, h))...)
 	s.SetCell(1, 2, st, []rune(fmt.Sprintf("[min] %dx%d", minWidth, minHeight))...)
@@ -108,21 +109,21 @@ func (d *Display) Draw(s tcell.Screen) {
 
 	// draw header
 	if d.stepBasis == bigStep {
-		s.SetCell(x, y, widgets.TextBoxSt, '⏩')
+		s.SetCell(x, y, styles.TextBox, '⏩')
 	} else {
-		s.SetCell(x, y, widgets.TextBoxSt, '⏵')
+		s.SetCell(x, y, styles.TextBox, '⏵')
 	}
 
 	sname := d.state.Name()
-	s.SetCell((x+d.width)-len(sname), y, widgets.TextBoxSt, []rune(sname)...)
+	s.SetCell((x+d.width)-len(sname), y, styles.TextBox, []rune(sname)...)
 	y += 1
 
 	// draw sections
 	for n, sec := range d.sections {
 		if n == d.sectionN {
-			sec.SetPointerStyle(widgets.HiIndicatorSt)
+			sec.SetPointerStyle(styles.IndicatorHi)
 		} else {
-			sec.SetPointerStyle(widgets.IndicatorSt)
+			sec.SetPointerStyle(styles.Indicator)
 		}
 		y += sec.Draw(x, y, s)
 	}

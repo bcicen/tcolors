@@ -8,6 +8,7 @@ import (
 
 	"github.com/bcicen/tcolors/logging"
 	"github.com/bcicen/tcolors/state"
+	"github.com/bcicen/tcolors/styles"
 	"github.com/fatih/color"
 	"github.com/gdamore/tcell"
 )
@@ -62,7 +63,8 @@ func main() {
 	}
 	s.SetStyle(tcell.StyleDefault.
 		Foreground(tcell.ColorWhite).
-		Background(tcell.ColorBlack))
+		Background(tstate.Background()))
+	styles.Load(tstate.Background())
 	s.Clear()
 
 	// initialize Display
