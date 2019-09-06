@@ -1,0 +1,34 @@
+.\" Manpage for tcolors.
+.TH man 1 "06 September 2019" "0.3.0" "tcolors Manual"
+.SH NAME
+tcolors \- CLI color picker and palette builder
+.SH SYNOPSIS
+tcolors [options]
+.SH DESCRIPTION
+tcolors is a commandline application that allows you to create a palette of
+one or more colors in HSV space. Created palettes and their colors may be 
+output in several different formats for import and use into other programs.
+Palettes are imported and saved in a human readable TOML format.
+.SH USAGE
+
+tcolors [-h] [-v] [-p]
+        [-f PALETTE_FILE]
+        [-o OUTPUT_FORMAT]
+
+Optional arguments:
+  -h, --help            show this help message and exit
+  -p                    output palette contents
+  -v                    print version info
+  -f PALETTE_FILE
+                        specify palette file
+  -o OUTPUT_FORMAT
+                        color format to output (hex, rgb, hsv, term, all) (default "all")
+
+.SH SEE ALSO
+bash(1)
+
+.SH BUGS REPORTS
+Report issues at https://github.com/bcicen/tcolors/issues
+.SH AUTHORS
+
+Bradley Cicenas (bradley@vektor.nyc)
