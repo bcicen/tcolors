@@ -4,7 +4,10 @@
 
 <p align="center"><img src="https://bradley.codes/static/img/tcolors/screencap.png" alt="tcolors"/></p>
 
-#
+## Overview
+`tcolors` is a commandline application for creating palettes of one or more colors in HSV space. Created palettes and their colors may be output in several different formats for import and use into other programs.
+
+Colors are imported from, and changes automatically saved to, a human-readable TOML format file.
 
 ## Installing
 
